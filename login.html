@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+    <a href="index.html" class="logo">7XX</a>
+    <div class="acoes">
+      <a href="cadastro.html" class="btn-preto">Cadastre-se</a>
+      <a href="login.html" class="btn-azul">Entrar</a>
+    </div>
+  </header>
+
+  <!-- MENU LATERAL -->
+  <nav id="menuLateral" class="menu-lateral">
+    <a href="planos.html">📄 Planos</a>
+    <a href="https://wa.me/55SEUNUMERO" target="_blank">💬 WhatsApp</a>
+    <a href="https://t.me/SEUCANAL" target="_blank">📢 Telegram</a>
+  </nav>
+
+  <!-- LOGIN -->
+  <section class="form-container">
+    <h2>Entrar</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Senha" required>
+      <button type="submit" class="btn-azul">Entrar</button>
+    </form>
+    <p>Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+  </section>
+
+  <!-- Firebase Auth -->
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("password").value;
+
+      signInWithEmailAndPassword(auth, email, senha)
+        .then(() => {
+          alert("Login realizado com sucesso!");
+          window.location.href = "dashboard.html";
+        })
+        .catch(err => alert("Erro: " + err.message));
+    });
+  </script>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById("menuLateral").classList.toggle("ativo");
+    }
+  </script>
+</body>
+</html>
