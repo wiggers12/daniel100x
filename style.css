@@ -1,50 +1,52 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background: #0d0d2a;
+  color: #fff;
 }
 
-header {
-    background-color: #2a2a2a;
-    padding: 20px;
-    text-align: center;
+.jogos {
+  padding: 20px;
 }
 
-.jogos-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 20px;
-    flex-grow: 1;
+.jogos h2 {
+  color: #4a90ff;
+  margin-bottom: 8px;
 }
 
-.btn-jogo {
-    background-color: #3a3a3a;
-    color: #e0e0e0;
-    text-decoration: none;
-    padding: 50px;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 1.2em;
-    font-weight: bold;
-    transition: transform 0.2s, background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.jogos p {
+  color: #ccc;
+  margin-bottom: 20px;
+  font-size: 14px;
 }
 
-.btn-jogo:hover {
-    background-color: #4a4a4a;
-    transform: translateY(-5px);
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
 }
 
-footer {
-    background-color: #2a2a2a;
-    text-align: center;
-    padding: 10px;
+.card {
+  background: #1a1a3d;
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.card img {
+  width: 100%;
+  display: block;
+}
+
+.card span {
+  display: block;
+  padding: 10px;
+  font-size: 14px;
+  color: #fff;
+}
+
+.card:hover {
+  transform: scale(1.05);
 }
