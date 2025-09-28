@@ -136,3 +136,48 @@ body {
   text-decoration: none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
+/* FORMULÁRIOS */
+.form-container {
+  max-width: 350px;
+  margin: 40px auto;
+  background: #1a1a3d;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.form-container input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+}
+
+.form-container button {
+  width: 100%;
+  margin-top: 15px;
+  cursor: pointer;
+}
+
+/* PLANOS */
+#planosContainer {
+  max-width: 600px;
+  margin: 30px auto;
+}
+
+#planosContainer h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#planosContainer .card {
+  margin-bottom: 15px;
+}
