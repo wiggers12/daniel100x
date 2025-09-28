@@ -3,43 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogos</title>
+  <title>Robô de Entradas</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <section class="jogos">
-    <h2>Jogos</h2>
-    <p>Acompanhe o histórico de resultados do Crash, Double, Slide, Aviator, Roleta e muito mais!</p>
+  <!-- HEADER -->
+  <header class="topbar">
+    <!-- Esquerda: Menu hambúrguer -->
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
 
-    <div class="grid">
-      <!-- Card exemplo -->
-      <div class="card">
-        <img src="img/aviator.png" alt="Aviator">
-        <span>Sortenabet • Aviator</span>
-      </div>
+    <!-- Meio: Botão voltar (7XX) -->
+    <a href="index.html" class="logo">7XX</a>
 
-      <div class="card">
-        <img src="img/bacbo.png" alt="Bac Bo">
-        <span>Sortenabet • Bac Bo</span>
-      </div>
-
-      <div class="card">
-        <img src="img/double.png" alt="Double">
-        <span>Sortenabet • Double</span>
-      </div>
-
-      <div class="card">
-        <img src="img/aviator.png" alt="Aviator">
-        <span>Betou • Aviator</span>
-      </div>
-
-      <div class="card">
-        <img src="img/bacbo.png" alt="Bac Bo">
-        <span>Betou • Bac Bo</span>
-      </div>
+    <!-- Direita: botões -->
+    <div class="acoes">
+      <a href="cadastro.html" class="btn-preto">Cadastre-se</a>
+      <a href="login.html" class="btn-azul">Entrar</a>
     </div>
+  </header>
+
+  <!-- MENU LATERAL -->
+  <nav id="menuLateral" class="menu-lateral">
+    <a href="planos.html">📄 Planos</a>
+    <a href="https://wa.me/55SEUNUMERO" target="_blank">💬 WhatsApp</a>
+    <a href="https://t.me/SEUCANAL" target="_blank">📢 Telegram</a>
+  </nav>
+
+  <!-- FOTOS -->
+  <section class="fotos">
+    <div class="foto">Foto 1</div>
+    <div class="foto">Foto 2</div>
   </section>
 
+  <!-- OPÇÕES -->
+  <section class="opcoes">
+    <div class="card">⏱️ Timer com Entradas</div>
+    <div class="card">📺 Live ao vivo</div>
+    <div class="card">🔥 Entradas 24h por dia</div>
+  </section>
+
+  <!-- WHATSAPP FIXO -->
+  <a href="https://wa.me/55SEUNUMERO" class="whatsapp" target="_blank">💬</a>
+
+  <!-- Script do menu -->
+  <script>
+    function toggleMenu() {
+      document.getElementById("menuLateral").classList.toggle("ativo");
+    }
+  </script>
 </body>
 </html>
