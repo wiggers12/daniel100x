@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+    <a href="index.html" class="logo">7XX</a>
+    <div class="acoes">
+      <a href="cadastro.html" class="btn-preto">Cadastre-se</a>
+      <a href="login.html" class="btn-azul">Entrar</a>
+    </div>
+  </header>
+
+  <!-- MENU LATERAL -->
+  <nav id="menuLateral" class="menu-lateral">
+    <a href="planos.html">📄 Planos</a>
+    <a href="https://wa.me/55SEUNUMERO" target="_blank">💬 WhatsApp</a>
+    <a href="https://t.me/SEUCANAL" target="_blank">📢 Telegram</a>
+  </nav>
+
+  <!-- CADASTRO -->
+  <section class="form-container">
+    <h2>Criar Conta</h2>
+    <form id="cadastroForm">
+      <input type="text" id="nome" placeholder="Nome" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Senha" required>
+      <button type="submit" class="btn-preto">Cadastrar</button>
+    </form>
+    <p>Já tem conta? <a href="login.html">Entrar</a></p>
+  </section>
+
+  <!-- Firebase Cadastro -->
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    document.getElementById("cadastroForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("password").value;
+
+      createUserWithEmailAndPassword(auth, email, senha)
+        .then(userCred => {
+          set(ref(db, "usuarios/" + userCred.user.uid), { nome, email });
+          alert("Cadastro realizado com sucesso!");
+          window.location.href = "login.html";
+        })
+        .catch(err => alert("Erro: " + err.message));
+    });
+  </script>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById("menuLateral").classList.toggle("ativo");
+    }
+  </script>
+</body>
+</html>
