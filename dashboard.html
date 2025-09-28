@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - 7XX</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0b0b20;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    /* Container principal do jogo */
+    #gameArea {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      font-weight: bold;
+      color: red;
+    }
+
+    /* Rodapé fixo */
+    #footer {
+      width: 100%;
+      background: transparent;
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      position: fixed;
+      bottom: 20px;
+    }
+
+    /* Botões flutuantes */
+    .btn {
+      border: none;
+      border-radius: 25px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.3s;
+    }
+
+    .btn-youtube {
+      background: #ff0000;
+      color: white;
+    }
+
+    .btn-timer {
+      background: #00c851;
+      color: white;
+      min-width: 100px;
+      justify-content: center;
+    }
+
+    .btn-sair {
+      background: #444;
+      color: #fff;
+    }
+
+    /* Modal */
+    #modal {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a3d;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      width: 80%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    #modal h2 {
+      margin-bottom: 10px;
+    }
+
+    #modal button {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      background: #ff4444;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Área do jogo -->
+  <div id="gameArea">VOO PARA LONGE!</div>
+
+  <!-- Modal -->
+  <div id="modal">
+    <h2>⏳ Próximo Multiplicador</h2>
+    <p><strong>Horário:</strong> <span id="hora"></span></p>
+    <p><strong>Mínimo Esperado:</strong> <span id="multiplicador"></span>x</p>
+    <div style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px;">
+      ⚠️ Pode ser perigoso, cuidado!
+    </div>
+    <button onclick="fecharModal()">Fechar</button>
+  </div>
+
+  <!-- Rodapé -->
+  <div id="footer">
+    <button class="btn btn-sair" onclick="location.href='index.html'">🚪 Sair</button>
+    <button id="timerBtn" class="btn btn-timer">00:00</button>
+    <button class="btn btn-youtube" onclick="window.open('https://youtube.com','_blank')">▶ Ao Vivo</button>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    // Configuração Firebase (a mesma de todos os arquivos)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
+      authDomain: "aviatordaniel100x.firebaseapp.com",
+      projectId: "aviatordaniel100x",
+      storageBucket: "aviatordaniel100x.appspot.com",
+      messagingSenderId: "169015417803",
+      appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
+      measurementId: "G-EES9SVSV72",
+      databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Referência para sinais
+    const sinaisRef = ref(db, "sinais");
+
+    let segundos = 0;
+    let countdown;
+
+    const timerBtn = document.getElementById("timerBtn");
+    const modal = document.getElementById("modal");
+    const horaEl = document.getElementById("hora");
+    const multEl = document.getElementById("multiplicador");
+
+    // Atualiza o relógio
+    function iniciarTimer(dados) {
+      clearInterval(countdown);
+      segundos = dados.timer;
+      multEl.textContent = dados.multiplicador;
+
+      countdown = setInterval(() => {
+        if (segundos > 0) {
+          const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+          const sec = String(segundos % 60).padStart(2, "0");
+          timerBtn.textContent = `${min}:${sec}`;
+          segundos--;
+        } else {
+          clearInterval(countdown);
+          abrirModal();
+        }
+      }, 1000);
+    }
+
+    // Abre modal com multiplicador
+    function abrirModal() {
+      const agora = new Date();
+      horaEl.textContent = agora.toLocaleTimeString();
+      modal.style.display = "block";
+    }
+
+    function fecharModal() {
+      modal.style.display = "none";
+    }
+    window.fecharModal = fecharModal;
+
+    // Escuta Firebase
+    onValue(sinaisRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const dados = snapshot.val();
+        if (dados.status === "ativo") {
+          iniciarTimer(dados);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
