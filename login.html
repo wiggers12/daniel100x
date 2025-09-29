@@ -18,40 +18,40 @@
     </div>
   </header>
 
-  <!-- MENU LATERAL -->
+  <!-- MENU -->
   <nav id="menuLateral" class="menu-lateral">
     <a href="planos.html">📄 Planos</a>
-    <a href="https://wa.me/55SEUNUMERO" target="_blank">💬 WhatsApp</a>
-    <a href="https://t.me/SEUCANAL" target="_blank">📢 Telegram</a>
+    <a href="sorteios.html">🎁 Sorteios</a>
+    <a href="gestao.html">📊 Gestão Financeira</a>
   </nav>
 
-  <!-- LOGIN -->
+  <!-- FORMULÁRIO -->
   <section class="form-container">
     <h2>Entrar</h2>
     <form id="loginForm">
-      <input type="email" id="email" placeholder="Email" required>
+      <input type="email" id="email" placeholder="E-mail" required>
       <input type="password" id="password" placeholder="Senha" required>
       <button type="submit" class="btn-azul">Entrar</button>
     </form>
     <p>Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
   </section>
 
-  <!-- Firebase Auth -->
   <script type="module">
     import { auth } from "./firebase.js";
     import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    document.getElementById("loginForm").addEventListener("submit", (e) => {
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value;
       const senha = document.getElementById("password").value;
 
-      signInWithEmailAndPassword(auth, email, senha)
-        .then(() => {
-          alert("Login realizado com sucesso!");
-          window.location.href = "dashboard.html";
-        })
-        .catch(err => alert("Erro: " + err.message));
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+        alert("✅ Login realizado com sucesso!");
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        alert("❌ Erro: " + err.message);
+      }
     });
   </script>
 
