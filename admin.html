@@ -7,19 +7,27 @@
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: "Poppins", Arial, sans-serif;
       background: #0d0d2a;
       color: #fff;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
+
+    /* TOPO */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 15px;
-      background: #1a1a3d;
+      padding: 15px 20px;
+      background: linear-gradient(90deg, #1a1a3d, #29295e);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    header h1 {
+      font-size: 1.3rem;
+      margin: 0;
+      color: #4a90ff;
     }
     header .btn {
       padding: 8px 15px;
@@ -27,94 +35,162 @@
       text-decoration: none;
       font-weight: bold;
       font-size: 0.9rem;
-      margin: 0 5px;
+      margin-left: 8px;
+      transition: 0.2s;
     }
     .btn-dash { background: #4a90ff; color: white; }
+    .btn-dash:hover { background: #3578e5; }
     .btn-index { background: #ff4444; color: white; }
-    main { flex: 1; padding: 20px; }
-    h2 { margin-bottom: 15px; }
-    .card {
-      background: #1a1a3d;
-      padding: 15px;
-      border-radius: 8px;
+    .btn-index:hover { background: #e33a3a; }
+
+    /* CONTEÚDO */
+    main { flex: 1; padding: 20px; max-width: 900px; margin: 0 auto; }
+    h2 { margin: 20px 0; font-size: 1.4rem; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
       margin-bottom: 20px;
     }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .tab-btn.active {
+      background: #4a90ff;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: #1a1a3d;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    }
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+      color: #4a90ff;
+    }
+
+    /* Inputs & Botões */
     .card input, .card button {
       display: block;
       margin: 10px 0;
-      padding: 8px;
+      padding: 10px;
       border: none;
       border-radius: 6px;
       width: 100%;
+      font-size: 0.95rem;
+    }
+    .card input {
+      background: #222;
+      color: #fff;
     }
     .card button {
       background: #4a90ff;
       color: white;
       font-weight: bold;
       cursor: pointer;
+      transition: 0.2s;
     }
-    .usuarios-list { margin-top: 10px; }
+    .card button:hover { background: #3578e5; }
+
+    /* Usuários */
+    .usuarios-list { margin-top: 15px; }
     .usuario {
       display: flex;
       justify-content: space-between;
-      padding: 8px;
+      align-items: center;
+      padding: 10px 12px;
       background: #222;
       border-radius: 6px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .usuario span {
+      font-size: 0.9rem;
+      color: #ccc;
     }
     .usuario button {
       margin-left: 5px;
-      padding: 5px 8px;
+      padding: 6px 10px;
       border-radius: 4px;
       font-size: 0.8rem;
       cursor: pointer;
+      border: none;
     }
     .bloquear { background: #ff8800; color: #fff; }
+    .bloquear:hover { background: #e67600; }
     .excluir { background: #ff4444; color: #fff; }
+    .excluir:hover { background: #e33a3a; }
   </style>
 </head>
 <body>
 
   <!-- TOPO -->
   <header>
+    <h1>⚙️ Admin 7XX</h1>
     <div>
-      <a href="dashboard.html" class="btn btn-dash">⬅ Voltar Dashboard</a>
-      <a href="index.html" class="btn btn-index">🏠 Voltar Index</a>
+      <a href="dashboard.html" class="btn btn-dash">⬅ Dashboard</a>
+      <a href="index.html" class="btn btn-index">🏠 Início</a>
     </div>
-    <h1>Admin 7XX</h1>
   </header>
 
   <!-- CONTEÚDO -->
   <main>
     <h2>Painel Administrativo</h2>
 
-    <!-- Controle Manual -->
-    <div class="card">
-      <h3>Lançar Sinal Manual</h3>
-      <input type="number" id="timer" placeholder="Tempo em segundos">
-      <input type="number" id="minimo" placeholder="Mínimo esperado (ex: 2)">
-      <input type="number" id="maximo" placeholder="Máximo esperado (ex: 10)">
-      <button id="salvarSinal">Salvar Manual</button>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="abrirTab('manual')">🎯 Manual</button>
+      <button class="tab-btn" onclick="abrirTab('auto')">🤖 Automático</button>
+      <button class="tab-btn" onclick="abrirTab('usuarios')">👥 Usuários</button>
     </div>
 
-    <!-- Automático -->
-    <div class="card">
-      <h3>Sinais Automáticos</h3>
-      <label>Horário de início</label>
-      <input type="time" id="horaInicio">
-      <label>Horário de fim</label>
-      <input type="time" id="horaFim">
-      <input type="number" id="autoMinimo" placeholder="Mínimo esperado">
-      <input type="number" id="autoMaximo" placeholder="Máximo esperado">
-      <input type="number" id="intervalo" placeholder="Intervalo em minutos">
-      <button id="ativarAuto">Ativar Automático</button>
-      <button id="pararAuto">Parar Automático</button>
+    <!-- Conteúdo das Tabs -->
+    <div id="manual" class="tab-content active">
+      <div class="card">
+        <h3>Lançar Sinal Manual</h3>
+        <input type="number" id="timer" placeholder="Tempo em segundos">
+        <input type="number" id="minimo" placeholder="Mínimo esperado (ex: 2)">
+        <input type="number" id="maximo" placeholder="Máximo esperado (ex: 10)">
+        <button id="salvarSinal">💾 Salvar Manual</button>
+      </div>
     </div>
 
-    <!-- Usuários -->
-    <div class="card">
-      <h3>Controle de Usuários</h3>
-      <div id="usuarios" class="usuarios-list">Carregando...</div>
+    <div id="auto" class="tab-content">
+      <div class="card">
+        <h3>Sinais Automáticos</h3>
+        <label>Horário de início</label>
+        <input type="time" id="horaInicio">
+        <label>Horário de fim</label>
+        <input type="time" id="horaFim">
+        <input type="number" id="autoMinimo" placeholder="Mínimo esperado">
+        <input type="number" id="autoMaximo" placeholder="Máximo esperado">
+        <input type="number" id="intervalo" placeholder="Intervalo em minutos">
+        <button id="ativarAuto">🚀 Ativar Automático</button>
+        <button id="pararAuto">⛔ Parar Automático</button>
+      </div>
+    </div>
+
+    <div id="usuarios" class="tab-content">
+      <div class="card">
+        <h3>Controle de Usuários</h3>
+        <div id="usuarios-list" class="usuarios-list">Carregando...</div>
+      </div>
     </div>
   </main>
 
@@ -136,6 +212,15 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    /* --- Funções de Tabs --- */
+    window.abrirTab = (tabId) => {
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+
+      document.querySelector(`.tab-btn[onclick="abrirTab('${tabId}')"]`).classList.add("active");
+      document.getElementById(tabId).classList.add("active");
+    };
 
     /* --- Sinal manual --- */
     document.getElementById("salvarSinal").addEventListener("click", async () => {
@@ -207,7 +292,7 @@
 
     /* --- Usuários --- */
     async function carregarUsuarios() {
-      const usuariosDiv = document.getElementById("usuarios");
+      const usuariosDiv = document.getElementById("usuarios-list");
       usuariosDiv.innerHTML = "";
       const querySnapshot = await getDocs(collection(db, "usuarios"));
       querySnapshot.forEach((u) => {
