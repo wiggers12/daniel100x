@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestão Financeira</title>
+  <title>Gestão Inteligente</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,19 +22,19 @@
   <nav id="menuLateral" class="menu-lateral">
     <a href="planos.html">📄 Planos</a>
     <a href="sorteios.html">🎁 Sorteios</a>
-    <a href="index.html">✖ Voltar</a>
+    <a href="gestao.html">📊 Gestão Financeira</a>
   </nav>
 
   <!-- FORMULÁRIO -->
   <section class="form-container">
-    <h2>Gestão da Banca</h2>
+    <h2>Gestão Inteligente da Banca</h2>
     <form id="gestaoForm">
-      <input type="number" id="valorInicial" placeholder="Valor inicial (R$)" required>
-      <input type="number" id="valorSeguro" placeholder="Valor seguro a ser jogado (R$)" required>
-      <input type="number" id="ganhos" placeholder="Ganhos (R$)" required>
-      <input type="number" id="perdas" placeholder="Perdas (R$)" required>
-      <button type="submit" class="btn-azul">Salvar Gestão</button>
+      <input type="number" id="valorInicial" placeholder="Valor inicial da banca" required>
+      <input type="number" id="ganhos" placeholder="Ganhos acumulados" value="0">
+      <input type="number" id="perdas" placeholder="Perdas acumuladas" value="0">
+      <button type="submit" class="btn-azul">Calcular</button>
     </form>
+    <p id="resultado"></p>
   </section>
 
   <script type="module">
@@ -44,26 +44,49 @@
     document.getElementById("gestaoForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const valorInicial = parseFloat(document.getElementById("valorInicial").value);
-      const valorSeguro = parseFloat(document.getElementById("valorSeguro").value);
-      const ganhos = parseFloat(document.getElementById("ganhos").value);
-      const perdas = parseFloat(document.getElementById("perdas").value);
+      const ganhos = parseFloat(document.getElementById("ganhos").value) || 0;
+      const perdas = parseFloat(document.getElementById("perdas").value) || 0;
 
-      const lucroTotal = ganhos - perdas;
-      const resultado = lucroTotal >= 0 ? "Lucro" : "Prejuízo";
+      // Cálculos
+      const valorSeguro = (valorInicial * 0.05).toFixed(2); // 5% da banca
+      const lucro = ganhos - perdas;
+      const saldoFinal = valorInicial + lucro;
 
+      // Regras inteligentes
+      let alerta = "";
+      if (lucro < 0 && Math.abs(lucro) >= valorInicial * 0.2) {
+        alerta = "⚠️ Prejuízo acima de 20% da banca! Considere parar.";
+      } else if (lucro > valorInicial * 0.3) {
+        alerta = "🎉 Lucro acima de 30% da banca! Excelente resultado, considere encerrar.";
+      } else {
+        alerta = "✅ Gestão dentro dos limites.";
+      }
+
+      // Exibe resultado
+      document.getElementById("resultado").innerHTML = `
+        💰 Valor inicial: R$${valorInicial.toFixed(2)} <br>
+        🎯 Valor seguro (5%): R$${valorSeguro} <br>
+        📈 Ganhos: R$${ganhos.toFixed(2)} <br>
+        📉 Perdas: R$${perdas.toFixed(2)} <br>
+        🔄 Lucro/Prejuízo: R$${lucro.toFixed(2)} <br>
+        🏦 Saldo final: R$${saldoFinal.toFixed(2)} <br>
+        <strong>${alerta}</strong>
+      `;
+
+      // Salva no Firestore
       try {
         await addDoc(collection(db, "gestao"), {
           valorInicial,
-          valorSeguro,
+          valorSeguro: Number(valorSeguro),
           ganhos,
           perdas,
-          lucroTotal,
-          resultado,
-          data: new Date()
+          lucro,
+          saldoFinal,
+          alerta,
+          data: new Date().toISOString()
         });
-        alert(`Gestão salva! Resultado: ${resultado} de R$${lucroTotal}`);
       } catch (err) {
-        alert("Erro: " + err.message);
+        console.error("Erro ao salvar:", err);
       }
     });
   </script>
