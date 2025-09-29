@@ -18,28 +18,49 @@
     </div>
   </header>
 
-  <!-- MENU -->
+  <!-- MENU LATERAL -->
   <nav id="menuLateral" class="menu-lateral">
     <a href="planos.html">📄 Planos</a>
+    <a href="sorteios.html">🎁 Sorteios</a>
     <a href="gestao.html">📊 Gestão Financeira</a>
-    <a href="index.html">✖ Voltar</a>
+    <a href="https://wa.me/55SEUNUMERO" target="_blank">💬 WhatsApp</a>
+    <a href="https://t.me/SEUCANAL" target="_blank">📢 Telegram</a>
+    <a href="index.html" class="btn-voltar">✖ Voltar</a>
   </nav>
 
-  <!-- FORMULÁRIO -->
+  <!-- FORMULÁRIO DE SORTEIO -->
   <section class="form-container">
     <h2>Participar do Sorteio</h2>
     <form id="sorteioForm">
       <input type="text" id="nome" placeholder="Nome completo" required>
-      <input type="email" id="email" placeholder="Email" required>
+      <input type="email" id="email" placeholder="E-mail" required>
       <input type="tel" id="telefone" placeholder="Telefone" required>
       <button type="submit" class="btn-azul">Participar</button>
     </form>
+    <p id="mensagem"></p>
   </section>
 
+  <!-- Firebase -->
   <script type="module">
-    import { db } from "./firebase.js";
-    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+    // 🔥 Configuração do novo Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBrD8e7fzfvhHscwCMhrnriFoRoxDwCC0s",
+      authDomain: "dani100.firebaseapp.com",
+      projectId: "dani100",
+      storageBucket: "dani100.firebasestorage.app",
+      messagingSenderId: "962697367179",
+      appId: "1:962697367179:web:200d37dcdc9ef065698e8e",
+      measurementId: "G-HW82VXR78V"
+    };
+
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Salvar participação no sorteio
     document.getElementById("sorteioForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nome = document.getElementById("nome").value;
@@ -51,19 +72,23 @@
           nome,
           email,
           telefone,
-          data: new Date()
+          data: new Date().toISOString()
         });
-        alert("Inscrição no sorteio realizada!");
-      } catch (err) {
-        alert("Erro: " + err.message);
+        document.getElementById("mensagem").textContent = "🎉 Você está participando do sorteio!";
+        document.getElementById("sorteioForm").reset();
+      } catch (error) {
+        console.error("Erro ao salvar:", error);
+        document.getElementById("mensagem").textContent = "❌ Erro ao registrar, tente novamente.";
       }
     });
   </script>
 
+  <!-- Script do menu -->
   <script>
     function toggleMenu() {
       document.getElementById("menuLateral").classList.toggle("ativo");
     }
   </script>
+
 </body>
 </html>
