@@ -13,15 +13,21 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
     }
+
     #gameArea {
       flex: 1;
       width: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #111;
+      font-size: 2rem;
+      font-weight: bold;
+      color: red;
     }
+
     #footer {
       width: 100%;
       background: transparent;
@@ -32,6 +38,7 @@
       position: fixed;
       bottom: 20px;
     }
+
     .btn {
       border: none;
       border-radius: 25px;
@@ -47,7 +54,8 @@
     .btn-youtube { background: #ff0000; color: white; }
     .btn-timer { background: #00c851; color: white; min-width: 100px; justify-content: center; }
     .btn-sair { background: #444; color: #fff; }
-    .btn-admin { background: #ff8800; color: #fff; }
+
+    /* Modal */
     #modal {
       display: none;
       position: fixed;
@@ -80,81 +88,99 @@
 
   <!-- Área do jogo -->
   <div id="gameArea">
-    <iframe src="https://7xx.vip/?pid=575973404" width="100%" height="100%" frameborder="0"></iframe>
+    <iframe src="https://7xx.vip/?pid=575973404" width="100%" height="100%" style="border:none;"></iframe>
   </div>
 
   <!-- Modal -->
   <div id="modal">
     <h2>⏳ Próximo Multiplicador</h2>
-    <p id="info">Carregando...</p>
+    <p><strong>Horário:</strong> <span id="hora"></span></p>
+    <p><strong>Definido pelo admin:</strong> <span id="multiplicador"></span>x</p>
+    <div style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px;">
+      ⚠️ Jogue com cautela!
+    </div>
     <button onclick="fecharModal()">Fechar</button>
   </div>
 
   <!-- Rodapé -->
   <div id="footer">
-    <button class="btn btn-sair" onclick="location.href='index.html'">🚪 Sair</button>
-    <button id="timerBtn" class="btn btn-timer">⏱️ Timer</button>
+    <button class="btn btn-sair" onclick="location.href='index.html'">🏠 Index</button>
+    <button class="btn btn-sair" onclick="location.href='dashboard.html'">⬅ Dashboard</button>
+    <button id="timerBtn" class="btn btn-timer">00:00</button>
     <button class="btn btn-youtube" onclick="abrirLive()">▶ Ao Vivo</button>
-    <button id="adminBtn" class="btn btn-admin" style="display:none;" onclick="location.href='admin.html'">⚙ Painel</button>
   </div>
 
   <!-- Firebase -->
   <script type="module">
-    import { auth, db } from "./firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { rtdb } from "./firebase.js";
+    import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    const rtdb = getDatabase();
+    const sinaisRef = ref(rtdb, "sinais");
 
-    const modal = document.getElementById("modal");
-    const info = document.getElementById("info");
+    let segundos = 0;
+    let countdown;
+    let multiplicadorAtual = null;
+
     const timerBtn = document.getElementById("timerBtn");
-    const adminBtn = document.getElementById("adminBtn");
+    const modal = document.getElementById("modal");
+    const horaEl = document.getElementById("hora");
+    const multEl = document.getElementById("multiplicador");
 
-    let ultimoSinal = null;
+    function iniciarTimer(dados) {
+      clearInterval(countdown);
+      segundos = dados.timer;
+      multiplicadorAtual = dados.multiplicador;
 
-    // Botão Timer clicável sempre
-    timerBtn.addEventListener("click", () => {
-      if (ultimoSinal) {
-        info.innerHTML = `
-          <p><strong>Horário:</strong> ${new Date().toLocaleTimeString()}</p>
-          <p><strong>Multiplicador:</strong> ${ultimoSinal.multiplicador}x</p>
-        `;
-      } else {
-        info.textContent = "Nenhum sinal configurado ainda.";
-      }
-      modal.style.display = "block";
-    });
+      countdown = setInterval(() => {
+        if (segundos > 0) {
+          const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+          const sec = String(segundos % 60).padStart(2, "0");
+          timerBtn.textContent = `${min}:${sec}`;
+          segundos--;
+        } else {
+          clearInterval(countdown);
+          abrirModal();
+        }
+      }, 1000);
+    }
 
-    window.fecharModal = () => modal.style.display = "none";
-
-    function abrirLive() {
-      const liveUrl = "https://www.youtube.com/embed/live_stream?channel=SEU_CHANNEL_ID&autoplay=1";
-      const iframe = `<iframe width="100%" height="400" src="${liveUrl}" frameborder="0" allowfullscreen></iframe>`;
-      info.innerHTML = iframe;
+    function abrirModal() {
+      const agora = new Date();
+      horaEl.textContent = agora.toLocaleTimeString();
+      multEl.textContent = multiplicadorAtual ?? "—";
       modal.style.display = "block";
     }
-    window.abrirLive = abrirLive;
 
-    // Escuta sinais do admin
-    const sinaisRef = ref(rtdb, "sinais");
+    function fecharModal() {
+      modal.style.display = "none";
+    }
+    window.fecharModal = fecharModal;
+
+    // Escuta Firebase em tempo real
     onValue(sinaisRef, (snapshot) => {
       if (snapshot.exists()) {
-        ultimoSinal = snapshot.val();
-      }
-    });
-
-    // Verifica se é admin
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userRef = doc(db, "usuarios", user.uid);
-        const snap = await getDoc(userRef);
-        if (snap.exists() && snap.data().role === "admin") {
-          adminBtn.style.display = "inline-flex";
+        const dados = snapshot.val();
+        if (dados.status === "ativo") {
+          iniciarTimer(dados);
         }
       }
     });
+
+    // Mesmo sem sinal do admin, usuário pode clicar no botão
+    timerBtn.addEventListener("click", () => {
+      abrirModal();
+    });
+
+    // Live embutida
+    function abrirLive() {
+      const liveFrame = document.createElement("iframe");
+      liveFrame.src = "https://www.youtube.com/embed/live_stream?channel=SEU_CHANNEL_ID";
+      liveFrame.width = "100%";
+      liveFrame.height = "400";
+      liveFrame.style.border = "none";
+      document.body.appendChild(liveFrame);
+    }
+    window.abrirLive = abrirLive;
   </script>
 </body>
 </html>
