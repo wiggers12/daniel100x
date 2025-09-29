@@ -94,17 +94,33 @@ body {
   justify-content: center;
   gap: 15px;
   margin: 30px 0;
+  flex-wrap: wrap; /* quebra de linha em telas pequenas */
 }
 
-.foto {
-  width: 140px;
-  height: 90px;
-  background: #4a90ff;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
+.foto-img {
+  width: 140px;          /* largura fixa */
+  height: 90px;          /* altura fixa */
+  border-radius: 8px;    /* cantos arredondados */
+  object-fit: cover;     /* corta sem distorcer */
+  cursor: pointer;
+  transition: transform 0.2s;
+  display: block;
+}
+
+.foto-img:hover {
+  transform: scale(1.05);
+}
+
+/* Animação de brilho + pulso das imagens */
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+  box-shadow: 0 0 10px rgba(74,144,255,0.4);
+}
+
+@keyframes pulseGlow {
+  0%   { transform: scale(1);   box-shadow: 0 0 10px rgba(74,144,255,0.4); }
+  50%  { transform: scale(1.05); box-shadow: 0 0 25px rgba(74,144,255,0.9); }
+  100% { transform: scale(1);   box-shadow: 0 0 10px rgba(74,144,255,0.4); }
 }
 
 /* OPÇÕES */
@@ -121,6 +137,19 @@ body {
   border-radius: 8px;
   text-align: center;
   font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.card:hover {
+  background: #2a2a4d;
+}
+
+.jogar {
+  text-decoration: none;
+  color: #4a90ff;
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 
 /* WHATSAPP FIXO */
@@ -140,6 +169,7 @@ body {
   text-decoration: none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
+
 /* FORMULÁRIOS */
 .form-container {
   max-width: 350px;
@@ -185,37 +215,8 @@ body {
 #planosContainer .card {
   margin-bottom: 15px;
 }
-.fotos {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 30px 0;
-  flex-wrap: wrap; /* quebra de linha em telas pequenas */
-}
 
-.foto-img {
-  width: 140px;          /* largura fixa, como um card */
-  height: 90px;          /* altura fixa */
-  border-radius: 8px;    /* cantos arredondados */
-  object-fit: cover;     /* corta sem distorcer */
-  cursor: pointer;
-  transition: transform 0.2s;
-  display: block;
-}
-
-.foto-img:hover {
-  transform: scale(1.05); /* efeito zoom */
-  /* Animação de brilho + pulso das imagens */
-.pulse-glow {
-  animation: pulseGlow 2s infinite;
-}
-@keyframes pulseGlow {
-  0% { transform: scale(1); box-shadow: 0 0 10px rgba(74,144,255,0.4); }
-  50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(74,144,255,0.9); }
-  100% { transform: scale(1); box-shadow: 0 0 10px rgba(74,144,255,0.4); }
-}
-
-/* Modal sobrepondo tela */
+/* MODAL SOBREPOSIÇÃO */
 .modal-info {
   display: none;
   position: fixed;
@@ -226,6 +227,7 @@ body {
   z-index: 9999;
   padding: 20px;
 }
+
 .modal-info .conteudo {
   background: #1a1a3d;
   padding: 25px;
@@ -236,16 +238,20 @@ body {
   text-align: center;
   box-shadow: 0 5px 25px rgba(0,0,0,0.6);
   animation: fadeInUp 0.4s ease;
+  position: relative;
 }
+
 .modal-info h2 {
   margin-bottom: 12px;
   color: #4a90ff;
 }
+
 .modal-info p {
   font-size: 1rem;
   line-height: 1.5;
   color: #ddd;
 }
+
 .modal-info .fechar {
   position: absolute;
   top: 15px;
@@ -257,6 +263,5 @@ body {
 
 @keyframes fadeInUp {
   from { transform: translateY(50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+  to   { transform: translateY(0); opacity: 1; }
 }
