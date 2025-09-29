@@ -24,10 +24,16 @@
       background: linear-gradient(90deg, #1a1a3d, #29295e);
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
-    header h1 {
+    .logo {
+      display: flex;
+      align-items: center;
       font-size: 1.3rem;
-      margin: 0;
+      font-weight: bold;
       color: #4a90ff;
+    }
+    .acoes {
+      display: flex;
+      gap: 10px;
     }
     header .btn {
       padding: 8px 15px;
@@ -35,7 +41,6 @@
       text-decoration: none;
       font-weight: bold;
       font-size: 0.9rem;
-      margin-left: 8px;
       transition: 0.2s;
     }
     .btn-dash { background: #4a90ff; color: white; }
@@ -109,6 +114,28 @@
     }
     .card button:hover { background: #3578e5; }
 
+    /* Lista de horários */
+    .horario-item {
+      background: #222;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .horario-item span { font-size: 0.9rem; }
+    .horario-item button {
+      background: #ff4444;
+      border: none;
+      padding: 5px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+      font-size: 0.8rem;
+    }
+    .horario-item button:hover { background: #e33a3a; }
+
     /* Usuários */
     .usuarios-list { margin-top: 15px; }
     .usuario {
@@ -142,8 +169,8 @@
 
   <!-- TOPO -->
   <header>
-    <h1>⚙️ Admin 7XX</h1>
-    <div>
+    <div class="logo">⚙️ Admin 7XX</div>
+    <div class="acoes">
       <a href="dashboard.html" class="btn btn-dash">⬅ Dashboard</a>
       <a href="index.html" class="btn btn-index">🏠 Início</a>
     </div>
@@ -173,16 +200,12 @@
 
     <div id="auto" class="tab-content">
       <div class="card">
-        <h3>Sinais Automáticos</h3>
-        <label>Horário de início</label>
-        <input type="time" id="horaInicio">
-        <label>Horário de fim</label>
-        <input type="time" id="horaFim">
+        <h3>Programar Horários Automáticos</h3>
+        <input type="time" id="horaAutomatica">
         <input type="number" id="autoMinimo" placeholder="Mínimo esperado">
         <input type="number" id="autoMaximo" placeholder="Máximo esperado">
-        <input type="number" id="intervalo" placeholder="Intervalo em minutos">
-        <button id="ativarAuto">🚀 Ativar Automático</button>
-        <button id="pararAuto">⛔ Parar Automático</button>
+        <button onclick="adicionarHorario()">➕ Adicionar Horário</button>
+        <ul id="listaHorarios"></ul>
       </div>
     </div>
 
@@ -197,9 +220,8 @@
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // 🔥 Configuração correta
     const firebaseConfig = {
       apiKey: "AIzaSyBrD8e7fzfvhHscwCMhrnriFoRoxDwCC0s",
       authDomain: "dani100.firebaseapp.com",
@@ -217,7 +239,6 @@
     window.abrirTab = (tabId) => {
       document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
       document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
-
       document.querySelector(`.tab-btn[onclick="abrirTab('${tabId}')"]`).classList.add("active");
       document.getElementById(tabId).classList.add("active");
     };
@@ -245,50 +266,72 @@
       alert(`✅ Sinal lançado: ${timer}s | Min ${minimo}x - Max ${maximo}x`);
     });
 
-    /* --- Sinais automáticos --- */
-    let autoInterval = null;
-
-    document.getElementById("ativarAuto").addEventListener("click", () => {
-      const horaInicio = document.getElementById("horaInicio").value;
-      const horaFim = document.getElementById("horaFim").value;
+    /* --- Horários automáticos --- */
+    async function adicionarHorario() {
+      const hora = document.getElementById("horaAutomatica").value;
       const autoMinimo = parseFloat(document.getElementById("autoMinimo").value);
       const autoMaximo = parseFloat(document.getElementById("autoMaximo").value);
-      const intervalo = parseInt(document.getElementById("intervalo").value);
 
-      if (!horaInicio || !horaFim || !autoMinimo || !autoMaximo || !intervalo) {
+      if (!hora || !autoMinimo || !autoMaximo) {
         alert("Preencha todos os campos!");
         return;
       }
 
-      autoInterval = setInterval(async () => {
-        const agora = new Date();
-        const hora = agora.toTimeString().substring(0,5);
+      await addDoc(collection(db, "horarios_automaticos"), {
+        hora, minimo: autoMinimo, maximo: autoMaximo
+      });
 
-        if (hora >= horaInicio && hora <= horaFim) {
+      carregarHorarios();
+    }
+
+    async function carregarHorarios() {
+      const lista = document.getElementById("listaHorarios");
+      lista.innerHTML = "";
+      const snapshot = await getDocs(collection(db, "horarios_automaticos"));
+      snapshot.forEach(docSnap => {
+        const li = document.createElement("li");
+        li.className = "horario-item";
+        li.innerHTML = `
+          <span>${docSnap.data().hora} | Min: ${docSnap.data().minimo}x - Max: ${docSnap.data().maximo}x</span>
+          <button onclick="removerHorario('${docSnap.id}')">Excluir</button>
+        `;
+        lista.appendChild(li);
+      });
+    }
+
+    window.removerHorario = async (id) => {
+      await deleteDoc(doc(db, "horarios_automaticos", id));
+      carregarHorarios();
+    };
+
+    async function verificarHorarios() {
+      const agora = new Date();
+      const horaAtual = agora.toTimeString().slice(0,5);
+
+      const snapshot = await getDocs(collection(db, "horarios_automaticos"));
+      snapshot.forEach(async (docSnap) => {
+        if (docSnap.data().hora === horaAtual) {
+          const { minimo, maximo } = docSnap.data();
           const timer = Math.floor(Math.random() * 120) + 30;
-          const multiplicador = (Math.random() * (autoMaximo - autoMinimo) + autoMinimo).toFixed(2);
+          const multiplicador = (Math.random() * (maximo - minimo) + minimo).toFixed(2);
 
           await setDoc(doc(db, "sinais", "atual"), {
             status: "ativo",
             timer,
-            minimo: autoMinimo,
-            maximo: autoMaximo,
+            minimo,
+            maximo,
             multiplicador,
             origem: "auto",
             criado: new Date().toISOString()
           });
 
-          console.log(`⚡ Automático: ${timer}s | ${multiplicador}x`);
+          console.log(`⚡ Automático ${horaAtual}: ${timer}s | ${multiplicador}x`);
         }
-      }, intervalo * 60000);
+      });
+    }
 
-      alert("🚀 Sinais automáticos ativados!");
-    });
-
-    document.getElementById("pararAuto").addEventListener("click", () => {
-      clearInterval(autoInterval);
-      alert("⛔ Sinais automáticos parados!");
-    });
+    setInterval(verificarHorarios, 60000); // checa a cada minuto
+    carregarHorarios();
 
     /* --- Usuários --- */
     async function carregarUsuarios() {
@@ -312,13 +355,11 @@
 
     window.bloquearUsuario = async (id) => {
       await updateDoc(doc(db, "usuarios", id), { role: "blocked" });
-      alert("Usuário bloqueado!");
       carregarUsuarios();
     };
 
     window.excluirUsuario = async (id) => {
       await deleteDoc(doc(db, "usuarios", id));
-      alert("Usuário excluído!");
       carregarUsuarios();
     };
 
