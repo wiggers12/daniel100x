@@ -14,29 +14,23 @@
       display: flex;
       flex-direction: column;
     }
-
-    /* Jogo fullscreen */
     #gameArea {
       flex: 1;
       width: 100%;
-      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
     }
-    #gameArea iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    /* Rodapé fixo */
     #footer {
       width: 100%;
+      background: transparent;
       padding: 15px;
       display: flex;
       justify-content: center;
       gap: 15px;
       position: fixed;
       bottom: 20px;
-      z-index: 1000;
     }
     .btn {
       border: none;
@@ -53,9 +47,8 @@
     .btn-youtube { background: #ff0000; color: white; }
     .btn-timer { background: #00c851; color: white; min-width: 100px; justify-content: center; }
     .btn-sair { background: #444; color: #fff; }
-
-    /* Modal genérico */
-    .modal {
+    .btn-admin { background: #ff8800; color: #fff; }
+    #modal {
       display: none;
       position: fixed;
       bottom: 80px;
@@ -68,10 +61,9 @@
       width: 80%;
       max-width: 400px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      z-index: 2001;
     }
-    .modal h2 { margin-bottom: 10px; }
-    .modal button {
+    #modal h2 { margin-bottom: 10px; }
+    #modal button {
       margin-top: 15px;
       padding: 10px;
       width: 100%;
@@ -82,96 +74,87 @@
       font-weight: bold;
       cursor: pointer;
     }
-
-    /* Live Modal */
-    #liveModal iframe {
-      width: 100%;
-      height: 250px;
-      border: none;
-      border-radius: 8px;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Jogo -->
+  <!-- Área do jogo -->
   <div id="gameArea">
-    <iframe src="https://7xx.vip/?pid=575973404"></iframe>
+    <iframe src="https://7xx.vip/?pid=575973404" width="100%" height="100%" frameborder="0"></iframe>
   </div>
 
-  <!-- Modal Timer -->
-  <div id="timerModal" class="modal">
+  <!-- Modal -->
+  <div id="modal">
     <h2>⏳ Próximo Multiplicador</h2>
-    <p><strong>Horário:</strong> <span id="hora">--</span></p>
-    <p><strong>proteção:</strong> <span id="multiplicador">--</span>x</p>
-    <div id="alertaBox" style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px; display:none;">
-      ⚠️ Pode ser perigoso, cuidado!
-    </div>
-    <button onclick="fecharModal('timerModal')">Fechar</button>
-  </div>
-
-  <!-- Modal Live -->
-  <div id="liveModal" class="modal">
-    <h2>📺 Live ao Vivo</h2>
-    <iframe id="liveFrame" src="" allowfullscreen></iframe>
-    <button onclick="fecharModal('liveModal')">Fechar</button>
+    <p id="info">Carregando...</p>
+    <button onclick="fecharModal()">Fechar</button>
   </div>
 
   <!-- Rodapé -->
   <div id="footer">
     <button class="btn btn-sair" onclick="location.href='index.html'">🚪 Sair</button>
-    <button id="timerBtn" class="btn btn-timer">⏱ Ver Timer</button>
+    <button id="timerBtn" class="btn btn-timer">⏱️ Timer</button>
     <button class="btn btn-youtube" onclick="abrirLive()">▶ Ao Vivo</button>
+    <button id="adminBtn" class="btn btn-admin" style="display:none;" onclick="location.href='admin.html'">⚙ Painel</button>
   </div>
 
   <!-- Firebase -->
   <script type="module">
-    import { rtdb } from "./firebase.js"; // seu firebase.js deve exportar rtdb
-    import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { auth, db } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    const sinaisRef = ref(rtdb, "sinais");
-    let dadosAtuais = null;
+    const rtdb = getDatabase();
 
-    // Atualiza dados quando admin enviar
-    onValue(sinaisRef, (snapshot) => {
-      if (snapshot.exists()) {
-        dadosAtuais = snapshot.val();
+    const modal = document.getElementById("modal");
+    const info = document.getElementById("info");
+    const timerBtn = document.getElementById("timerBtn");
+    const adminBtn = document.getElementById("adminBtn");
+
+    let ultimoSinal = null;
+
+    // Botão Timer clicável sempre
+    timerBtn.addEventListener("click", () => {
+      if (ultimoSinal) {
+        info.innerHTML = `
+          <p><strong>Horário:</strong> ${new Date().toLocaleTimeString()}</p>
+          <p><strong>Multiplicador:</strong> ${ultimoSinal.multiplicador}x</p>
+        `;
       } else {
-        dadosAtuais = null;
+        info.textContent = "Nenhum sinal configurado ainda.";
       }
+      modal.style.display = "block";
     });
 
-    // Abrir Timer com dados
-    document.getElementById("timerBtn").addEventListener("click", () => {
-      if (dadosAtuais && dadosAtuais.status === "ativo") {
-        document.getElementById("hora").textContent = new Date().toLocaleTimeString();
-        document.getElementById("multiplicador").textContent = dadosAtuais.multiplicador;
-        document.getElementById("alertaBox").style.display = "block";
-      } else {
-        document.getElementById("hora").textContent = "--";
-        document.getElementById("multiplicador").textContent = "--";
-        document.getElementById("alertaBox").style.display = "none";
-      }
-      abrirModal("timerModal");
-    });
+    window.fecharModal = () => modal.style.display = "none";
 
-    // Abrir Live
     function abrirLive() {
-      const liveUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // troque pelo link real
-      document.getElementById("liveFrame").src = liveUrl;
-      abrirModal("liveModal");
-    }
-
-    // Controle de modal
-    function abrirModal(id) {
-      document.getElementById(id).style.display = "block";
-    }
-    function fecharModal(id) {
-      document.getElementById(id).style.display = "none";
+      const liveUrl = "https://www.youtube.com/embed/live_stream?channel=SEU_CHANNEL_ID&autoplay=1";
+      const iframe = `<iframe width="100%" height="400" src="${liveUrl}" frameborder="0" allowfullscreen></iframe>`;
+      info.innerHTML = iframe;
+      modal.style.display = "block";
     }
     window.abrirLive = abrirLive;
-    window.fecharModal = fecharModal;
-  </script>
 
+    // Escuta sinais do admin
+    const sinaisRef = ref(rtdb, "sinais");
+    onValue(sinaisRef, (snapshot) => {
+      if (snapshot.exists()) {
+        ultimoSinal = snapshot.val();
+      }
+    });
+
+    // Verifica se é admin
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userRef = doc(db, "usuarios", user.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists() && snap.data().role === "admin") {
+          adminBtn.style.display = "inline-flex";
+        }
+      }
+    });
+  </script>
 </body>
 </html>
