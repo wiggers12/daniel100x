@@ -13,26 +13,24 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
-      align-items: center;
     }
 
-    /* Container principal do jogo */
+    /* Jogo ocupa tela inteira */
     #gameArea {
       flex: 1;
       width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 3rem;
-      font-weight: bold;
-      color: red;
+      height: 100%;
     }
 
-    /* Rodapé fixo */
+    #gameArea iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Rodapé fixo com botões */
     #footer {
       width: 100%;
-      background: transparent;
       padding: 15px;
       display: flex;
       justify-content: center;
@@ -41,7 +39,6 @@
       bottom: 20px;
     }
 
-    /* Botões flutuantes */
     .btn {
       border: none;
       border-radius: 25px;
@@ -72,8 +69,8 @@
       color: #fff;
     }
 
-    /* Modal */
-    #modal {
+    /* Modal Timer e Live */
+    .modal {
       display: none;
       position: fixed;
       bottom: 80px;
@@ -86,13 +83,14 @@
       width: 80%;
       max-width: 400px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 2000;
     }
 
-    #modal h2 {
+    .modal h2 {
       margin-bottom: 10px;
     }
 
-    #modal button {
+    .modal button {
       margin-top: 15px;
       padding: 10px;
       width: 100%;
@@ -103,102 +101,92 @@
       font-weight: bold;
       cursor: pointer;
     }
+
+    /* Modal da Live (YouTube) */
+    #liveModal iframe {
+      width: 100%;
+      height: 250px;
+      border: none;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
 
   <!-- Área do jogo -->
-  <div id="gameArea">VOO PARA LONGE!</div>
+  <div id="gameArea">
+    <iframe src="https://7xx.vip/?pid=575973404"></iframe>
+  </div>
 
-  <!-- Modal -->
-  <div id="modal">
+  <!-- Modal Timer -->
+  <div id="timerModal" class="modal">
     <h2>⏳ Próximo Multiplicador</h2>
     <p><strong>Horário:</strong> <span id="hora"></span></p>
     <p><strong>Mínimo Esperado:</strong> <span id="multiplicador"></span>x</p>
     <div style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px;">
       ⚠️ Pode ser perigoso, cuidado!
     </div>
-    <button onclick="fecharModal()">Fechar</button>
+    <button onclick="fecharModal('timerModal')">Fechar</button>
+  </div>
+
+  <!-- Modal Live -->
+  <div id="liveModal" class="modal">
+    <h2>📺 Live ao Vivo</h2>
+    <iframe id="liveFrame" src="" allowfullscreen></iframe>
+    <button onclick="fecharModal('liveModal')">Fechar</button>
   </div>
 
   <!-- Rodapé -->
   <div id="footer">
     <button class="btn btn-sair" onclick="location.href='index.html'">🚪 Sair</button>
-    <button id="timerBtn" class="btn btn-timer">00:00</button>
-    <button class="btn btn-youtube" onclick="window.open('https://youtube.com','_blank')">▶ Ao Vivo</button>
+    <button id="timerBtn" class="btn btn-timer">⏱ Ver Timer</button>
+    <button class="btn btn-youtube" onclick="abrirLive()">▶ Ao Vivo</button>
   </div>
 
   <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+    import { db } from "./firebase.js";
+    import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    // Configuração Firebase (a mesma de todos os arquivos)
-    const firebaseConfig = {
-      apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
-      authDomain: "aviatordaniel100x.firebaseapp.com",
-      projectId: "aviatordaniel100x",
-      storageBucket: "aviatordaniel100x.appspot.com",
-      messagingSenderId: "169015417803",
-      appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
-      measurementId: "G-EES9SVSV72",
-      databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // Referência para sinais
+    // Referência no Realtime Database
     const sinaisRef = ref(db, "sinais");
 
-    let segundos = 0;
-    let countdown;
-
-    const timerBtn = document.getElementById("timerBtn");
-    const modal = document.getElementById("modal");
     const horaEl = document.getElementById("hora");
     const multEl = document.getElementById("multiplicador");
 
-    // Atualiza o relógio
-    function iniciarTimer(dados) {
-      clearInterval(countdown);
-      segundos = dados.timer;
-      multEl.textContent = dados.multiplicador;
-
-      countdown = setInterval(() => {
-        if (segundos > 0) {
-          const min = String(Math.floor(segundos / 60)).padStart(2, "0");
-          const sec = String(segundos % 60).padStart(2, "0");
-          timerBtn.textContent = `${min}:${sec}`;
-          segundos--;
-        } else {
-          clearInterval(countdown);
-          abrirModal();
-        }
-      }, 1000);
-    }
-
-    // Abre modal com multiplicador
-    function abrirModal() {
-      const agora = new Date();
-      horaEl.textContent = agora.toLocaleTimeString();
-      modal.style.display = "block";
-    }
-
-    function fecharModal() {
-      modal.style.display = "none";
-    }
-    window.fecharModal = fecharModal;
-
-    // Escuta Firebase
+    // Escuta dados do admin
     onValue(sinaisRef, (snapshot) => {
       if (snapshot.exists()) {
         const dados = snapshot.val();
         if (dados.status === "ativo") {
-          iniciarTimer(dados);
+          horaEl.textContent = new Date().toLocaleTimeString();
+          multEl.textContent = dados.multiplicador;
         }
       }
     });
+
+    // Abrir modal Timer
+    document.getElementById("timerBtn").addEventListener("click", () => {
+      abrirModal("timerModal");
+    });
+
+    // Abrir modal Live
+    function abrirLive() {
+      const liveUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // Troque pelo link real
+      document.getElementById("liveFrame").src = liveUrl;
+      abrirModal("liveModal");
+    }
+
+    // Funções genéricas
+    function abrirModal(id) {
+      document.getElementById(id).style.display = "block";
+    }
+    function fecharModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+    window.abrirLive = abrirLive;
+    window.fecharModal = fecharModal;
   </script>
+
 </body>
 </html>
