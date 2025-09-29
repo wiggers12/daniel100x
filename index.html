@@ -11,7 +11,7 @@
   <!-- HEADER -->
   <header class="topbar">
     <!-- Esquerda: Menu hambúrguer -->
-    <button class="hamburger" onclick="toggleMenu()">☰</button>
+    <button class="hamburger" id="menuToggle">☰</button>
 
     <!-- Meio: Botão voltar (7XX) -->
     <a href="index.html" class="logo">7XX</a>
@@ -28,6 +28,8 @@
     <a href="planos.html">📄 Planos</a>
     <a href="https://wa.me/55SEUNUMERO" target="_blank">💬 WhatsApp</a>
     <a href="https://t.me/SEUCANAL" target="_blank">📢 Telegram</a>
+    <a href="sorteios.html">🎁 Sorteios</a>
+    <a href="gestao.html">📊 Gestão Financeira</a>
   </nav>
 
   <!-- FOTOS -->
@@ -48,9 +50,14 @@
 
   <!-- Script do menu -->
   <script>
-    function toggleMenu() {
-      document.getElementById("menuLateral").classList.toggle("ativo");
-    }
+    const menuToggle = document.getElementById("menuToggle");
+    const menuLateral = document.getElementById("menuLateral");
+
+    menuToggle.addEventListener("click", () => {
+      menuLateral.classList.toggle("ativo");
+      // alterna entre ☰ e ✖
+      menuToggle.textContent = menuLateral.classList.contains("ativo") ? "✖" : "☰";
+    });
   </script>
 </body>
 </html>
