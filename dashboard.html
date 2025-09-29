@@ -102,12 +102,14 @@
       cursor: pointer;
     }
 
-    ul.horarios {
-      list-style: none;
-      padding: 0;
-      margin: 10px 0;
-      color: #0f0;
-      font-weight: bold;
+    .info-box {
+      margin-top:10px;
+      background:#222;
+      color:white;
+      padding:10px;
+      border-radius:6px;
+      font-size:0.95rem;
+      text-align:left;
     }
   </style>
 </head>
@@ -118,12 +120,13 @@
 
   <!-- Modal Timer -->
   <div id="modalTimer" class="modal">
-    <h2>⏳ Entrar 1 min antes, 1 minuto depois</h2>
-    <ul id="listaHorarios" class="horarios"></ul>
-    <p><strong>Proteção:</strong> <span id="protecao">2x</span></p>
-    <p><strong>Probabilidade:</strong> <span id="probabilidade">100x</span></p>
-    <div style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px;">
-      ⚠️ Jogue com responsabilidade!
+    <h2>⏳ Próximo Multiplicador</h2>
+    <p><strong>Horário:</strong> <span id="hora"></span></p>
+    <p><strong>Proteção:</strong> 3x</p>
+    <p><strong>Probabilidade:</strong> 100x</p>
+    <div class="info-box">
+      ✅ Entrar 1 min antes e 1 min depois<br>
+      ⚠️ Jogue com responsabilidade
     </div>
     <button onclick="toggleModal('modalTimer')">Fechar</button>
   </div>
@@ -142,85 +145,74 @@
     import { db } from "./firebase.js";
     import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const timerBtn = document.getElementById("timerBtn");
-    const listaHorarios = document.getElementById("listaHorarios");
-
-    let segundosRestantes = 0;
+    let segundos = 0;
     let countdown;
+    const timerBtn = document.getElementById("timerBtn");
+    const horaEl = document.getElementById("hora");
 
-    // Lista de minutos válidos
-    const minutosValidos = [1, 4, 7, 9];
-
-    // Função para calcular próximo horário válido
-    function calcularProximoHorario(base = new Date()) {
-      let h = base.getHours();
-      let m = base.getMinutes();
-
-      let proximoMin = minutosValidos.find(x => x > m);
-      if (proximoMin === undefined) {
-        h++;
-        proximoMin = minutosValidos[0];
-      }
-
-      const proximo = new Date(base);
-      proximo.setHours(h);
-      proximo.setMinutes(proximoMin);
-      proximo.setSeconds(0);
-      return proximo;
-    }
-
-    // Inicia o timer até o próximo horário válido
-    function iniciarTimer() {
-      const proximo = calcularProximoHorario();
-      segundosRestantes = Math.floor((proximo - new Date()) / 1000);
-
-      clearInterval(countdown);
-      countdown = setInterval(() => {
-        if (segundosRestantes > 0) {
-          const min = String(Math.floor(segundosRestantes / 60)).padStart(2, "0");
-          const sec = String(segundosRestantes % 60).padStart(2, "0");
-          timerBtn.textContent = `${min}:${sec}`;
-          segundosRestantes--;
-        } else {
-          iniciarTimer(); // reinicia no próximo ciclo
-        }
-      }, 1000);
-    }
-
-    iniciarTimer();
-
-    // Abrir/fechar modal e mostrar próximos horários
+    // Modal toggle
     function toggleModal(id) {
       const modal = document.getElementById(id);
-      if (modal.style.display === "block") {
-        modal.style.display = "none";
-      } else {
-        modal.style.display = "block";
-        listaHorarios.innerHTML = "";
-
-        let base = new Date();
-        for (let i = 0; i < 5; i++) {
-          base = calcularProximoHorario(base);
-          const li = document.createElement("li");
-          li.textContent = base.toTimeString().slice(0,5);
-          listaHorarios.appendChild(li);
-          base = new Date(base.getTime() + 60000); // avança para evitar repetição
-        }
+      modal.style.display = modal.style.display === "block" ? "none" : "block";
+      if (id === "modalTimer") {
+        horaEl.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       }
     }
     window.toggleModal = toggleModal;
 
-    // Clique no botão Timer abre modal
+    // Timer clicável
     timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
 
-    // Escutar Firestore em tempo real (Admin controla sinais)
+    // Escutar Admin (sinais/atual)
     onSnapshot(doc(db, "sinais", "atual"), (docSnap) => {
       if (docSnap.exists()) {
         const dados = docSnap.data();
-        console.log("📡 Sinal recebido do admin:", dados);
-        // Aqui você pode exibir os dados extras no modal se quiser
+        segundos = dados.timer || 0;
+
+        clearInterval(countdown);
+        countdown = setInterval(() => {
+          if (segundos > 0) {
+            const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+            const sec = String(segundos % 60).padStart(2, "0");
+            timerBtn.textContent = `${min}:${sec}`;
+            segundos--;
+          } else {
+            clearInterval(countdown);
+            timerBtn.textContent = "00:00";
+          }
+        }, 1000);
       }
     });
+
+    // Timer fixo 24/7 (01,04,07,...,59)
+    function atualizarTimerFixo() {
+      const agora = new Date();
+      const min = agora.getMinutes();
+      const sec = agora.getSeconds();
+
+      const minutosValidos = [1,4,7,9,11,14,17,19,21,24,27,29,31,34,37,39,41,44,47,49,51,54,59];
+      const proximo = minutosValidos.find(m => m > min) || minutosValidos[0];
+      let alvo = new Date(agora);
+      if (proximo <= min) alvo.setHours(alvo.getHours()+1);
+      alvo.setMinutes(proximo, 0, 0);
+
+      const diff = Math.floor((alvo - agora)/1000);
+      let temp = diff;
+
+      clearInterval(countdown);
+      countdown = setInterval(() => {
+        if (temp > 0) {
+          const mm = String(Math.floor(temp/60)).padStart(2,"0");
+          const ss = String(temp%60).padStart(2,"0");
+          timerBtn.textContent = `${mm}:${ss}`;
+          temp--;
+        } else {
+          clearInterval(countdown);
+          atualizarTimerFixo(); // reinicia ciclo
+        }
+      },1000);
+    }
+    atualizarTimerFixo();
   </script>
 </body>
 </html>
