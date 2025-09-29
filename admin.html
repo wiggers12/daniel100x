@@ -27,8 +27,9 @@
       text-decoration: none;
       font-weight: bold;
       font-size: 0.9rem;
+      margin: 0 5px;
     }
-    .btn-dashboard { background: #4a90ff; color: white; }
+    .btn-dash { background: #4a90ff; color: white; }
     .btn-index { background: #ff4444; color: white; }
     main { flex: 1; padding: 20px; }
     h2 { margin-bottom: 15px; }
@@ -76,55 +77,135 @@
 
   <!-- TOPO -->
   <header>
-    <a href="dashboard.html" class="btn btn-dashboard">⬅ Voltar Dashboard</a>
-    <a href="index.html" class="btn btn-index">🏠 Voltar Index</a>
+    <div>
+      <a href="dashboard.html" class="btn btn-dash">⬅ Voltar Dashboard</a>
+      <a href="index.html" class="btn btn-index">🏠 Voltar Index</a>
+    </div>
+    <h1>Admin 7XX</h1>
   </header>
 
   <!-- CONTEÚDO -->
   <main>
     <h2>Painel Administrativo</h2>
 
-    <!-- Controle de Timer/Multiplicador -->
+    <!-- Controle Manual -->
     <div class="card">
-      <h3>Lançar Sinal</h3>
+      <h3>Lançar Sinal Manual</h3>
       <input type="number" id="timer" placeholder="Tempo em segundos">
-      <input type="number" id="multiplicador" placeholder="Multiplicador (ex: 2)">
-      <button id="salvarSinal">Salvar</button>
+      <input type="number" id="minimo" placeholder="Mínimo esperado (ex: 2)">
+      <input type="number" id="maximo" placeholder="Máximo esperado (ex: 10)">
+      <button id="salvarSinal">Salvar Manual</button>
     </div>
 
-    <!-- Controle de Usuários -->
+    <!-- Automático -->
     <div class="card">
-      <h3>Usuários</h3>
+      <h3>Sinais Automáticos</h3>
+      <label>Horário de início</label>
+      <input type="time" id="horaInicio">
+      <label>Horário de fim</label>
+      <input type="time" id="horaFim">
+      <input type="number" id="autoMinimo" placeholder="Mínimo esperado">
+      <input type="number" id="autoMaximo" placeholder="Máximo esperado">
+      <input type="number" id="intervalo" placeholder="Intervalo em minutos">
+      <button id="ativarAuto">Ativar Automático</button>
+      <button id="pararAuto">Parar Automático</button>
+    </div>
+
+    <!-- Usuários -->
+    <div class="card">
+      <h3>Controle de Usuários</h3>
       <div id="usuarios" class="usuarios-list">Carregando...</div>
     </div>
   </main>
 
   <!-- Firebase -->
   <script type="module">
-    import { auth, db, rtdb } from "./firebase.js";
-    import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-    import { collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Salvar sinal → conversa direto com o dashboard
+    // 🔥 Configuração correta
+    const firebaseConfig = {
+      apiKey: "AIzaSyBrD8e7fzfvhHscwCMhrnriFoRoxDwCC0s",
+      authDomain: "dani100.firebaseapp.com",
+      projectId: "dani100",
+      storageBucket: "dani100.firebasestorage.app",
+      messagingSenderId: "962697367179",
+      appId: "1:962697367179:web:200d37dcdc9ef065698e8e",
+      measurementId: "G-HW82VXR78V"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    /* --- Sinal manual --- */
     document.getElementById("salvarSinal").addEventListener("click", async () => {
       const timer = parseInt(document.getElementById("timer").value);
-      const multiplicador = parseFloat(document.getElementById("multiplicador").value);
+      const minimo = parseFloat(document.getElementById("minimo").value);
+      const maximo = parseFloat(document.getElementById("maximo").value);
 
-      if (!timer || !multiplicador) {
+      if (!timer || !minimo || !maximo) {
         alert("Preencha todos os campos!");
         return;
       }
 
-      await set(ref(rtdb, "sinais"), {
+      await setDoc(doc(db, "sinais", "atual"), {
         status: "ativo",
         timer,
-        multiplicador
+        minimo,
+        maximo,
+        origem: "manual",
+        criado: new Date().toISOString()
       });
 
-      alert(`✅ Sinal lançado: ${timer}s | ${multiplicador}x`);
+      alert(`✅ Sinal lançado: ${timer}s | Min ${minimo}x - Max ${maximo}x`);
     });
 
-    // Listar usuários do Firestore
+    /* --- Sinais automáticos --- */
+    let autoInterval = null;
+
+    document.getElementById("ativarAuto").addEventListener("click", () => {
+      const horaInicio = document.getElementById("horaInicio").value;
+      const horaFim = document.getElementById("horaFim").value;
+      const autoMinimo = parseFloat(document.getElementById("autoMinimo").value);
+      const autoMaximo = parseFloat(document.getElementById("autoMaximo").value);
+      const intervalo = parseInt(document.getElementById("intervalo").value);
+
+      if (!horaInicio || !horaFim || !autoMinimo || !autoMaximo || !intervalo) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      autoInterval = setInterval(async () => {
+        const agora = new Date();
+        const hora = agora.toTimeString().substring(0,5);
+
+        if (hora >= horaInicio && hora <= horaFim) {
+          const timer = Math.floor(Math.random() * 120) + 30;
+          const multiplicador = (Math.random() * (autoMaximo - autoMinimo) + autoMinimo).toFixed(2);
+
+          await setDoc(doc(db, "sinais", "atual"), {
+            status: "ativo",
+            timer,
+            minimo: autoMinimo,
+            maximo: autoMaximo,
+            multiplicador,
+            origem: "auto",
+            criado: new Date().toISOString()
+          });
+
+          console.log(`⚡ Automático: ${timer}s | ${multiplicador}x`);
+        }
+      }, intervalo * 60000);
+
+      alert("🚀 Sinais automáticos ativados!");
+    });
+
+    document.getElementById("pararAuto").addEventListener("click", () => {
+      clearInterval(autoInterval);
+      alert("⛔ Sinais automáticos parados!");
+    });
+
+    /* --- Usuários --- */
     async function carregarUsuarios() {
       const usuariosDiv = document.getElementById("usuarios");
       usuariosDiv.innerHTML = "";
