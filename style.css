@@ -265,3 +265,103 @@ body {
   from { transform: translateY(50px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
 }
+/* ================================
+   RESPONSIVIDADE
+================================= */
+
+/* Telas até 768px (tablets e celulares grandes) */
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: row;
+    padding: 10px;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .acoes a {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .fotos {
+    gap: 10px;
+    margin: 20px 0;
+  }
+
+  .foto-img {
+    width: 45%;  /* duas imagens lado a lado */
+    height: auto;
+    aspect-ratio: 16/9; /* mantém proporção */
+  }
+
+  .card {
+    font-size: 0.95rem;
+    padding: 12px;
+  }
+
+  .modal-info .conteudo {
+    width: 95%;
+    padding: 20px;
+  }
+}
+
+/* Telas até 480px (celulares pequenos) */
+@media (max-width: 480px) {
+  .topbar {
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+  }
+
+  .hamburger {
+    left: 10px;
+    top: 10px;
+  }
+
+  .acoes {
+    margin-top: 5px;
+    gap: 6px;
+  }
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .fotos {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .foto-img {
+    width: 90%;  /* ocupa quase a tela toda */
+    height: auto;
+  }
+
+  .card {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .modal-info .conteudo {
+    max-width: 90%;
+    padding: 15px;
+  }
+
+  .modal-info h2 {
+    font-size: 1.2rem;
+  }
+
+  .modal-info p {
+    font-size: 0.9rem;
+  }
+
+  .whatsapp {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+    bottom: 15px;
+    right: 15px;
+  }
+}
