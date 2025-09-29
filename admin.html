@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - 7XX</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0d0d2a;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h1 { margin-bottom: 20px; }
+
+    /* Cards resumo */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .card {
+      padding: 20px;
+      border-radius: 8px;
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .card span {
+      display: block;
+      font-size: 2rem;
+      margin-top: 10px;
+    }
+
+    .azul { background: #007bff; }
+    .verde { background: #28a745; }
+    .vermelho { background: #dc3545; }
+    .roxo { background: #6f42c1; }
+
+    /* Tabela */
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    table th, table td {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      text-align: left;
+    }
+    table th { background: #1a1a3d; }
+
+    button {
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-block { background: orange; color: #fff; }
+    .btn-unblock { background: #28a745; color: #fff; }
+    .btn-del { background: red; color: #fff; }
+
+    /* Formulários */
+    .form-box {
+      background: #1a1a3d;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+    .form-box input {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 6px;
+      border: none;
+    }
+    .form-box button {
+      margin-top: 10px;
+      background: #4a90ff;
+      color: #fff;
+    }
+
+    /* Gráfico */
+    .grafico {
+      background: #1a1a3d;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📊 Painel Admin - 7XX</h1>
+
+  <!-- CARDS RESUMO -->
+  <div class="cards">
+    <div class="card azul">Total Usuários<span id="totalUsers">0</span></div>
+    <div class="card verde">Ativos<span id="ativos">0</span></div>
+    <div class="card vermelho">Bloqueados<span id="bloqueados">0</span></div>
+    <div class="card roxo">Entradas Hoje<span id="entradasHoje">0</span></div>
+  </div>
+
+  <!-- USUÁRIOS -->
+  <h2>👥 Usuários</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="usuariosTable"></tbody>
+  </table>
+
+  <!-- ENTRADAS -->
+  <h2>🎯 Controle de Entradas</h2>
+
+  <!-- Modo Manual -->
+  <div class="form-box">
+    <h3>Entrada Manual (Live)</h3>
+    <input type="number" id="manualSegundos" placeholder="Segundos" />
+    <input type="number" step="0.01" id="manualMultiplicador" placeholder="Multiplicador" />
+    <button onclick="lançarManual()">Lançar Agora</button>
+  </div>
+
+  <!-- Modo Programado -->
+  <div class="form-box">
+    <h3>Agendar Entrada</h3>
+    <input type="datetime-local" id="programadoHora" />
+    <input type="number" step="0.01" id="programadoMultiplicador" placeholder="Multiplicador" />
+    <button onclick="agendarEntrada()">Agendar</button>
+  </div>
+
+  <!-- Gráfico -->
+  <div class="grafico">
+    <h3>📈 Entradas Lançadas</h3>
+    <canvas id="chartEntradas"></canvas>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
+      authDomain: "aviatordaniel100x.firebaseapp.com",
+      projectId: "aviatordaniel100x",
+      storageBucket: "aviatordaniel100x.appspot.com",
+      messagingSenderId: "169015417803",
+      appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
+      measurementId: "G-EES9SVSV72",
+      databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ======== USUÁRIOS ======== //
+    const usuariosRef = ref(db, "usuarios");
+    const usuariosTable = document.getElementById("usuariosTable");
+    const totalUsers = document.getElementById("totalUsers");
+    const ativos = document.getElementById("ativos");
+    const bloqueados = document.getElementById("bloqueados");
+
+    onValue(usuariosRef, (snapshot) => {
+      usuariosTable.innerHTML = "";
+      let total = 0, ativosCount = 0, bloqueadosCount = 0;
+
+      snapshot.forEach(child => {
+        const uid = child.key;
+        const user = child.val();
+        total++;
+        if (user.status === "bloqueado") bloqueadosCount++; else ativosCount++;
+
+        usuariosTable.innerHTML += `
+          <tr>
+            <td>${user.nome || "-"}</td>
+            <td>${user.email || "-"}</td>
+            <td>${user.status || "ativo"}</td>
+            <td>
+              ${user.status === "bloqueado" 
+                ? `<button class="btn-unblock" onclick="alterarStatus('${uid}','ativo')">Desbloquear</button>` 
+                : `<button class="btn-block" onclick="alterarStatus('${uid}','bloqueado')">Bloquear</button>`}
+              <button class="btn-del" onclick="excluirUsuario('${uid}')">Excluir</button>
+            </td>
+          </tr>`;
+      });
+
+      totalUsers.textContent = total;
+      ativos.textContent = ativosCount;
+      bloqueados.textContent = bloqueadosCount;
+    });
+
+    window.alterarStatus = function(uid, status) {
+      update(ref(db, "usuarios/" + uid), { status });
+    }
+
+    window.excluirUsuario = function(uid) {
+      if (confirm("Tem certeza que deseja excluir este usuário?")) {
+        remove(ref(db, "usuarios/" + uid));
+      }
+    }
+
+    // ======== ENTRADAS ======== //
+    const entradasHojeEl = document.getElementById("entradasHoje");
+    const entradasRef = ref(db, "historicoEntradas");
+
+    window.lançarManual = function() {
+      const segundos = parseInt(document.getElementById("manualSegundos").value);
+      const multiplicador = parseFloat(document.getElementById("manualMultiplicador").value);
+      if (!segundos || !multiplicador) return alert("Preencha segundos e multiplicador!");
+
+      const entrada = {
+        timer: segundos,
+        multiplicador,
+        status: "ativo",
+        programadoPara: null,
+        data: new Date().toISOString()
+      };
+
+      // Atual sinal
+      set(ref(db, "sinais"), entrada);
+      // Histórico
+      push(entradasRef, entrada);
+      alert("Entrada manual lançada!");
+    }
+
+    window.agendarEntrada = function() {
+      const hora = document.getElementById("programadoHora").value;
+      const multiplicador = parseFloat(document.getElementById("programadoMultiplicador").value);
+      if (!hora || !multiplicador) return alert("Preencha horário e multiplicador!");
+
+      const alvo = new Date(hora).getTime();
+      const agora = new Date().getTime();
+      const segundos = Math.floor((alvo - agora) / 1000);
+      if (segundos <= 0) return alert("Horário deve ser no futuro!");
+
+      const entrada = {
+        timer: segundos,
+        multiplicador,
+        status: "ativo",
+        programadoPara: hora,
+        data: new Date().toISOString()
+      };
+
+      set(ref(db, "sinais"), entrada);
+      push(entradasRef, entrada);
+      alert("Entrada agendada!");
+    }
+
+    // ======== RELATÓRIO / GRÁFICO ======== //
+    const ctx = document.getElementById("chartEntradas").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: [],
+        datasets: [{
+          label: "Entradas",
+          data: [],
+          backgroundColor: "#6f42c1"
+        }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    onValue(entradasRef, (snapshot) => {
+      let hoje = new Date().toISOString().split("T")[0];
+      let countHoje = 0;
+      let porHora = {};
+
+      snapshot.forEach(child => {
+        const entrada = child.val();
+        const data = new Date(entrada.data);
+        const dia = data.toISOString().split("T")[0];
+        if (dia === hoje) countHoje++;
+        const hora = data.getHours();
+        porHora[hora] = (porHora[hora] || 0) + 1;
+      });
+
+      entradasHojeEl.textContent = countHoje;
+
+      chart.data.labels = Object.keys(porHora).map(h => `${h}h`);
+      chart.data.datasets[0].data = Object.values(porHora);
+      chart.update();
+    });
+  </script>
+</body>
+</html>
