@@ -1,30 +1,37 @@
 /* ================================
-   BASE
+   RESET E BASE
 ================================= */
-body {
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: 'Poppins', sans-serif;
   background: #0d0d2a;
   color: #fff;
+  line-height: 1.5;
 }
 
 /* ================================
    HEADER / TOPO
 ================================= */
 .topbar {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 50px 1fr auto; /* hambúrguer | logo | botões */
   align-items: center;
   padding: 12px 15px;
   background: #1a1a3d;
 }
 
 .hamburger {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   background: none;
   border: none;
   color: #fff;
   cursor: pointer;
+  justify-self: start;
 }
 
 .logo {
@@ -32,29 +39,33 @@ body {
   font-weight: bold;
   color: #4a90ff;
   text-decoration: none;
+  text-align: center;
+  justify-self: center;
 }
 
 .acoes {
   display: flex;
   gap: 10px;
+  justify-self: end;
+}
+
+.btn-preto,
+.btn-azul {
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: bold;
 }
 
 .btn-preto {
   background: #222;
   color: #fff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.9rem;
 }
 
 .btn-azul {
   background: #4a90ff;
   color: #fff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.9rem;
 }
 
 /* ================================
@@ -64,7 +75,7 @@ body {
   position: fixed;
   top: 0;
   left: -250px;
-  width: 200px;
+  width: 220px;
   height: 100%;
   background: #1a1a3d;
   padding-top: 60px;
@@ -90,37 +101,41 @@ body {
 }
 
 /* ================================
-   FOTOS INDEX
+   FOTOS (sempre lado a lado)
 ================================= */
 .fotos {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 15px;
-  margin: 30px 0;
-  flex-wrap: nowrap; /* 🔹 sempre lado a lado */
-  overflow-x: auto;  /* 🔹 scroll se a tela for muito pequena */
+  margin: 30px auto;
+  flex-wrap: nowrap; /* nunca empilha */
 }
 
 .foto-img {
-  width: 200px;
-  height: 130px;
-  border-radius: 8px;
+  width: 45%;
+  max-width: 300px;
+  border-radius: 12px;
   object-fit: cover;
   cursor: pointer;
   display: block;
+  transition: transform 0.3s;
   animation: pulseGlow 2s infinite;
-  box-shadow: 0 0 10px rgba(74,144,255,0.4);
+  box-shadow: 0 0 12px rgba(74,144,255,0.4);
+}
+
+.foto-img:hover {
+  transform: scale(1.05);
 }
 
 @keyframes pulseGlow {
-  0%   { transform: scale(1); box-shadow: 0 0 10px rgba(74,144,255,0.4); }
+  0%   { transform: scale(1); box-shadow: 0 0 12px rgba(74,144,255,0.4); }
   50%  { transform: scale(1.05); box-shadow: 0 0 25px rgba(74,144,255,0.9); }
-  100% { transform: scale(1); box-shadow: 0 0 10px rgba(74,144,255,0.4); }
+  100% { transform: scale(1); box-shadow: 0 0 12px rgba(74,144,255,0.4); }
 }
 
 /* ================================
-   OPÇÕES INDEX
+   CARDS / FRASES
 ================================= */
 .opcoes {
   display: flex;
@@ -136,11 +151,12 @@ body {
   text-align: center;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.2s;
 }
 
 .card:hover {
   background: #2a2a4d;
+  transform: scale(1.02);
 }
 
 .jogar {
@@ -151,7 +167,7 @@ body {
 }
 
 /* ================================
-   MODAL SOBREPOSIÇÃO
+   MODAL
 ================================= */
 .modal-info {
   display: none;
@@ -170,11 +186,10 @@ body {
   border-radius: 12px;
   max-width: 450px;
   width: 100%;
-  color: #fff;
   text-align: center;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.6);
   animation: fadeInUp 0.4s ease;
   position: relative;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
 }
 
 .modal-info h2 {
@@ -190,30 +205,29 @@ body {
 
 .modal-info .fechar {
   position: absolute;
-  top: 15px;
-  right: 20px;
+  top: 12px;
+  right: 18px;
   font-size: 1.5rem;
   cursor: pointer;
   color: #ff4444;
 }
 
 @keyframes fadeInUp {
-  from { transform: translateY(50px); opacity: 0; }
+  from { transform: translateY(40px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
 }
 
 /* ================================
-   FORMULÁRIOS PREMIUM
-   (login, cadastro, sorteio, gestão)
+   FORMULÁRIOS LOGIN / CADASTRO
 ================================= */
 .form-container {
   max-width: 400px;
-  margin: 60px auto;
+  margin: 40px auto;
   background: #1a1a3d;
-  padding: 30px;
+  padding: 25px;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
 }
 
 .form-container h2 {
@@ -233,31 +247,57 @@ body {
   color: #fff;
 }
 
-.form-container input::placeholder {
-  color: #aaa;
+.form-container input:focus {
+  border: 2px solid #4a90ff;
+  background: #111;
 }
 
 .form-container button {
   width: 100%;
-  margin-top: 20px;
-  cursor: pointer;
-  background: linear-gradient(90deg, #4a90ff, #1e60d4);
-  color: #fff;
+  padding: 12px;
+  margin-top: 15px;
   border: none;
   border-radius: 6px;
-  padding: 12px;
-  font-size: 1.1rem;
+  cursor: pointer;
+  background: #4a90ff;
+  color: #fff;
   font-weight: bold;
-  transition: transform 0.2s, box-shadow 0.2s;
+  font-size: 1rem;
+  transition: 0.3s;
 }
 
 .form-container button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(74,144,255,0.6);
+  background: #367ae0;
 }
 
 /* ================================
-   WHATSAPP FIXO
+   SEÇÃO SORTEIOS E GESTÃO
+================================= */
+#planosContainer, .gestao-container, .sorteio-container {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #1a1a3d;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+#planosContainer h2,
+.gestao-container h2,
+.sorteio-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #4a90ff;
+}
+
+#planosContainer .card,
+.gestao-container .card,
+.sorteio-container .card {
+  margin-bottom: 15px;
+}
+
+/* ================================
+   BOTÃO FIXO WHATSAPP
 ================================= */
 .whatsapp {
   position: fixed;
@@ -265,15 +305,20 @@ body {
   right: 20px;
   background: #25d366;
   color: #fff;
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   text-decoration: none;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: transform 0.2s;
+}
+
+.whatsapp:hover {
+  transform: scale(1.1);
 }
 
 /* ================================
@@ -281,43 +326,30 @@ body {
 ================================= */
 @media (max-width: 768px) {
   .topbar {
-    flex-wrap: wrap;
-    text-align: center;
+    grid-template-columns: 40px 1fr auto;
   }
-  .acoes {
-    margin-top: 8px;
-    justify-content: center;
-    width: 100%;
-  }
-  .fotos {
-    gap: 10px;
-    overflow-x: auto;
-  }
+  .logo { font-size: 1.2rem; }
+  .acoes a { font-size: 0.8rem; }
+
   .foto-img {
-    width: 160px;
-    height: 100px;
-  }
-  .form-container {
-    margin: 30px auto;
-    padding: 20px;
+    width: 48%;
   }
 }
 
 @media (max-width: 480px) {
   .topbar {
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    grid-template-columns: 35px 1fr auto;
+    padding: 10px;
   }
-  .fotos {
-    justify-content: flex-start;
-  }
+  .logo { font-size: 1rem; }
+  .acoes a { padding: 4px 8px; }
+
   .foto-img {
-    width: 150px;
-    height: 95px;
+    width: 45%;
   }
+
   .form-container {
     width: 90%;
-    padding: 15px;
+    padding: 20px;
   }
 }
