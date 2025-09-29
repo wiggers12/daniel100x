@@ -18,44 +18,49 @@
     </div>
   </header>
 
-  <!-- MENU LATERAL -->
+  <!-- MENU -->
   <nav id="menuLateral" class="menu-lateral">
     <a href="planos.html">📄 Planos</a>
-    <a href="https://wa.me/55SEUNUMERO" target="_blank">💬 WhatsApp</a>
-    <a href="https://t.me/SEUCANAL" target="_blank">📢 Telegram</a>
+    <a href="sorteios.html">🎁 Sorteios</a>
+    <a href="gestao.html">📊 Gestão Financeira</a>
   </nav>
 
-  <!-- CADASTRO -->
+  <!-- FORMULÁRIO -->
   <section class="form-container">
     <h2>Criar Conta</h2>
     <form id="cadastroForm">
-      <input type="text" id="nome" placeholder="Nome" required>
-      <input type="email" id="email" placeholder="Email" required>
+      <input type="text" id="nome" placeholder="Nome completo" required>
+      <input type="email" id="email" placeholder="E-mail" required>
       <input type="password" id="password" placeholder="Senha" required>
-      <button type="submit" class="btn-preto">Cadastrar</button>
+      <button type="submit" class="btn-azul">Cadastrar</button>
     </form>
     <p>Já tem conta? <a href="login.html">Entrar</a></p>
   </section>
 
-  <!-- Firebase Cadastro -->
   <script type="module">
     import { auth, db } from "./firebase.js";
     import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    document.getElementById("cadastroForm").addEventListener("submit", (e) => {
+    document.getElementById("cadastroForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nome = document.getElementById("nome").value;
       const email = document.getElementById("email").value;
       const senha = document.getElementById("password").value;
 
-      createUserWithEmailAndPassword(auth, email, senha)
-        .then(userCred => {
-          set(ref(db, "usuarios/" + userCred.user.uid), { nome, email });
-          alert("Cadastro realizado com sucesso!");
-          window.location.href = "login.html";
-        })
-        .catch(err => alert("Erro: " + err.message));
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, senha);
+        await addDoc(collection(db, "usuarios"), {
+          uid: cred.user.uid,
+          nome,
+          email,
+          criadoEm: new Date().toISOString()
+        });
+        alert("✅ Cadastro realizado com sucesso!");
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        alert("❌ Erro: " + err.message);
+      }
     });
   </script>
 
