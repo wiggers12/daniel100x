@@ -25,8 +25,6 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
     .logo {
-      display: flex;
-      align-items: center;
       font-size: 1.3rem;
       font-weight: bold;
       color: #4a90ff;
@@ -49,7 +47,7 @@
     .btn-index:hover { background: #e33a3a; }
 
     /* CONTEÚDO */
-    main { flex: 1; padding: 20px; max-width: 900px; margin: 0 auto; }
+    main { flex: 1; padding: 20px; max-width: 1000px; margin: 0 auto; }
     h2 { margin: 20px 0; font-size: 1.4rem; }
 
     /* Tabs */
@@ -114,6 +112,13 @@
     }
     .card button:hover { background: #3578e5; }
 
+    .msg-sucesso {
+      color: #4caf50;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
     /* Lista de horários */
     .horario-item {
       background: #222;
@@ -163,6 +168,16 @@
     .bloquear:hover { background: #e67600; }
     .excluir { background: #ff4444; color: #fff; }
     .excluir:hover { background: #e33a3a; }
+
+    /* Histórico */
+    .historico-item {
+      background: #222;
+      padding: 8px;
+      border-radius: 6px;
+      margin: 6px 0;
+      font-size: 0.9rem;
+      color: #bbb;
+    }
   </style>
 </head>
 <body>
@@ -185,6 +200,7 @@
       <button class="tab-btn active" onclick="abrirTab('manual')">🎯 Manual</button>
       <button class="tab-btn" onclick="abrirTab('auto')">🤖 Automático</button>
       <button class="tab-btn" onclick="abrirTab('usuarios')">👥 Usuários</button>
+      <button class="tab-btn" onclick="abrirTab('historico')">📜 Histórico</button>
     </div>
 
     <!-- Conteúdo das Tabs -->
@@ -205,6 +221,7 @@
         <input type="number" id="autoMinimo" placeholder="Mínimo esperado">
         <input type="number" id="autoMaximo" placeholder="Máximo esperado">
         <button onclick="adicionarHorario()">➕ Adicionar Horário</button>
+        <p id="msgSucesso" class="msg-sucesso"></p>
         <ul id="listaHorarios"></ul>
       </div>
     </div>
@@ -215,12 +232,19 @@
         <div id="usuarios-list" class="usuarios-list">Carregando...</div>
       </div>
     </div>
+
+    <div id="historico" class="tab-content">
+      <div class="card">
+        <h3>Histórico de Sinais</h3>
+        <div id="listaHistorico">Carregando...</div>
+      </div>
+    </div>
   </main>
 
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBrD8e7fzfvhHscwCMhrnriFoRoxDwCC0s",
@@ -235,7 +259,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    /* --- Funções de Tabs --- */
+    /* --- Tabs --- */
     window.abrirTab = (tabId) => {
       document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
       document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
@@ -254,7 +278,7 @@
         return;
       }
 
-      await setDoc(doc(db, "sinais", "atual"), {
+      await addDoc(collection(db, "historico_sinais"), {
         status: "ativo",
         timer,
         minimo,
@@ -263,7 +287,8 @@
         criado: new Date().toISOString()
       });
 
-      alert(`✅ Sinal lançado: ${timer}s | Min ${minimo}x - Max ${maximo}x`);
+      alert(`✅ Sinal lançado manual: ${timer}s | Min ${minimo}x - Max ${maximo}x`);
+      carregarHistorico();
     });
 
     /* --- Horários automáticos --- */
@@ -271,15 +296,17 @@
       const hora = document.getElementById("horaAutomatica").value;
       const autoMinimo = parseFloat(document.getElementById("autoMinimo").value);
       const autoMaximo = parseFloat(document.getElementById("autoMaximo").value);
+      const msg = document.getElementById("msgSucesso");
 
       if (!hora || !autoMinimo || !autoMaximo) {
         alert("Preencha todos os campos!");
         return;
       }
 
-      await addDoc(collection(db, "horarios_automaticos"), {
-        hora, minimo: autoMinimo, maximo: autoMaximo
-      });
+      await addDoc(collection(db, "horarios_automaticos"), { hora, minimo: autoMinimo, maximo: autoMaximo });
+
+      msg.textContent = "✅ Horário salvo com sucesso!";
+      setTimeout(() => { msg.textContent = ""; }, 3000);
 
       carregarHorarios();
     }
@@ -315,7 +342,7 @@
           const timer = Math.floor(Math.random() * 120) + 30;
           const multiplicador = (Math.random() * (maximo - minimo) + minimo).toFixed(2);
 
-          await setDoc(doc(db, "sinais", "atual"), {
+          await addDoc(collection(db, "historico_sinais"), {
             status: "ativo",
             timer,
             minimo,
@@ -326,12 +353,30 @@
           });
 
           console.log(`⚡ Automático ${horaAtual}: ${timer}s | ${multiplicador}x`);
+          carregarHistorico();
         }
       });
     }
 
-    setInterval(verificarHorarios, 60000); // checa a cada minuto
+    setInterval(verificarHorarios, 60000);
     carregarHorarios();
+
+    /* --- Histórico --- */
+    async function carregarHistorico() {
+      const lista = document.getElementById("listaHistorico");
+      lista.innerHTML = "";
+      const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
+      const snapshot = await getDocs(q);
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const div = document.createElement("div");
+        div.className = "historico-item";
+        div.textContent = `[${data.origem}] ${data.timer}s | Min ${data.minimo} - Max ${data.maximo} | ${data.criado}`;
+        lista.appendChild(div);
+      });
+    }
+
+    carregarHistorico();
 
     /* --- Usuários --- */
     async function carregarUsuarios() {
