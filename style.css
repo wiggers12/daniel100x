@@ -185,3 +185,22 @@ body {
 #planosContainer .card {
   margin-bottom: 15px;
 }
+.fotos {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.foto-img {
+  width: 140px;         /* largura fixa igual ao card */
+  height: 90px;         /* altura fixa */
+  border-radius: 8px;   /* cantos arredondados */
+  object-fit: cover;    /* mantém a proporção sem distorcer */
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.foto-img:hover {
+  transform: scale(1.05);
+}
