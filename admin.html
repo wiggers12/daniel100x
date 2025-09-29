@@ -211,6 +211,7 @@
         <input type="number" id="minimo" placeholder="Mínimo esperado (ex: 2)">
         <input type="number" id="maximo" placeholder="Máximo esperado (ex: 10)">
         <button id="salvarSinal">💾 Salvar Manual</button>
+        <p id="msgSucessoManual" class="msg-sucesso"></p>
       </div>
     </div>
 
@@ -221,7 +222,7 @@
         <input type="number" id="autoMinimo" placeholder="Mínimo esperado">
         <input type="number" id="autoMaximo" placeholder="Máximo esperado">
         <button onclick="adicionarHorario()">➕ Adicionar Horário</button>
-        <p id="msgSucesso" class="msg-sucesso"></p>
+        <p id="msgSucessoAuto" class="msg-sucesso"></p>
         <ul id="listaHorarios"></ul>
       </div>
     </div>
@@ -272,12 +273,14 @@
       const timer = parseInt(document.getElementById("timer").value);
       const minimo = parseFloat(document.getElementById("minimo").value);
       const maximo = parseFloat(document.getElementById("maximo").value);
+      const msg = document.getElementById("msgSucessoManual");
 
       if (!timer || !minimo || !maximo) {
         alert("Preencha todos os campos!");
         return;
       }
 
+      // salva no histórico
       await addDoc(collection(db, "historico_sinais"), {
         status: "ativo",
         timer,
@@ -287,7 +290,19 @@
         criado: new Date().toISOString()
       });
 
-      alert(`✅ Sinal lançado manual: ${timer}s | Min ${minimo}x - Max ${maximo}x`);
+      // salva no doc "atual" (para o dash escutar)
+      await setDoc(doc(db, "sinais", "atual"), {
+        status: "ativo",
+        timer,
+        minimo,
+        maximo,
+        origem: "manual",
+        criado: new Date().toISOString()
+      });
+
+      msg.textContent = "✅ Sinal manual salvo com sucesso!";
+      setTimeout(() => { msg.textContent = ""; }, 3000);
+
       carregarHistorico();
     });
 
@@ -296,7 +311,7 @@
       const hora = document.getElementById("horaAutomatica").value;
       const autoMinimo = parseFloat(document.getElementById("autoMinimo").value);
       const autoMaximo = parseFloat(document.getElementById("autoMaximo").value);
-      const msg = document.getElementById("msgSucesso");
+      const msg = document.getElementById("msgSucessoAuto");
 
       if (!hora || !autoMinimo || !autoMaximo) {
         alert("Preencha todos os campos!");
@@ -343,6 +358,16 @@
           const multiplicador = (Math.random() * (maximo - minimo) + minimo).toFixed(2);
 
           await addDoc(collection(db, "historico_sinais"), {
+            status: "ativo",
+            timer,
+            minimo,
+            maximo,
+            multiplicador,
+            origem: "auto",
+            criado: new Date().toISOString()
+          });
+
+          await setDoc(doc(db, "sinais", "atual"), {
             status: "ativo",
             timer,
             minimo,
