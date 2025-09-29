@@ -10,13 +10,8 @@
 
   <!-- HEADER -->
   <header class="topbar">
-    <!-- Esquerda: Menu hambúrguer -->
     <button class="hamburger" id="menuToggle">☰</button>
-
-    <!-- Meio: Botão voltar (7XX) -->
     <a href="index.html" class="logo">7XX</a>
-
-    <!-- Direita: botões -->
     <div class="acoes">
       <a href="cadastro.html" class="btn-preto">Cadastre-se</a>
       <a href="login.html" class="btn-azul">Entrar</a>
@@ -48,10 +43,19 @@
     <div class="card">⏱️ Timer com Entradas</div>
     <div class="card">📺 Live ao vivo</div>
     <div class="card">🔥 Entradas 24h por dia</div>
+    <div class="card">🎁 Sorteios semanais</div>
+    <div class="card">📊 Gestão financeira</div>
   </section>
 
   <!-- WHATSAPP FIXO -->
   <a href="https://wa.me/55SEUNUMERO" class="whatsapp" target="_blank">💬</a>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { db } from "./firebase.js";
+    // Futuro: aqui podemos puxar infos como próximos sorteios ou status do timer
+    console.log("Firebase conectado ao Index com sucesso!", db);
+  </script>
 
   <!-- Script do menu -->
   <script>
@@ -60,7 +64,6 @@
 
     menuToggle.addEventListener("click", () => {
       menuLateral.classList.toggle("ativo");
-      // alterna entre ☰ e ✖
       menuToggle.textContent = menuLateral.classList.contains("ativo") ? "✖" : "☰";
     });
   </script>
