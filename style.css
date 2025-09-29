@@ -190,17 +190,19 @@ body {
   justify-content: center;
   gap: 15px;
   margin: 30px 0;
+  flex-wrap: wrap; /* quebra de linha em telas pequenas */
 }
 
 .foto-img {
-  width: 140px;         /* largura fixa igual ao card */
-  height: 90px;         /* altura fixa */
-  border-radius: 8px;   /* cantos arredondados */
-  object-fit: cover;    /* mantém a proporção sem distorcer */
+  width: 140px;          /* largura fixa, como um card */
+  height: 90px;          /* altura fixa */
+  border-radius: 8px;    /* cantos arredondados */
+  object-fit: cover;     /* corta sem distorcer */
   cursor: pointer;
   transition: transform 0.2s;
+  display: block;
 }
 
 .foto-img:hover {
-  transform: scale(1.05);
+  transform: scale(1.05); /* efeito zoom */
 }
