@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorteios - 7XX</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="topbar">
+    <button class="hamburger" id="menuToggle">☰</button>
+    <a href="index.html" class="logo">7XX</a>
+    <div class="acoes">
+      <a href="cadastro.html" class="btn-preto">Cadastre-se</a>
+      <a href="login.html" class="btn-azul">Entrar</a>
+    </div>
+  </header>
+
+  <!-- MENU -->
+  <nav id="menuLateral" class="menu-lateral">
+    <a href="planos.html">📄 Planos</a>
+    <a href="sorteios.html">🎁 Sorteios</a>
+    <a href="gestao.html">📊 Gestão Financeira</a>
+  </nav>
+
+  <!-- FORM SORTEIO -->
+  <div class="form-container">
+    <h2>Participe do Sorteio 🎁</h2>
+    <input type="text" id="nome" placeholder="Nome Completo" required>
+    <input type="email" id="email" placeholder="E-mail" required>
+    <input type="tel" id="telefone" placeholder="Telefone" required>
+    <button onclick="cadastrarSorteio()">Participar</button>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { app, db } from "./firebase.js";
+    import { ref, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    window.cadastrarSorteio = async function() {
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const telefone = document.getElementById("telefone").value;
+
+      if (!nome || !email || !telefone) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      await push(ref(db, "sorteios"), {
+        nome, email, telefone,
+        data: new Date().toISOString()
+      });
+
+      alert("Cadastro no sorteio realizado com sucesso!");
+      document.getElementById("nome").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("telefone").value = "";
+    }
+  </script>
+
+  <!-- Script do menu -->
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const menuLateral = document.getElementById('menuLateral');
+    menuToggle.addEventListener('click', () => {
+      menuLateral.classList.toggle('ativo');
+      menuToggle.textContent = menuLateral.classList.contains('ativo') ? '✖' : '☰';
+    });
+  </script>
+</body>
+</html>
