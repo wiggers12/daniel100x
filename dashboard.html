@@ -101,16 +101,6 @@
       font-weight: bold;
       cursor: pointer;
     }
-
-    .info-box {
-      margin-top:10px;
-      background:#222;
-      color:white;
-      padding:10px;
-      border-radius:6px;
-      font-size:0.95rem;
-      text-align:left;
-    }
   </style>
 </head>
 <body>
@@ -120,13 +110,15 @@
 
   <!-- Modal Timer -->
   <div id="modalTimer" class="modal">
-    <h2>⏳ Próximo Multiplicador</h2>
+    <h2>⏳ Próxima Entrada</h2>
     <p><strong>Horário:</strong> <span id="hora"></span></p>
-    <p><strong>Proteção:</strong> 3x</p>
+    <p><strong>Proteção:</strong> 2x</p>
     <p><strong>Probabilidade:</strong> 100x</p>
-    <div class="info-box">
-      ✅ Entrar 1 min antes e 1 min depois<br>
-      ⚠️ Jogue com responsabilidade
+    <div style="margin-top:10px; background:#222; color:#fff; padding:10px; border-radius:6px;">
+      ⏰ Entrar 1 min antes e 1 min depois
+    </div>
+    <div style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px;">
+      ⚠️ Jogue com responsabilidade!
     </div>
     <button onclick="toggleModal('modalTimer')">Fechar</button>
   </div>
@@ -145,74 +137,67 @@
     import { db } from "./firebase.js";
     import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    let segundos = 0;
-    let countdown;
     const timerBtn = document.getElementById("timerBtn");
     const horaEl = document.getElementById("hora");
+
+    // Ciclo fixo de minutos válidos
+    const minutosValidos = [1,4,7,9,11,14,17,19,21,24,27,29,31,34,37,39,41,44,47,49,51,54,59];
+
+    function calcularProximoHorario() {
+      const agora = new Date();
+      const minutoAtual = agora.getMinutes();
+      const horaAtual = agora.getHours();
+
+      // achar próximo minuto válido
+      let proximoMin = minutosValidos.find(m => m > minutoAtual);
+      let proximaHora = horaAtual;
+      if (!proximoMin) { // passou de 59, volta para a próxima hora
+        proximoMin = minutosValidos[0];
+        proximaHora = (horaAtual + 1) % 24;
+      }
+
+      const proximaEntrada = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proximaHora, proximoMin, 0);
+      const diffSegundos = Math.floor((proximaEntrada - agora) / 1000);
+      return { diffSegundos, proximaEntrada };
+    }
+
+    function atualizarTimer() {
+      const { diffSegundos, proximaEntrada } = calcularProximoHorario();
+      let segundos = diffSegundos;
+
+      horaEl.textContent = proximaEntrada.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+      clearInterval(window.countdown);
+      window.countdown = setInterval(() => {
+        if (segundos > 0) {
+          const min = String(Math.floor(segundos / 60)).padStart(2, "0");
+          const sec = String(segundos % 60).padStart(2, "0");
+          timerBtn.textContent = `${min}:${sec}`;
+          segundos--;
+        } else {
+          atualizarTimer(); // recalcula sempre que chega em zero
+        }
+      }, 1000);
+    }
+
+    atualizarTimer(); // inicia
 
     // Modal toggle
     function toggleModal(id) {
       const modal = document.getElementById(id);
       modal.style.display = modal.style.display === "block" ? "none" : "block";
-      if (id === "modalTimer") {
-        horaEl.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      }
     }
     window.toggleModal = toggleModal;
 
-    // Timer clicável
+    // Abrir modal ao clicar no botão
     timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
 
-    // Escutar Admin (sinais/atual)
+    // 🔥 Escuta o Admin no Firebase (coleção sinais/atual)
     onSnapshot(doc(db, "sinais", "atual"), (docSnap) => {
       if (docSnap.exists()) {
-        const dados = docSnap.data();
-        segundos = dados.timer || 0;
-
-        clearInterval(countdown);
-        countdown = setInterval(() => {
-          if (segundos > 0) {
-            const min = String(Math.floor(segundos / 60)).padStart(2, "0");
-            const sec = String(segundos % 60).padStart(2, "0");
-            timerBtn.textContent = `${min}:${sec}`;
-            segundos--;
-          } else {
-            clearInterval(countdown);
-            timerBtn.textContent = "00:00";
-          }
-        }, 1000);
+        console.log("📡 Atualização recebida do admin:", docSnap.data());
       }
     });
-
-    // Timer fixo 24/7 (01,04,07,...,59)
-    function atualizarTimerFixo() {
-      const agora = new Date();
-      const min = agora.getMinutes();
-      const sec = agora.getSeconds();
-
-      const minutosValidos = [1,4,7,9,11,14,17,19,21,24,27,29,31,34,37,39,41,44,47,49,51,54,59];
-      const proximo = minutosValidos.find(m => m > min) || minutosValidos[0];
-      let alvo = new Date(agora);
-      if (proximo <= min) alvo.setHours(alvo.getHours()+1);
-      alvo.setMinutes(proximo, 0, 0);
-
-      const diff = Math.floor((alvo - agora)/1000);
-      let temp = diff;
-
-      clearInterval(countdown);
-      countdown = setInterval(() => {
-        if (temp > 0) {
-          const mm = String(Math.floor(temp/60)).padStart(2,"0");
-          const ss = String(temp%60).padStart(2,"0");
-          timerBtn.textContent = `${mm}:${ss}`;
-          temp--;
-        } else {
-          clearInterval(countdown);
-          atualizarTimerFixo(); // reinicia ciclo
-        }
-      },1000);
-    }
-    atualizarTimerFixo();
   </script>
 </body>
 </html>
