@@ -4,180 +4,159 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - 7XX</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     body {
       margin: 0;
-      background: #0b0b20;
-      color: #fff;
       font-family: Arial, sans-serif;
-      padding: 20px;
+      background: #0d0d2a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    h1 { text-align: center; margin-bottom: 20px; }
-    .section {
-      background: #1a1a3d;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-    }
-    .section h2 {
-      margin-bottom: 10px;
-      color: #4a90ff;
-    }
-    .user-card, .signal-card {
-      background: #2a2a50;
-      padding: 12px;
-      border-radius: 6px;
-      margin: 8px 0;
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 12px 15px;
+      background: #1a1a3d;
     }
-    .btn {
-      border: none;
-      padding: 8px 12px;
+    header .btn {
+      padding: 8px 15px;
       border-radius: 6px;
-      cursor: pointer;
+      text-decoration: none;
       font-weight: bold;
+      font-size: 0.9rem;
     }
-    .btn-danger { background: #ff4444; color: white; }
-    .btn-ok { background: #00c851; color: white; }
-    .btn-blue { background: #4a90ff; color: white; }
-    input, select {
-      width: 100%;
+    .btn-dashboard { background: #4a90ff; color: white; }
+    .btn-index { background: #ff4444; color: white; }
+    main { flex: 1; padding: 20px; }
+    h2 { margin-bottom: 15px; }
+    .card {
+      background: #1a1a3d;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .card input, .card button {
+      display: block;
+      margin: 10px 0;
       padding: 8px;
-      margin: 6px 0;
       border: none;
       border-radius: 6px;
+      width: 100%;
     }
+    .card button {
+      background: #4a90ff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .usuarios-list { margin-top: 10px; }
+    .usuario {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px;
+      background: #222;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .usuario button {
+      margin-left: 5px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .bloquear { background: #ff8800; color: #fff; }
+    .excluir { background: #ff4444; color: #fff; }
   </style>
 </head>
 <body>
-  <h1>Painel Admin 7XX</h1>
 
-  <!-- Usuários -->
-  <div class="section">
-    <h2>👥 Usuários Cadastrados</h2>
-    <div id="usuariosContainer">Carregando...</div>
-  </div>
+  <!-- TOPO -->
+  <header>
+    <a href="dashboard.html" class="btn btn-dashboard">⬅ Voltar Dashboard</a>
+    <a href="index.html" class="btn btn-index">🏠 Voltar Index</a>
+  </header>
 
-  <!-- Controle Manual -->
-  <div class="section">
-    <h2>⚡ Enviar Multiplicador Manual</h2>
-    <form id="manualForm">
-      <input type="number" id="multiplicadorManual" placeholder="Multiplicador (ex: 2.5)" step="0.1" required>
-      <input type="number" id="tempoManual" placeholder="Duração em segundos (ex: 60)" required>
-      <button type="submit" class="btn btn-blue">Enviar Agora</button>
-    </form>
-  </div>
+  <!-- CONTEÚDO -->
+  <main>
+    <h2>Painel Administrativo</h2>
 
-  <!-- Agendamento -->
-  <div class="section">
-    <h2>⏳ Programar Sinal</h2>
-    <form id="agendarForm">
-      <input type="time" id="horaAgendada" required>
-      <input type="number" id="multiplicadorAgendado" placeholder="Multiplicador (ex: 3.5)" step="0.1" required>
-      <button type="submit" class="btn btn-ok">Agendar</button>
-    </form>
-    <div id="agendaContainer"></div>
-  </div>
+    <!-- Controle de Timer/Multiplicador -->
+    <div class="card">
+      <h3>Lançar Sinal</h3>
+      <input type="number" id="timer" placeholder="Tempo em segundos">
+      <input type="number" id="multiplicador" placeholder="Multiplicador (ex: 2)">
+      <button id="salvarSinal">Salvar</button>
+    </div>
 
-  <!-- Histórico -->
-  <div class="section">
-    <h2>📜 Histórico de Sinais</h2>
-    <div id="historicoContainer">Nenhum sinal enviado ainda.</div>
-  </div>
+    <!-- Controle de Usuários -->
+    <div class="card">
+      <h3>Usuários</h3>
+      <div id="usuarios" class="usuarios-list">Carregando...</div>
+    </div>
+  </main>
 
+  <!-- Firebase -->
   <script type="module">
-    import { db } from "./firebase.js";
-    import { collection, getDocs, deleteDoc, doc, addDoc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { auth, db, rtdb } from "./firebase.js";
+    import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // ============================
-    // USUÁRIOS
-    // ============================
-    const usuariosContainer = document.getElementById("usuariosContainer");
+    // Salvar sinal → conversa direto com o dashboard
+    document.getElementById("salvarSinal").addEventListener("click", async () => {
+      const timer = parseInt(document.getElementById("timer").value);
+      const multiplicador = parseFloat(document.getElementById("multiplicador").value);
+
+      if (!timer || !multiplicador) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      await set(ref(rtdb, "sinais"), {
+        status: "ativo",
+        timer,
+        multiplicador
+      });
+
+      alert(`✅ Sinal lançado: ${timer}s | ${multiplicador}x`);
+    });
+
+    // Listar usuários do Firestore
     async function carregarUsuarios() {
+      const usuariosDiv = document.getElementById("usuarios");
+      usuariosDiv.innerHTML = "";
       const querySnapshot = await getDocs(collection(db, "usuarios"));
-      usuariosContainer.innerHTML = "";
-      querySnapshot.forEach((docSnap) => {
-        const user = docSnap.data();
-        const card = document.createElement("div");
-        card.className = "user-card";
-        card.innerHTML = `
-          <span>${user.nome} - ${user.email}</span>
-          <button class="btn btn-danger" onclick="excluirUsuario('${docSnap.id}')">Excluir</button>
+      querySnapshot.forEach((u) => {
+        const data = u.data();
+        const div = document.createElement("div");
+        div.className = "usuario";
+        div.innerHTML = `
+          <span>${data.email} - ${data.role || "user"}</span>
+          <div>
+            <button class="bloquear" onclick="bloquearUsuario('${u.id}')">Bloquear</button>
+            <button class="excluir" onclick="excluirUsuario('${u.id}')">Excluir</button>
+          </div>
         `;
-        usuariosContainer.appendChild(card);
+        usuariosDiv.appendChild(div);
       });
     }
-    window.excluirUsuario = async (id) => {
-      await deleteDoc(doc(db, "usuarios", id));
+
+    window.bloquearUsuario = async (id) => {
+      await updateDoc(doc(db, "usuarios", id), { role: "blocked" });
+      alert("Usuário bloqueado!");
       carregarUsuarios();
     };
+
+    window.excluirUsuario = async (id) => {
+      await deleteDoc(doc(db, "usuarios", id));
+      alert("Usuário excluído!");
+      carregarUsuarios();
+    };
+
     carregarUsuarios();
-
-    // ============================
-    // CONTROLE MANUAL (Realtime DB)
-    // ============================
-    document.getElementById("manualForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const mult = parseFloat(document.getElementById("multiplicadorManual").value);
-      const tempo = parseInt(document.getElementById("tempoManual").value);
-
-      const sinaisRef = ref(window.rtdb, "sinais");
-      await set(sinaisRef, {
-        status: "ativo",
-        multiplicador: mult,
-        timer: tempo
-      });
-
-      alert("⚡ Multiplicador enviado!");
-    });
-
-    // ============================
-    // AGENDAMENTO (Firestore)
-    // ============================
-    const agendaContainer = document.getElementById("agendaContainer");
-    document.getElementById("agendarForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const hora = document.getElementById("horaAgendada").value;
-      const mult = parseFloat(document.getElementById("multiplicadorAgendado").value);
-
-      await addDoc(collection(db, "agenda"), {
-        hora,
-        multiplicador: mult,
-        criadoEm: new Date().toISOString()
-      });
-      alert("⏳ Sinal agendado!");
-    });
-
-    // Atualiza agenda em tempo real
-    onSnapshot(collection(db, "agenda"), (snapshot) => {
-      agendaContainer.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const ag = docSnap.data();
-        const card = document.createElement("div");
-        card.className = "signal-card";
-        card.innerHTML = `${ag.hora} → ${ag.multiplicador}x`;
-        agendaContainer.appendChild(card);
-      });
-    });
-
-    // ============================
-    // HISTÓRICO DE SINAIS
-    // ============================
-    const historicoContainer = document.getElementById("historicoContainer");
-    onSnapshot(collection(db, "historico"), (snapshot) => {
-      historicoContainer.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const h = docSnap.data();
-        const card = document.createElement("div");
-        card.className = "signal-card";
-        card.innerHTML = `${h.hora} → ${h.multiplicador}x`;
-        historicoContainer.appendChild(card);
-      });
-    });
   </script>
 </body>
 </html>
