@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <img src="1522FBB0-4FB4-474E-8B95-A0ED8E865CB6.jpeg" alt="Splash 7XX">
+  </div>
 
   <!-- HEADER -->
   <header class="topbar">
@@ -93,6 +97,12 @@
     function fecharInfo() {
       document.getElementById("modalInfo").style.display = "none";
     }
+    // Remove splash após 3s
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("splash").style.display = "none";
+      }, 3000);
+    });
   </script>
 </body>
 </html>
