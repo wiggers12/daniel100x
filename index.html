@@ -31,21 +31,49 @@
   <!-- FOTOS -->
   <section class="fotos">
     <a href="login.html">
-      <img src="aviator.jpg" alt="Aviator" class="foto-img">
+      <img src="aviator.jpg" alt="Aviator" class="foto-img pulse-glow">
     </a>
     <a href="login.html">
-      <img src="bonus.jpg" alt="Bônus de Registro" class="foto-img">
+      <img src="bonus.jpg" alt="Bônus de Registro" class="foto-img pulse-glow">
     </a>
   </section>
 
   <!-- OPÇÕES -->
   <section class="opcoes">
-    <div class="card">⏱️ Timer com Entradas</div>
-    <div class="card">📺 Live ao vivo</div>
-    <div class="card">🔥 Entradas 24h por dia</div>
-    <div class="card">🎁 Sorteios semanais</div>
-    <div class="card">📊 Gestão financeira</div>
+    <div class="card">
+      <p class="frase" onclick="abrirInfo('timer')">⏱️ Timer com Entradas</p>
+    </div>
+
+    <div class="card">
+      <p class="frase" onclick="abrirInfo('live')">📺 Live ao vivo</p>
+    </div>
+
+    <div class="card">
+      <p class="frase" onclick="abrirInfo('entradas')">🔥 Entradas 24h por dia</p>
+    </div>
+
+    <div class="card">
+      <p class="frase" onclick="abrirInfo('sorteios')">🎁 Sorteios semanais</p>
+    </div>
+
+    <div class="card">
+      <p class="frase" onclick="abrirInfo('gestao')">📊 Gestão financeira</p>
+    </div>
+
+    <!-- Jogar Aviator (apenas 1 vez, abaixo do Gestão) -->
+    <div class="card">
+      <a href="login.html" class="jogar">🎮 Jogar Aviator</a>
+    </div>
   </section>
+
+  <!-- MODAL -->
+  <div id="modalInfo" class="modal-info">
+    <div class="conteudo">
+      <span class="fechar" onclick="fecharInfo()">✖</span>
+      <h2 id="modalTitulo"></h2>
+      <p id="modalTexto"></p>
+    </div>
+  </div>
 
   <!-- WHATSAPP FIXO -->
   <a href="https://wa.me/55SEUNUMERO" class="whatsapp" target="_blank">💬</a>
@@ -53,11 +81,10 @@
   <!-- Firebase -->
   <script type="module">
     import { db } from "./firebase.js";
-    // Futuro: aqui podemos puxar infos como próximos sorteios ou status do timer
     console.log("Firebase conectado ao Index com sucesso!", db);
   </script>
 
-  <!-- Script do menu -->
+  <!-- Script -->
   <script>
     const menuToggle = document.getElementById("menuToggle");
     const menuLateral = document.getElementById("menuLateral");
@@ -66,6 +93,39 @@
       menuLateral.classList.toggle("ativo");
       menuToggle.textContent = menuLateral.classList.contains("ativo") ? "✖" : "☰";
     });
+
+    // Textos para cada card
+    const textos = {
+      timer: {
+        titulo: "Timer com Entradas",
+        texto: "Mostra quando será a próxima entrada sugerida pelo robô, com contador em tempo real."
+      },
+      live: {
+        titulo: "Live ao vivo",
+        texto: "Acompanhe transmissões e análises em tempo real direto na plataforma."
+      },
+      entradas: {
+        titulo: "Entradas 24h",
+        texto: "Nosso robô gera sinais e entradas automáticas em tempo integral."
+      },
+      sorteios: {
+        titulo: "Sorteios Semanais",
+        texto: "Participe de sorteios exclusivos para membros ativos."
+      },
+      gestao: {
+        titulo: "Gestão Financeira",
+        texto: "Controle sua banca com dicas de risco: use apenas 5% por rodada e proteja seus ganhos."
+      }
+    };
+
+    function abrirInfo(tipo) {
+      document.getElementById("modalTitulo").textContent = textos[tipo].titulo;
+      document.getElementById("modalTexto").textContent = textos[tipo].texto;
+      document.getElementById("modalInfo").style.display = "flex";
+    }
+    function fecharInfo() {
+      document.getElementById("modalInfo").style.display = "none";
+    }
   </script>
 </body>
 </html>
