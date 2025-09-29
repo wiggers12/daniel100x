@@ -5,7 +5,9 @@ body {
   color: #fff;
 }
 
-/* TOPO */
+/* ================================
+   TOPO
+================================= */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -20,10 +22,10 @@ body {
   border: none;
   color: #fff;
   cursor: pointer;
-  position: absolute; /* fixa dentro do header */
+  position: absolute;
   left: 15px;
   top: 15px;
-  z-index: 1100; /* fica acima do menu lateral */
+  z-index: 1100;
 }
 
 .logo {
@@ -58,7 +60,9 @@ body {
   font-size: 0.9rem;
 }
 
-/* MENU LATERAL */
+/* ================================
+   MENU LATERAL
+================================= */
 .menu-lateral {
   position: fixed;
   top: 0;
@@ -88,32 +92,25 @@ body {
   left: 0;
 }
 
-/* FOTOS */
+/* ================================
+   FOTOS
+================================= */
 .fotos {
   display: flex;
   justify-content: center;
   gap: 15px;
   margin: 30px 0;
-  flex-wrap: wrap; /* quebra de linha em telas pequenas */
+  flex-wrap: wrap;
 }
 
 .foto-img {
-  width: 140px;          /* largura fixa */
-  height: 90px;          /* altura fixa */
-  border-radius: 8px;    /* cantos arredondados */
-  object-fit: cover;     /* corta sem distorcer */
+  width: 140px;
+  height: 90px;
+  border-radius: 8px;
+  object-fit: cover;
   cursor: pointer;
-  transition: transform 0.2s;
   display: block;
-}
-
-.foto-img:hover {
-  transform: scale(1.05);
-}
-
-/* Animação de brilho + pulso das imagens */
-.pulse-glow {
-  animation: pulseGlow 2s infinite;
+  animation: pulseGlow 2s infinite; /* Sempre ativo */
   box-shadow: 0 0 10px rgba(74,144,255,0.4);
 }
 
@@ -123,7 +120,9 @@ body {
   100% { transform: scale(1);   box-shadow: 0 0 10px rgba(74,144,255,0.4); }
 }
 
-/* OPÇÕES */
+/* ================================
+   OPÇÕES
+================================= */
 .opcoes {
   display: flex;
   flex-direction: column;
@@ -152,7 +151,9 @@ body {
   font-size: 1.1rem;
 }
 
-/* WHATSAPP FIXO */
+/* ================================
+   WHATSAPP FIXO
+================================= */
 .whatsapp {
   position: fixed;
   bottom: 20px;
@@ -170,7 +171,9 @@ body {
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-/* FORMULÁRIOS */
+/* ================================
+   FORMULÁRIOS
+================================= */
 .form-container {
   max-width: 350px;
   margin: 40px auto;
@@ -201,7 +204,9 @@ body {
   cursor: pointer;
 }
 
-/* PLANOS */
+/* ================================
+   PLANOS
+================================= */
 #planosContainer {
   max-width: 600px;
   margin: 30px auto;
@@ -216,24 +221,30 @@ body {
   margin-bottom: 15px;
 }
 
-/* MODAL SOBREPOSIÇÃO */
+/* ================================
+   MODAL SOBREPOSIÇÃO
+================================= */
 .modal-info {
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.9);
   justify-content: center;
   align-items: center;
   z-index: 9999;
   padding: 20px;
 }
 
+.modal-info.ativo {
+  display: flex; /* ativa quando abre */
+}
+
 .modal-info .conteudo {
   background: #1a1a3d;
   padding: 25px;
   border-radius: 12px;
-  max-width: 450px;
-  width: 100%;
+  max-width: 500px;
+  width: 90%;
   color: #fff;
   text-align: center;
   box-shadow: 0 5px 25px rgba(0,0,0,0.6);
@@ -256,7 +267,7 @@ body {
   position: absolute;
   top: 15px;
   right: 20px;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   cursor: pointer;
   color: #ff4444;
 }
@@ -265,103 +276,28 @@ body {
   from { transform: translateY(50px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
 }
+
 /* ================================
    RESPONSIVIDADE
 ================================= */
-
-/* Telas até 768px (tablets e celulares grandes) */
 @media (max-width: 768px) {
-  .topbar {
-    flex-direction: row;
-    padding: 10px;
-  }
-
-  .logo {
-    font-size: 1.2rem;
-  }
-
-  .acoes a {
-    padding: 5px 10px;
-    font-size: 0.8rem;
-  }
-
-  .fotos {
-    gap: 10px;
-    margin: 20px 0;
-  }
-
-  .foto-img {
-    width: 45%;  /* duas imagens lado a lado */
-    height: auto;
-    aspect-ratio: 16/9; /* mantém proporção */
-  }
-
-  .card {
-    font-size: 0.95rem;
-    padding: 12px;
-  }
-
-  .modal-info .conteudo {
-    width: 95%;
-    padding: 20px;
-  }
+  .topbar { padding: 10px; }
+  .logo { font-size: 1.2rem; }
+  .acoes a { padding: 5px 10px; font-size: 0.8rem; }
+  .fotos { gap: 10px; margin: 20px 0; }
+  .foto-img { width: 45%; height: auto; aspect-ratio: 16/9; }
+  .card { font-size: 0.95rem; padding: 12px; }
+  .modal-info .conteudo { width: 95%; padding: 20px; }
 }
 
-/* Telas até 480px (celulares pequenos) */
 @media (max-width: 480px) {
-  .topbar {
-    flex-direction: column;
-    align-items: center;
-    padding: 8px;
-  }
-
-  .hamburger {
-    left: 10px;
-    top: 10px;
-  }
-
-  .acoes {
-    margin-top: 5px;
-    gap: 6px;
-  }
-
-  .logo {
-    font-size: 1rem;
-  }
-
-  .fotos {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .foto-img {
-    width: 90%;  /* ocupa quase a tela toda */
-    height: auto;
-  }
-
-  .card {
-    font-size: 0.9rem;
-    padding: 10px;
-  }
-
-  .modal-info .conteudo {
-    max-width: 90%;
-    padding: 15px;
-  }
-
-  .modal-info h2 {
-    font-size: 1.2rem;
-  }
-
-  .modal-info p {
-    font-size: 0.9rem;
-  }
-
-  .whatsapp {
-    width: 45px;
-    height: 45px;
-    font-size: 1.2rem;
-    bottom: 15px;
-    right: 15px;
-  }
+  .topbar { flex-direction: column; align-items: center; padding: 8px; }
+  .logo { font-size: 1rem; }
+  .fotos { flex-direction: column; align-items: center; }
+  .foto-img { width: 90%; height: auto; }
+  .card { font-size: 0.9rem; padding: 10px; }
+  .modal-info .conteudo { max-width: 90%; padding: 15px; }
+  .modal-info h2 { font-size: 1.2rem; }
+  .modal-info p { font-size: 0.9rem; }
+  .whatsapp { width: 45px; height: 45px; font-size: 1.2rem; bottom: 15px; right: 15px; }
 }
