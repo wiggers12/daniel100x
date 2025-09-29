@@ -1,6 +1,4 @@
-/* ================================
-   BASE
-================================= */
+/* BASE */
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -8,16 +6,14 @@ body {
   color: #fff;
 }
 
-/* ================================
-   TOPO
-================================= */
+/* TOPO */
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 15px;
   background: #1a1a3d;
-  flex-wrap: nowrap;
+  position: relative;
 }
 
 .hamburger {
@@ -33,13 +29,11 @@ body {
   font-weight: bold;
   color: #4a90ff;
   text-decoration: none;
-  margin: 0 auto; /* centraliza entre esquerda e direita */
 }
 
 .acoes {
   display: flex;
   gap: 10px;
-  flex-shrink: 0;
 }
 
 .btn-preto {
@@ -60,9 +54,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* ================================
-   MENU LATERAL
-================================= */
+/* MENU LATERAL */
 .menu-lateral {
   position: fixed;
   top: 0;
@@ -92,27 +84,24 @@ body {
   left: 0;
 }
 
-/* ================================
-   FOTOS
-================================= */
+/* FOTOS */
 .fotos {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
   margin: 30px 0;
   flex-wrap: wrap;
 }
 
 .foto-img {
-  width: 300px;
-  height: 180px;
-  border-radius: 10px;
+  width: 45%;
+  max-width: 200px;
+  border-radius: 8px;
   object-fit: cover;
   cursor: pointer;
   display: block;
   animation: pulseGlow 2s infinite;
-  box-shadow: 0 0 10px rgba(74,144,255,0.4);
 }
 
 @keyframes pulseGlow {
@@ -121,9 +110,7 @@ body {
   100% { transform: scale(1);   box-shadow: 0 0 10px rgba(74,144,255,0.4); }
 }
 
-/* ================================
-   OPÇÕES
-================================= */
+/* OPÇÕES */
 .opcoes {
   display: flex;
   flex-direction: column;
@@ -145,86 +132,14 @@ body {
   background: #2a2a4d;
 }
 
-.jogar {
+.jogar a {
   text-decoration: none;
   color: #4a90ff;
   font-weight: bold;
   font-size: 1.1rem;
 }
 
-/* ================================
-   WHATSAPP FIXO
-================================= */
-.whatsapp {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #25d366;
-  color: #fff;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  text-decoration: none;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-/* ================================
-   FORMULÁRIOS
-================================= */
-.form-container {
-  max-width: 350px;
-  margin: 40px auto;
-  background: #1a1a3d;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.form-container h2 {
-  margin-bottom: 20px;
-  color: #fff;
-}
-
-.form-container input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 6px;
-  border: none;
-  outline: none;
-  font-size: 1rem;
-}
-
-.form-container button {
-  width: 100%;
-  margin-top: 15px;
-  cursor: pointer;
-}
-
-/* ================================
-   PLANOS
-================================= */
-#planosContainer {
-  max-width: 600px;
-  margin: 30px auto;
-}
-
-#planosContainer h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-#planosContainer .card {
-  margin-bottom: 15px;
-}
-
-/* ================================
-   MODAL SOBREPOSIÇÃO
-================================= */
+/* MODAL */
 .modal-info {
   display: none;
   position: fixed;
@@ -274,44 +189,32 @@ body {
   to   { transform: translateY(0); opacity: 1; }
 }
 
-/* ================================
-   RESPONSIVIDADE
-================================= */
+/* WHATSAPP FIXO */
+.whatsapp {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #25d366;
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* RESPONSIVIDADE */
 @media (max-width: 768px) {
-  .topbar {
-    flex-direction: row;
-    padding: 10px;
-  }
-
-  .logo {
-    font-size: 1.2rem;
-    margin: 0 auto;
-  }
-
-  .acoes a {
-    padding: 5px 10px;
-    font-size: 0.8rem;
-  }
-
   .fotos {
-    flex-direction: column;
-    gap: 10px;
-    margin: 20px 0;
+    flex-wrap: wrap;
   }
 
   .foto-img {
-    width: 90%;
-    height: auto;
-  }
-
-  .card {
-    font-size: 0.95rem;
-    padding: 12px;
-  }
-
-  .modal-info .conteudo {
-    width: 95%;
-    padding: 20px;
+    width: 45%;
   }
 }
 
@@ -319,51 +222,17 @@ body {
   .topbar {
     flex-direction: column;
     align-items: center;
-    padding: 8px;
   }
 
   .acoes {
     margin-top: 5px;
-    gap: 6px;
-  }
-
-  .logo {
-    font-size: 1rem;
   }
 
   .fotos {
     flex-direction: column;
-    align-items: center;
   }
 
   .foto-img {
-    width: 95%;
-    height: auto;
-  }
-
-  .card {
-    font-size: 0.9rem;
-    padding: 10px;
-  }
-
-  .modal-info .conteudo {
-    max-width: 90%;
-    padding: 15px;
-  }
-
-  .modal-info h2 {
-    font-size: 1.2rem;
-  }
-
-  .modal-info p {
-    font-size: 0.9rem;
-  }
-
-  .whatsapp {
-    width: 45px;
-    height: 45px;
-    font-size: 1.2rem;
-    bottom: 15px;
-    right: 15px;
+    width: 90%;
   }
 }
