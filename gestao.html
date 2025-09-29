@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestão Financeira - 7XX</title>
+  <title>Gestão Financeira</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <!-- HEADER -->
   <header class="topbar">
-    <button class="hamburger" id="menuToggle">☰</button>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
     <a href="index.html" class="logo">7XX</a>
     <div class="acoes">
       <a href="cadastro.html" class="btn-preto">Cadastre-se</a>
@@ -21,54 +22,56 @@
   <nav id="menuLateral" class="menu-lateral">
     <a href="planos.html">📄 Planos</a>
     <a href="sorteios.html">🎁 Sorteios</a>
-    <a href="gestao.html">📊 Gestão Financeira</a>
+    <a href="index.html">✖ Voltar</a>
   </nav>
 
-  <!-- PLANILHA -->
-  <div class="form-container">
-    <h2>Gestão de Banca 📊</h2>
-    <input type="number" id="valorInicial" placeholder="Valor Inicial" required>
-    <input type="number" id="valorSeguro" placeholder="Valor Seguro por rodada" required>
-    <input type="number" id="ganhos" placeholder="Ganhos" required>
-    <input type="number" id="perdas" placeholder="Perdas" required>
-    <button onclick="salvarGestao()">Salvar Gestão</button>
+  <!-- FORMULÁRIO -->
+  <section class="form-container">
+    <h2>Gestão da Banca</h2>
+    <form id="gestaoForm">
+      <input type="number" id="valorInicial" placeholder="Valor inicial (R$)" required>
+      <input type="number" id="valorSeguro" placeholder="Valor seguro a ser jogado (R$)" required>
+      <input type="number" id="ganhos" placeholder="Ganhos (R$)" required>
+      <input type="number" id="perdas" placeholder="Perdas (R$)" required>
+      <button type="submit" class="btn-azul">Salvar Gestão</button>
+    </form>
+  </section>
 
-    <div id="resultado" style="margin-top:20px;">
-      <p><strong>Lucro/Prejuízo:</strong> <span id="lucro">0</span></p>
-    </div>
-  </div>
-
-  <!-- Firebase -->
   <script type="module">
-    import { app, db } from "./firebase.js";
-    import { ref, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+    import { db } from "./firebase.js";
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    window.salvarGestao = async function() {
-      const valorInicial = parseFloat(document.getElementById("valorInicial").value || 0);
-      const valorSeguro = parseFloat(document.getElementById("valorSeguro").value || 0);
-      const ganhos = parseFloat(document.getElementById("ganhos").value || 0);
-      const perdas = parseFloat(document.getElementById("perdas").value || 0);
+    document.getElementById("gestaoForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const valorInicial = parseFloat(document.getElementById("valorInicial").value);
+      const valorSeguro = parseFloat(document.getElementById("valorSeguro").value);
+      const ganhos = parseFloat(document.getElementById("ganhos").value);
+      const perdas = parseFloat(document.getElementById("perdas").value);
 
-      const lucro = (ganhos - perdas).toFixed(2);
-      document.getElementById("lucro").textContent = lucro;
+      const lucroTotal = ganhos - perdas;
+      const resultado = lucroTotal >= 0 ? "Lucro" : "Prejuízo";
 
-      await set(ref(db, "gestao/anonimo"), {
-        valorInicial, valorSeguro, ganhos, perdas, lucro,
-        data: new Date().toISOString()
-      });
-
-      alert("Gestão salva com sucesso!");
-    }
+      try {
+        await addDoc(collection(db, "gestao"), {
+          valorInicial,
+          valorSeguro,
+          ganhos,
+          perdas,
+          lucroTotal,
+          resultado,
+          data: new Date()
+        });
+        alert(`Gestão salva! Resultado: ${resultado} de R$${lucroTotal}`);
+      } catch (err) {
+        alert("Erro: " + err.message);
+      }
+    });
   </script>
 
-  <!-- Script do menu -->
   <script>
-    const menuToggle = document.getElementById('menuToggle');
-    const menuLateral = document.getElementById('menuLateral');
-    menuToggle.addEventListener('click', () => {
-      menuLateral.classList.toggle('ativo');
-      menuToggle.textContent = menuLateral.classList.contains('ativo') ? '✖' : '☰';
-    });
+    function toggleMenu() {
+      document.getElementById("menuLateral").classList.toggle("ativo");
+    }
   </script>
 </body>
 </html>
