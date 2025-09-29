@@ -208,7 +208,7 @@
       <div class="card">
         <h3>Lançar Sinal Manual</h3>
         <input type="number" id="timer" placeholder="Tempo em segundos">
-        <input type="number" id="minimo" placeholder="Mínimo esperado (ex: 2)">
+        <input type="number" id="protecao" placeholder="Proteção (ex: 2)">
         <input type="number" id="maximo" placeholder="Máximo esperado (ex: 10)">
         <button id="salvarSinal">💾 Salvar Manual</button>
         <p id="msgSucessoManual" class="msg-sucesso"></p>
@@ -219,7 +219,7 @@
       <div class="card">
         <h3>Programar Horários Automáticos</h3>
         <input type="time" id="horaAutomatica">
-        <input type="number" id="autoMinimo" placeholder="Mínimo esperado">
+        <input type="number" id="autoProtecao" placeholder="Proteção">
         <input type="number" id="autoMaximo" placeholder="Máximo esperado">
         <button onclick="adicionarHorario()">➕ Adicionar Horário</button>
         <p id="msgSucessoAuto" class="msg-sucesso"></p>
@@ -271,11 +271,11 @@
     /* --- Sinal manual --- */
     document.getElementById("salvarSinal").addEventListener("click", async () => {
       const timer = parseInt(document.getElementById("timer").value);
-      const minimo = parseFloat(document.getElementById("minimo").value);
+      const protecao = parseFloat(document.getElementById("protecao").value);
       const maximo = parseFloat(document.getElementById("maximo").value);
       const msg = document.getElementById("msgSucessoManual");
 
-      if (!timer || !minimo || !maximo) {
+      if (!timer || !protecao || !maximo) {
         alert("Preencha todos os campos!");
         return;
       }
@@ -284,17 +284,17 @@
       await addDoc(collection(db, "historico_sinais"), {
         status: "ativo",
         timer,
-        minimo,
+        protecao,
         maximo,
         origem: "manual",
         criado: new Date().toISOString()
       });
 
-      // salva no doc "sinais/atual" (para o dash escutar)
+      // salva no doc "sinais/atual"
       await setDoc(doc(db, "sinais", "atual"), {
         status: "ativo",
         timer,
-        minimo,
+        protecao,
         maximo,
         origem: "manual",
         criado: new Date().toISOString()
@@ -303,22 +303,27 @@
       msg.textContent = "✅ Sinal manual salvo com sucesso!";
       setTimeout(() => { msg.textContent = ""; }, 3000);
 
+      // reseta depois do timer
+      setTimeout(async () => {
+        await setDoc(doc(db, "sinais", "atual"), { status: "aguardando" });
+      }, timer * 1000);
+
       carregarHistorico();
     });
 
     /* --- Horários automáticos --- */
     async function adicionarHorario() {
       const hora = document.getElementById("horaAutomatica").value;
-      const autoMinimo = parseFloat(document.getElementById("autoMinimo").value);
+      const autoProtecao = parseFloat(document.getElementById("autoProtecao").value);
       const autoMaximo = parseFloat(document.getElementById("autoMaximo").value);
       const msg = document.getElementById("msgSucessoAuto");
 
-      if (!hora || !autoMinimo || !autoMaximo) {
+      if (!hora || !autoProtecao || !autoMaximo) {
         alert("Preencha todos os campos!");
         return;
       }
 
-      await addDoc(collection(db, "horarios_automaticos"), { hora, minimo: autoMinimo, maximo: autoMaximo });
+      await addDoc(collection(db, "horarios_automaticos"), { hora, protecao: autoProtecao, maximo: autoMaximo });
 
       msg.textContent = "✅ Horário salvo com sucesso!";
       setTimeout(() => { msg.textContent = ""; }, 3000);
@@ -334,7 +339,7 @@
         const li = document.createElement("li");
         li.className = "horario-item";
         li.innerHTML = `
-          <span>${docSnap.data().hora} | Min: ${docSnap.data().minimo}x - Max: ${docSnap.data().maximo}x</span>
+          <span>${docSnap.data().hora} | Proteção: ${docSnap.data().protecao}x - Max: ${docSnap.data().maximo}x</span>
           <button onclick="removerHorario('${docSnap.id}')">Excluir</button>
         `;
         lista.appendChild(li);
@@ -353,15 +358,15 @@
       const snapshot = await getDocs(collection(db, "horarios_automaticos"));
       snapshot.forEach(async (docSnap) => {
         if (docSnap.data().hora === horaAtual) {
-          const { minimo, maximo } = docSnap.data();
+          const { protecao, maximo } = docSnap.data();
           const timer = Math.floor(Math.random() * 120) + 30;
-          const multiplicador = (Math.random() * (maximo - minimo) + minimo).toFixed(2);
+          const multiplicador = (Math.random() * (maximo - protecao) + protecao).toFixed(2);
 
           // salva no histórico
           await addDoc(collection(db, "historico_sinais"), {
             status: "ativo",
             timer,
-            minimo,
+            protecao,
             maximo,
             multiplicador,
             origem: "auto",
@@ -372,7 +377,7 @@
           await setDoc(doc(db, "sinais_auto", "atual"), {
             status: "ativo",
             timer,
-            minimo,
+            protecao,
             maximo,
             multiplicador,
             origem: "auto",
@@ -381,6 +386,11 @@
 
           console.log(`⚡ Automático ${horaAtual}: ${timer}s | ${multiplicador}x`);
           carregarHistorico();
+
+          // reseta após o timer
+          setTimeout(async () => {
+            await setDoc(doc(db, "sinais_auto", "atual"), { status: "aguardando" });
+          }, timer * 1000);
         }
       });
     }
@@ -398,7 +408,7 @@
         const data = docSnap.data();
         const div = document.createElement("div");
         div.className = "historico-item";
-        div.textContent = `[${data.origem}] ${data.timer}s | Min ${data.minimo} - Max ${data.maximo} | ${data.criado}`;
+        div.textContent = `[${data.origem}] ${data.timer}s | Proteção ${data.protecao} - Max ${data.maximo} | ${data.criado}`;
         lista.appendChild(div);
       });
     }
