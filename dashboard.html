@@ -13,30 +13,27 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
-      align-items: center;
     }
 
+    /* Área do jogo */
     #gameArea {
       flex: 1;
       width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 2rem;
-      font-weight: bold;
-      color: red;
+      border: none;
     }
 
+    /* Rodapé fixo */
     #footer {
       width: 100%;
-      background: transparent;
       padding: 15px;
       display: flex;
-      justify-content: center;
-      gap: 15px;
+      justify-content: space-between;
+      align-items: flex-end;
       position: fixed;
       bottom: 20px;
+      left: 0;
+      right: 0;
+      pointer-events: none;
     }
 
     .btn {
@@ -50,13 +47,33 @@
       align-items: center;
       gap: 8px;
       transition: 0.3s;
+      pointer-events: auto;
     }
-    .btn-youtube { background: #ff0000; color: white; }
-    .btn-timer { background: #00c851; color: white; min-width: 100px; justify-content: center; }
-    .btn-sair { background: #444; color: #fff; }
 
-    /* Modal */
-    #modal {
+    .btn-sair {
+      background: #444;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 8px 14px;
+      margin-top: 10px;
+      align-self: flex-start;
+    }
+
+    .btn-timer {
+      background: #00c851;
+      color: white;
+      min-width: 100px;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .btn-youtube {
+      background: #ff0000;
+      color: white;
+    }
+
+    /* Modal Timer & Live */
+    .modal {
       display: none;
       position: fixed;
       bottom: 80px;
@@ -66,12 +83,17 @@
       padding: 20px;
       border-radius: 8px;
       text-align: center;
-      width: 80%;
-      max-width: 400px;
+      width: 90%;
+      max-width: 450px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 999;
     }
-    #modal h2 { margin-bottom: 10px; }
-    #modal button {
+
+    .modal h2 {
+      margin-bottom: 10px;
+    }
+
+    .modal button {
       margin-top: 15px;
       padding: 10px;
       width: 100%;
@@ -82,54 +104,69 @@
       font-weight: bold;
       cursor: pointer;
     }
+
+    .live-frame {
+      width: 100%;
+      height: 250px;
+      border-radius: 6px;
+      border: none;
+    }
   </style>
 </head>
 <body>
 
   <!-- Área do jogo -->
-  <div id="gameArea">
-    <iframe src="https://7xx.vip/?pid=575973404" width="100%" height="100%" style="border:none;"></iframe>
-  </div>
+  <iframe id="gameArea" src="https://7xx.vip/?pid=575973404"></iframe>
 
-  <!-- Modal -->
-  <div id="modal">
+  <!-- Modal Timer -->
+  <div id="modalTimer" class="modal">
     <h2>⏳ Próximo Multiplicador</h2>
     <p><strong>Horário:</strong> <span id="hora"></span></p>
-    <p><strong>Definido pelo admin:</strong> <span id="multiplicador"></span>x</p>
+    <p><strong>Mínimo Esperado:</strong> <span id="multiplicador"></span>x</p>
     <div style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px;">
-      ⚠️ Jogue com cautela!
+      ⚠️ Pode ser perigoso, cuidado!
     </div>
-    <button onclick="fecharModal()">Fechar</button>
+    <button onclick="fecharModal('modalTimer')">Fechar</button>
+  </div>
+
+  <!-- Modal Live -->
+  <div id="modalLive" class="modal">
+    <h2>📺 Transmissão Ao Vivo</h2>
+    <iframe class="live-frame" src="https://www.youtube.com/embed/live_stream?channel=YOUR_CHANNEL_ID" allowfullscreen></iframe>
+    <button onclick="fecharModal('modalLive')">Fechar</button>
   </div>
 
   <!-- Rodapé -->
   <div id="footer">
-    <button class="btn btn-sair" onclick="location.href='index.html'">🏠 Index</button>
-    <button class="btn btn-sair" onclick="location.href='dashboard.html'">⬅ Dashboard</button>
-    <button id="timerBtn" class="btn btn-timer">00:00</button>
-    <button class="btn btn-youtube" onclick="abrirLive()">▶ Ao Vivo</button>
+    <div style="display:flex; flex-direction:column; align-items:flex-start;">
+      <button id="timerBtn" class="btn btn-timer">00:00</button>
+      <button class="btn btn-sair" onclick="location.href='index.html'">🚪 Sair</button>
+    </div>
+    <button class="btn btn-youtube" onclick="abrirModal('modalLive')">▶ Ao Vivo</button>
   </div>
 
-  <!-- Firebase -->
+  <!-- Firebase + Timer -->
   <script type="module">
-    import { rtdb } from "./firebase.js";
-    import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { app } from "./firebase.js"; // usa seu firebase global
 
-    const sinaisRef = ref(rtdb, "sinais");
+    const db = getDatabase(app);
+    const sinaisRef = ref(db, "sinais");
 
     let segundos = 0;
     let countdown;
-    let multiplicadorAtual = null;
 
     const timerBtn = document.getElementById("timerBtn");
-    const modal = document.getElementById("modal");
+    const modalTimer = document.getElementById("modalTimer");
     const horaEl = document.getElementById("hora");
     const multEl = document.getElementById("multiplicador");
+
+    timerBtn.addEventListener("click", () => abrirModal("modalTimer"));
 
     function iniciarTimer(dados) {
       clearInterval(countdown);
       segundos = dados.timer;
-      multiplicadorAtual = dados.multiplicador;
+      multEl.textContent = dados.multiplicador;
 
       countdown = setInterval(() => {
         if (segundos > 0) {
@@ -139,24 +176,25 @@
           segundos--;
         } else {
           clearInterval(countdown);
-          abrirModal();
+          abrirModal("modalTimer");
         }
       }, 1000);
     }
 
-    function abrirModal() {
-      const agora = new Date();
-      horaEl.textContent = agora.toLocaleTimeString();
-      multEl.textContent = multiplicadorAtual ?? "—";
-      modal.style.display = "block";
+    function abrirModal(id) {
+      document.getElementById(id).style.display = "block";
+      if (id === "modalTimer") {
+        const agora = new Date();
+        horaEl.textContent = agora.toLocaleTimeString();
+      }
     }
 
-    function fecharModal() {
-      modal.style.display = "none";
+    function fecharModal(id) {
+      document.getElementById(id).style.display = "none";
     }
     window.fecharModal = fecharModal;
 
-    // Escuta Firebase em tempo real
+    // Escuta Firebase
     onValue(sinaisRef, (snapshot) => {
       if (snapshot.exists()) {
         const dados = snapshot.val();
@@ -165,22 +203,6 @@
         }
       }
     });
-
-    // Mesmo sem sinal do admin, usuário pode clicar no botão
-    timerBtn.addEventListener("click", () => {
-      abrirModal();
-    });
-
-    // Live embutida
-    function abrirLive() {
-      const liveFrame = document.createElement("iframe");
-      liveFrame.src = "https://www.youtube.com/embed/live_stream?channel=SEU_CHANNEL_ID";
-      liveFrame.width = "100%";
-      liveFrame.height = "400";
-      liveFrame.style.border = "none";
-      document.body.appendChild(liveFrame);
-    }
-    window.abrirLive = abrirLive;
   </script>
 </body>
 </html>
