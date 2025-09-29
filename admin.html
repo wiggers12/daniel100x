@@ -290,7 +290,7 @@
         criado: new Date().toISOString()
       });
 
-      // salva no doc "atual" (para o dash escutar)
+      // salva no doc "sinais/atual" (para o dash escutar)
       await setDoc(doc(db, "sinais", "atual"), {
         status: "ativo",
         timer,
@@ -357,6 +357,7 @@
           const timer = Math.floor(Math.random() * 120) + 30;
           const multiplicador = (Math.random() * (maximo - minimo) + minimo).toFixed(2);
 
+          // salva no histórico
           await addDoc(collection(db, "historico_sinais"), {
             status: "ativo",
             timer,
@@ -367,7 +368,8 @@
             criado: new Date().toISOString()
           });
 
-          await setDoc(doc(db, "sinais", "atual"), {
+          // salva em "sinais_auto/atual"
+          await setDoc(doc(db, "sinais_auto", "atual"), {
             status: "ativo",
             timer,
             minimo,
