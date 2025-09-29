@@ -40,12 +40,12 @@
 
   <!-- OPÇÕES -->
   <section class="opcoes">
-    <div class="card" onclick="abrirInfo('timer')">⏱️ Timer com Entradas</div>
-    <div class="card" onclick="abrirInfo('live')">📺 Live ao vivo</div>
-    <div class="card" onclick="abrirInfo('entradas')">🔥 Entradas 24h por dia</div>
-    <div class="card" onclick="abrirInfo('sorteios')">🎁 Sorteios semanais</div>
-    <div class="card" onclick="abrirInfo('gestao')">📊 Gestão financeira</div>
-    <div class="card jogar"><a href="login.html">🎮 Jogar Aviator</a></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('timer')">⏱️ Timer com Entradas</p></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('live')">📺 Live ao vivo</p></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('entradas')">🔥 Entradas 24h por dia</p></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('sorteios')">🎁 Sorteios semanais</p></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('gestao')">📊 Gestão financeira</p></div>
+    <div class="card"><a href="login.html" class="jogar">🎮 Jogar Aviator</a></div>
   </section>
 
   <!-- MODAL -->
@@ -70,7 +70,6 @@
   <script>
     const menuToggle = document.getElementById("menuToggle");
     const menuLateral = document.getElementById("menuLateral");
-
     menuToggle.addEventListener("click", () => {
       menuLateral.classList.toggle("ativo");
       menuToggle.textContent = menuLateral.classList.contains("ativo") ? "✖" : "☰";
@@ -90,6 +89,7 @@
       document.getElementById("modalTexto").textContent = textos[tipo].texto;
       document.getElementById("modalInfo").style.display = "flex";
     }
+
     function fecharInfo() {
       document.getElementById("modalInfo").style.display = "none";
     }
