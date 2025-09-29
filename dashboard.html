@@ -15,20 +15,19 @@
       flex-direction: column;
     }
 
-    /* Jogo ocupa tela inteira */
+    /* Jogo fullscreen */
     #gameArea {
       flex: 1;
       width: 100%;
       height: 100%;
     }
-
     #gameArea iframe {
       width: 100%;
       height: 100%;
       border: none;
     }
 
-    /* Rodapé fixo com botões */
+    /* Rodapé fixo */
     #footer {
       width: 100%;
       padding: 15px;
@@ -37,8 +36,8 @@
       gap: 15px;
       position: fixed;
       bottom: 20px;
+      z-index: 1000;
     }
-
     .btn {
       border: none;
       border-radius: 25px;
@@ -51,25 +50,11 @@
       gap: 8px;
       transition: 0.3s;
     }
+    .btn-youtube { background: #ff0000; color: white; }
+    .btn-timer { background: #00c851; color: white; min-width: 100px; justify-content: center; }
+    .btn-sair { background: #444; color: #fff; }
 
-    .btn-youtube {
-      background: #ff0000;
-      color: white;
-    }
-
-    .btn-timer {
-      background: #00c851;
-      color: white;
-      min-width: 100px;
-      justify-content: center;
-    }
-
-    .btn-sair {
-      background: #444;
-      color: #fff;
-    }
-
-    /* Modal Timer e Live */
+    /* Modal genérico */
     .modal {
       display: none;
       position: fixed;
@@ -83,13 +68,9 @@
       width: 80%;
       max-width: 400px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      z-index: 2000;
+      z-index: 2001;
     }
-
-    .modal h2 {
-      margin-bottom: 10px;
-    }
-
+    .modal h2 { margin-bottom: 10px; }
     .modal button {
       margin-top: 15px;
       padding: 10px;
@@ -102,7 +83,7 @@
       cursor: pointer;
     }
 
-    /* Modal da Live (YouTube) */
+    /* Live Modal */
     #liveModal iframe {
       width: 100%;
       height: 250px;
@@ -113,7 +94,7 @@
 </head>
 <body>
 
-  <!-- Área do jogo -->
+  <!-- Jogo -->
   <div id="gameArea">
     <iframe src="https://7xx.vip/?pid=575973404"></iframe>
   </div>
@@ -121,9 +102,9 @@
   <!-- Modal Timer -->
   <div id="timerModal" class="modal">
     <h2>⏳ Próximo Multiplicador</h2>
-    <p><strong>Horário:</strong> <span id="hora"></span></p>
-    <p><strong>Mínimo Esperado:</strong> <span id="multiplicador"></span>x</p>
-    <div style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px;">
+    <p><strong>Horário:</strong> <span id="hora">--</span></p>
+    <p><strong>proteção:</strong> <span id="multiplicador">--</span>x</p>
+    <div id="alertaBox" style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px; display:none;">
       ⚠️ Pode ser perigoso, cuidado!
     </div>
     <button onclick="fecharModal('timerModal')">Fechar</button>
@@ -145,39 +126,43 @@
 
   <!-- Firebase -->
   <script type="module">
-    import { db } from "./firebase.js";
+    import { rtdb } from "./firebase.js"; // seu firebase.js deve exportar rtdb
     import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    // Referência no Realtime Database
-    const sinaisRef = ref(db, "sinais");
+    const sinaisRef = ref(rtdb, "sinais");
+    let dadosAtuais = null;
 
-    const horaEl = document.getElementById("hora");
-    const multEl = document.getElementById("multiplicador");
-
-    // Escuta dados do admin
+    // Atualiza dados quando admin enviar
     onValue(sinaisRef, (snapshot) => {
       if (snapshot.exists()) {
-        const dados = snapshot.val();
-        if (dados.status === "ativo") {
-          horaEl.textContent = new Date().toLocaleTimeString();
-          multEl.textContent = dados.multiplicador;
-        }
+        dadosAtuais = snapshot.val();
+      } else {
+        dadosAtuais = null;
       }
     });
 
-    // Abrir modal Timer
+    // Abrir Timer com dados
     document.getElementById("timerBtn").addEventListener("click", () => {
+      if (dadosAtuais && dadosAtuais.status === "ativo") {
+        document.getElementById("hora").textContent = new Date().toLocaleTimeString();
+        document.getElementById("multiplicador").textContent = dadosAtuais.multiplicador;
+        document.getElementById("alertaBox").style.display = "block";
+      } else {
+        document.getElementById("hora").textContent = "--";
+        document.getElementById("multiplicador").textContent = "--";
+        document.getElementById("alertaBox").style.display = "none";
+      }
       abrirModal("timerModal");
     });
 
-    // Abrir modal Live
+    // Abrir Live
     function abrirLive() {
-      const liveUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // Troque pelo link real
+      const liveUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // troque pelo link real
       document.getElementById("liveFrame").src = liveUrl;
       abrirModal("liveModal");
     }
 
-    // Funções genéricas
+    // Controle de modal
     function abrirModal(id) {
       document.getElementById(id).style.display = "block";
     }
