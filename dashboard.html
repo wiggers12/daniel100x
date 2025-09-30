@@ -13,24 +13,14 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
     }
 
-    /* Botão Jogar */
-    #playBtn {
-      background: #4a90ff;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 30px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      cursor: pointer;
+    /* Jogo ocupa a tela inteira */
+    #gameArea {
+      flex: 1;
+      width: 100%;
       border: none;
-      margin-bottom: 20px;
-      transition: 0.3s;
     }
-    #playBtn:hover { background: #3578e5; }
 
     /* Rodapé */
     #footer {
@@ -115,8 +105,8 @@
 </head>
 <body>
 
-  <!-- Botão Jogar -->
-  <button id="playBtn" onclick="window.open('https://rn72q.com/game/action/3602?pid=575973404')">🎮 Jogar Agora</button>
+  <!-- Área do jogo -->
+  <iframe id="gameArea" src="https://rn72q.com/game/action/3602?pid=575973404"></iframe>
 
   <!-- Modal Timer -->
   <div id="modalTimer" class="modal">
@@ -142,15 +132,12 @@
     </div>
   </div>
 
-  <!-- Firebase + Timer -->
-  <script type="module">
-    import { db } from "./firebase.js";
-    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+  <!-- Timer -->
+  <script>
     const timerBtn = document.getElementById("timerBtn");
     const horaEl = document.getElementById("hora");
 
-    // Ciclo fixo de minutos válidos
+    // Minutos válidos fixos
     const minutosValidos = [1,4,7,9,11,14,17,19,21,24,27,29,31,34,37,39,41,44,47,49,51,54,59];
 
     function calcularProximoHorario() {
@@ -160,37 +147,29 @@
 
       let proximoMin = minutosValidos.find(m => m > minutoAtual);
       let proximaHora = horaAtual;
-
       if (!proximoMin) {
         proximoMin = minutosValidos[0];
         proximaHora = (horaAtual + 1) % 24;
       }
 
-      const proximaEntrada = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proximaHora, proximoMin, 0);
-      const diffSegundos = Math.floor((proximaEntrada - agora) / 1000);
-
-      return { diffSegundos, proximaEntrada };
+      return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proximaHora, proximoMin, 0);
     }
 
     function atualizarTimer() {
-      const { diffSegundos, proximaEntrada } = calcularProximoHorario();
-      let segundos = diffSegundos;
+      const agora = new Date();
+      const proximaEntrada = calcularProximoHorario();
+      let diffSegundos = Math.floor((proximaEntrada - agora) / 1000);
 
+      if (diffSegundos < 0) diffSegundos = 0;
+
+      const min = String(Math.floor(diffSegundos / 60)).padStart(2, "0");
+      const sec = String(diffSegundos % 60).padStart(2, "0");
+      timerBtn.textContent = `${min}:${sec}`;
       horaEl.textContent = proximaEntrada.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-      clearInterval(window.countdown);
-      window.countdown = setInterval(() => {
-        if (segundos > 0) {
-          const min = String(Math.floor(segundos / 60)).padStart(2, "0");
-          const sec = String(segundos % 60)).padStart(2, "0");
-          timerBtn.textContent = `${min}:${sec}`;
-          segundos--;
-        } else {
-          atualizarTimer(); // recalcula sempre
-        }
-      }, 1000);
     }
 
+    // Atualiza sempre em tempo real
+    setInterval(atualizarTimer, 1000);
     atualizarTimer();
 
     // Modal toggle
@@ -200,15 +179,8 @@
     }
     window.toggleModal = toggleModal;
 
-    // Abrir modal ao clicar no botão
+    // Abrir modal ao clicar no timer
     timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
-
-    // Escuta admin
-    onSnapshot(doc(db, "sinais", "atual"), (docSnap) => {
-      if (docSnap.exists()) {
-        console.log("📡 Atualização do admin:", docSnap.data());
-      }
-    });
   </script>
 </body>
 </html>
