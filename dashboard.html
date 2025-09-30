@@ -13,14 +13,24 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
-    /* Jogo ocupa a tela inteira */
-    #gameArea {
-      flex: 1;
-      width: 100%;
+    /* Botão Jogar */
+    #playBtn {
+      background: #4a90ff;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
       border: none;
+      margin-bottom: 20px;
+      transition: 0.3s;
     }
+    #playBtn:hover { background: #3578e5; }
 
     /* Rodapé */
     #footer {
@@ -105,8 +115,8 @@
 </head>
 <body>
 
-  <!-- Área do jogo -->
-  <iframe id="gameArea" src="https://7xx.vip/?pid=575973404"></iframe>
+  <!-- Botão Jogar -->
+  <button id="playBtn" onclick="window.open('https://7xx.vip/?pid=575973404','_blank')">🎮 Jogar Agora</button>
 
   <!-- Modal Timer -->
   <div id="modalTimer" class="modal">
@@ -148,16 +158,17 @@
       const minutoAtual = agora.getMinutes();
       const horaAtual = agora.getHours();
 
-      // achar próximo minuto válido
       let proximoMin = minutosValidos.find(m => m > minutoAtual);
       let proximaHora = horaAtual;
-      if (!proximoMin) { // passou de 59, volta para a próxima hora
+
+      if (!proximoMin) {
         proximoMin = minutosValidos[0];
         proximaHora = (horaAtual + 1) % 24;
       }
 
       const proximaEntrada = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proximaHora, proximoMin, 0);
       const diffSegundos = Math.floor((proximaEntrada - agora) / 1000);
+
       return { diffSegundos, proximaEntrada };
     }
 
@@ -171,16 +182,16 @@
       window.countdown = setInterval(() => {
         if (segundos > 0) {
           const min = String(Math.floor(segundos / 60)).padStart(2, "0");
-          const sec = String(segundos % 60).padStart(2, "0");
+          const sec = String(segundos % 60)).padStart(2, "0");
           timerBtn.textContent = `${min}:${sec}`;
           segundos--;
         } else {
-          atualizarTimer(); // recalcula sempre que chega em zero
+          atualizarTimer(); // recalcula sempre
         }
       }, 1000);
     }
 
-    atualizarTimer(); // inicia
+    atualizarTimer();
 
     // Modal toggle
     function toggleModal(id) {
@@ -192,10 +203,10 @@
     // Abrir modal ao clicar no botão
     timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
 
-    // 🔥 Escuta o Admin no Firebase (coleção sinais/atual)
+    // Escuta admin
     onSnapshot(doc(db, "sinais", "atual"), (docSnap) => {
       if (docSnap.exists()) {
-        console.log("📡 Atualização recebida do admin:", docSnap.data());
+        console.log("📡 Atualização do admin:", docSnap.data());
       }
     });
   </script>
