@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robô de Entradas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <img src="splash2.jpeg" alt="Splash 7XX">
+  </div>
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <button class="hamburger" id="menuToggle">☰</button>
+    <a href="index.html" class="logo">7XX</a>
+    <div class="acoes">
+      <a href="cadastro.html" class="btn-preto">Cadastre-se</a>
+      <a href="login.html" class="btn-azul">Entrar</a>
+    </div>
+  </header>
+
+  <!-- MENU LATERAL -->
+  <nav id="menuLateral" class="menu-lateral">
+    <a href="planos.html">📄 Planos</a>
+    <a href="sorteios.html">🎁 Sorteios</a>
+    <a href="gestao.html">📊 Gestão Financeira</a>
+    <a href="https://wa.me/55SEUNUMERO" target="_blank">💬 WhatsApp</a>
+    <a href="https://t.me/SEUCANAL" target="_blank">📢 Telegram</a>
+    <a href="index.html" class="btn-voltar">✖ Voltar</a>
+  </nav>
+
+  <!-- FOTOS -->
+  <section class="fotos">
+    <a href="login.html">
+      <img src="aviator.jpg" alt="Aviator" class="foto-img pulse-glow">
+    </a>
+    <a href="login.html">
+      <img src="bonus.jpg" alt="Bônus de Registro" class="foto-img pulse-glow">
+    </a>
+  </section>
+
+  <!-- OPÇÕES -->
+  <section class="opcoes">
+    <div class="card"><p class="frase" onclick="abrirInfo('timer')">⏱️ Timer com Entradas</p></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('live')">📺 Live ao vivo</p></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('entradas')">🔥 Entradas 24h por dia</p></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('sorteios')">🎁 Sorteios semanais</p></div>
+    <div class="card"><p class="frase" onclick="abrirInfo('gestao')">📊 Gestão financeira</p></div>
+    <div class="card"><a href="login.html" class="jogar">🎮 Jogar Aviator</a></div>
+  </section>
+
+  <!-- MODAL -->
+  <div id="modalInfo" class="modal-info">
+    <div class="conteudo">
+      <span class="fechar" onclick="fecharInfo()">✖</span>
+      <h2 id="modalTitulo"></h2>
+      <p id="modalTexto"></p>
+    </div>
+  </div>
+
+  <!-- WHATSAPP FIXO -->
+  <a href="https://wa.me/55SEUNUMERO" class="whatsapp" target="_blank">💬</a>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { db } from "./firebase.js";
+    console.log("Firebase conectado ao Index com sucesso!", db);
+  </script>
+
+  <!-- Script -->
+  <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const menuLateral = document.getElementById("menuLateral");
+    menuToggle.addEventListener("click", () => {
+      menuLateral.classList.toggle("ativo");
+      menuToggle.textContent = menuLateral.classList.contains("ativo") ? "✖" : "☰";
+    });
+
+    // Textos para cada card
+    const textos = {
+      timer: { titulo: "Timer com Entradas", texto: "Mostra quando será a próxima entrada sugerida pelo robô, com contador em tempo real." },
+      live: { titulo: "Live ao vivo", texto: "Acompanhe transmissões e análises em tempo real direto na plataforma." },
+      entradas: { titulo: "Entradas 24h", texto: "Nosso robô gera sinais e entradas automáticas em tempo integral." },
+      sorteios: { titulo: "Sorteios Semanais", texto: "Participe de sorteios exclusivos para membros ativos." },
+      gestao: { titulo: "Gestão Financeira", texto: "Controle sua banca com dicas de risco: use apenas 5% por rodada e proteja seus ganhos." }
+    };
+
+    function abrirInfo(tipo) {
+      document.getElementById("modalTitulo").textContent = textos[tipo].titulo;
+      document.getElementById("modalTexto").textContent = textos[tipo].texto;
+      document.getElementById("modalInfo").style.display = "flex";
+    }
+
+    function fecharInfo() {
+      document.getElementById("modalInfo").style.display = "none";
+    }
+    // Remove splash após 3s
+    window.addEventListener("load", () => {
+  setTimeout(() => {
+    const splash = document.getElementById("splash");
+    splash.classList.add("fade-out");
+    setTimeout(() => splash.style.display = "none", 1000); // some após o fade
+  }, 3000);
+});
+  </script>
+</body>
+</html>
