@@ -21,7 +21,7 @@
       <p><strong>Horário:</strong> <span id="hora"></span></p>
       <p><strong>Proteção:</strong> 3x</p>
       <p><strong>Probabilidade:</strong> 100x</p>
-      <div class="alerta tempo">⏰ Entrar 1 min antes e 1 min depois</div>
+      <div class="alerta tempo">⏰ Entrar 30 segundos antes e 30 segundos depois</div>
       <div class="alerta aviso">⚠️ Jogue com responsabilidade!</div>
       <button class="btn-fechar" onclick="toggleModal('modalTimer')">Fechar</button>
     </div>
@@ -67,7 +67,7 @@
     const timerBtn = document.getElementById("timerBtn");
     const horaEl = document.getElementById("hora");
     const listaHistorico = document.getElementById("listaHistorico");
-    const minutosValidos = [1,4,7,9,11,14,17,19,21,24,27,29,31,34,37,39,41,44,47,49,51,54,59];
+    const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
 
     // TIMER contínuo
     function calcularProximoHorario() {
