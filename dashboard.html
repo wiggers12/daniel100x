@@ -6,13 +6,14 @@
   <title>Dashboard - 7XX</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* ===== HISTÓRICO EM GRID ===== */
+    /* ===== HISTÓRICO ===== */
     #listaHistorico {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
       gap: 8px;
       margin-top: 15px;
     }
+
     .hist-item {
       display: flex;
       justify-content: center;
@@ -25,6 +26,7 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
       transition: transform 0.2s;
     }
+
     .hist-item:hover { transform: scale(1.05); }
     .azul { background: #007bff; }
     .roxo { background: #8a2be2; }
@@ -37,6 +39,7 @@
       gap: 10px;
       margin: 10px 0;
     }
+
     .filtros button {
       background: #1a1a3d;
       color: white;
@@ -47,45 +50,38 @@
       cursor: pointer;
       transition: 0.2s;
     }
+
     .filtros button:hover { background: #333; }
     .filtros .ativo {
       border-color: #ff4da6;
       background: #2a2a5f;
     }
 
-    /* ===== MODAL ===== */
-    .modal {
-      display: none;
+    /* ===== BOTÃO DO TIMER ===== */
+    .timer-float {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
-      pointer-events: none;
-    }
-    .modal.ativo {
-      display: flex;
-      pointer-events: all;
-    }
-    .modal-content {
-      background: #1a1a3d;
-      padding: 25px;
-      border-radius: 12px;
-      text-align: center;
+      bottom: 100px;
+      left: 20px;
+      background: #00c851;
       color: white;
-      max-width: 320px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.4);
-    }
-    .btn-fechar {
-      background: #ff4da6;
       border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
+      border-radius: 25px;
+      padding: 12px 22px;
+      font-size: 1rem;
       font-weight: bold;
-      color: white;
       cursor: pointer;
-      margin-top: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-float small {
+      font-size: 0.8rem;
+      margin-top: 2px;
+      opacity: 0.9;
     }
   </style>
 </head>
@@ -95,7 +91,10 @@
   <iframe id="gameArea" src="https://rn72q.com/game/action/3602?pid=575973404" allowfullscreen></iframe>
 
   <!-- TIMER FLUTUANTE -->
-  <button id="timerBtn" class="timer-float">00:00</button>
+  <button id="timerBtn" class="timer-float">
+    <span id="timerTempo">00:00</span>
+    <small id="timerValor">🎯 --</small>
+  </button>
 
   <!-- MODAL TIMER -->
   <div id="modalTimer" class="modal">
@@ -107,94 +106,73 @@
       <h3 id="resultadoPrevisto"></h3>
       <div class="alerta tempo">⏰ Entrar 30 segundos antes e 30 segundos depois</div>
       <div class="alerta aviso">⚠️ Jogue com responsabilidade!</div>
-      <button class="btn-fechar" onclick="window.toggleModal('modalTimer')">Fechar</button>
+      <button class="btn-fechar" onclick="toggleModal('modalTimer')">Fechar</button>
     </div>
   </div>
 
   <!-- RODAPÉ -->
   <footer class="navbar">
-    <div class="nav-item" onclick="window.mostrarSecao('home')">🏠 <span>Início</span></div>
-    <div class="nav-item" onclick="window.mostrarSecao('historico')">📜 <span>Histórico</span></div>
-    <div class="nav-item central" onclick="window.mostrarSecao('jogo')">🎮</div>
+    <div class="nav-item" onclick="mostrarSecao('home')">🏠 <span>Início</span></div>
+    <div class="nav-item" onclick="mostrarSecao('historico')">📜 <span>Histórico</span></div>
+    <div class="nav-item central" onclick="mostrarSecao('jogo')">🎮</div>
     <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
-    <div class="nav-item" onclick="window.mostrarSecao('perfil')">👤 <span>Perfil</span></div>
+    <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
   </footer>
 
   <!-- SEÇÕES -->
   <section id="historico" class="secao oculto">
     <h2>📜 Histórico de Entradas</h2>
+
+    <!-- FILTROS -->
     <div class="filtros">
       <button data-cor="todas" class="ativo">Todas</button>
       <button data-cor="azul">Azul</button>
       <button data-cor="roxo">Roxo</button>
       <button data-cor="rosa">Rosa</button>
     </div>
+
     <div id="listaHistorico">Carregando...</div>
   </section>
 
   <section id="perfil" class="secao oculto">
     <h2>👤 Meu Perfil</h2>
     <p id="userEmail">Usuário logado...</p>
-    <button onclick="window.logout()">🚪 Sair</button>
+    <button onclick="logout()">🚪 Sair</button>
   </section>
 
-  <!-- FIREBASE E LÓGICA -->
-  <script type="module" defer>
+  <!-- FIREBASE -->
+  <script type="module">
     import { auth, db } from "./firebase.js";
-    import { doc, onSnapshot, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc } 
+    import { doc, getDoc, setDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp } 
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { signOut, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    const timerBtn = document.getElementById("timerBtn");
+    // ELEMENTOS
+    const timerTempo = document.getElementById("timerTempo");
+    const timerValor = document.getElementById("timerValor");
     const horaEl = document.getElementById("hora");
-    const listaHistorico = document.getElementById("listaHistorico");
     const resultadoPrevisto = document.getElementById("resultadoPrevisto");
+    const listaHistorico = document.getElementById("listaHistorico");
     const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
-    let resultadoGerado = false;
-    let historicoCache = JSON.parse(localStorage.getItem("historicoCache") || "[]");
+    let historicoCache = [];
+    let proximaEntrada = null;
+    let resultadoAtual = null;
 
-    // === TIMER E RESULTADOS ===
-    function formatarHora(dt) {
-      return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
+    const formatarHora = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     function calcularProximoHorario() {
       const agora = new Date();
-      const min = agora.getMinutes();
-      const hora = agora.getHours();
-      let proxMin = minutosValidos.find(m => m > min);
-      let proxHora = hora;
-      if (!proxMin) { proxMin = minutosValidos[0]; proxHora = (hora + 1) % 24; }
-      return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proxHora, proxMin, 0);
+      const minutoAtual = agora.getMinutes();
+      const horaAtual = agora.getHours();
+      let proximoMin = minutosValidos.find(m => m > minutoAtual);
+      let proximaHora = horaAtual;
+      if (!proximoMin) { proximoMin = minutosValidos[0]; proximaHora = (horaAtual + 1) % 24; }
+      return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proximaHora, proximoMin, 0);
     }
-
-    function iniciarTimer() {
-      const agora = new Date();
-      const proxima = calcularProximoHorario();
-      let diff = Math.floor((proxima - agora) / 1000);
-      horaEl.textContent = formatarHora(proxima);
-      resultadoGerado = false;
-
-      clearInterval(window.timerInterval);
-      window.timerInterval = setInterval(() => {
-        if (diff <= 0) {
-          if (!resultadoGerado) {
-            gerarResultadoPersistente();
-            resultadoGerado = true;
-          }
-          return iniciarTimer();
-        }
-        const min = String(Math.floor(diff / 60)).padStart(2, "0");
-        const seg = String(diff % 60).padStart(2, "0");
-        timerBtn.textContent = `${min}:${seg}`;
-        diff--;
-      }, 1000);
-    }
-    iniciarTimer();
 
     async function gerarResultadoPersistente() {
-      const agora = new Date();
-      const chave = `${agora.getFullYear()}-${agora.getMonth()+1}-${agora.getDate()}-${agora.getHours()}-${agora.getMinutes()}`;
+      const chave = `${proximaEntrada.getFullYear()}-${proximaEntrada.getMonth()+1}-${proximaEntrada.getDate()}-${proximaEntrada.getHours()}-${proximaEntrada.getMinutes()}`;
       const ref = doc(db, "resultados_timer", chave);
       const snap = await getDoc(ref);
       let valor, cor;
@@ -204,77 +182,101 @@
       } else {
         valor = (Math.random() * 19 + 1).toFixed(2);
         cor = valor < 2.0 ? "azul" : valor <= 10.0 ? "roxo" : "rosa";
-        await setDoc(ref, { valor: parseFloat(valor), cor, hora: formatarHora(agora), criado: serverTimestamp() });
-        await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, hora: formatarHora(agora), criado: serverTimestamp() });
+        await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(proximaEntrada) });
+        await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, hora: formatarHora(proximaEntrada), criado: serverTimestamp() });
       }
+
+      resultadoAtual = { valor, cor };
       exibirResultado(valor, cor);
     }
 
     function exibirResultado(valor, cor) {
-      resultadoPrevisto.textContent = `🎯 Resultado provável: ${valor}x`;
-      resultadoPrevisto.style.color =
-        cor === "azul" ? "#00bfff" :
-        cor === "roxo" ? "#b266ff" :
-        "#ff4da6";
+      resultadoPrevisto.textContent = `🎯 Resultado previsto: ${valor}x`;
+      timerValor.textContent = `🎯 ${valor}x`;
+      const corBtn = cor === "azul" ? "#007bff" : cor === "roxo" ? "#8a2be2" : "#ff4da6";
+      timerValor.style.color = corBtn;
+      resultadoPrevisto.style.color = corBtn;
     }
 
-    // === MODAL ===
-    window.toggleModal = function(id) {
-      const modal = document.getElementById(id);
-      modal.classList.toggle("ativo");
-    };
-    timerBtn.addEventListener("click", () => window.toggleModal("modalTimer"));
-
-    // === SEÇÕES ===
-    window.mostrarSecao = function(id) {
-      document.querySelectorAll(".secao").forEach(s => s.classList.add("oculto"));
-      if (id === "jogo") return;
-      document.getElementById(id).classList.remove("oculto");
-    };
-
-    // === HISTÓRICO ===
-    const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
-    onSnapshot(q, (snap) => {
+    function atualizarHistoricoLocal(lista) {
       listaHistorico.innerHTML = "";
-      historicoCache = [];
-      snap.forEach(d => {
-        const h = d.data();
-        historicoCache.push(h);
-        const item = document.createElement("div");
-        item.className = `hist-item ${h.cor}`;
-        item.textContent = `${h.valor.toFixed(2)}x`;
-        listaHistorico.appendChild(item);
+      lista.forEach(h => {
+        const div = document.createElement("div");
+        div.className = `hist-item ${h.cor}`;
+        div.textContent = `${h.valor.toFixed(2)}x`;
+        listaHistorico.appendChild(div);
       });
-      localStorage.setItem("historicoCache", JSON.stringify(historicoCache));
-    });
+    }
 
-    // === FILTROS ===
+    async function carregarHistorico() {
+      const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
+      const snap = await getDocs(q);
+      historicoCache = [];
+      snap.forEach(d => historicoCache.push(d.data()));
+      atualizarHistoricoLocal(historicoCache);
+    }
+
+    async function iniciarTimer() {
+      const agora = new Date();
+      proximaEntrada = calcularProximoHorario();
+      const diffTotal = Math.floor((proximaEntrada - agora) / 1000);
+      horaEl.textContent = formatarHora(proximaEntrada);
+      await gerarResultadoPersistente();
+
+      let diff = diffTotal;
+      clearInterval(window.timerInterval);
+      window.timerInterval = setInterval(() => {
+        if (diff <= 0) {
+          clearInterval(window.timerInterval);
+          carregarHistorico();
+          iniciarTimer();
+        } else {
+          const min = String(Math.floor(diff / 60)).padStart(2, "0");
+          const seg = String(diff % 60).padStart(2, "0");
+          timerTempo.textContent = `${min}:${seg}`;
+          diff--;
+        }
+      }, 1000);
+    }
+
+    iniciarTimer();
+    carregarHistorico();
+
+    // FILTROS
     document.querySelectorAll(".filtros button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("ativo"));
         btn.classList.add("ativo");
         const cor = btn.dataset.cor;
-        filtrarHistorico(cor);
+        if (cor === "todas") return atualizarHistoricoLocal(historicoCache);
+        const filtrado = historicoCache.filter(h => h.cor === cor);
+        atualizarHistoricoLocal(filtrado);
       });
     });
-    function filtrarHistorico(cor) {
-      listaHistorico.innerHTML = "";
-      historicoCache
-        .filter(h => cor === "todas" || h.cor === cor)
-        .forEach(h => {
-          const item = document.createElement("div");
-          item.className = `hist-item ${h.cor}`;
-          item.textContent = `${h.valor.toFixed(2)}x`;
-          listaHistorico.appendChild(item);
-        });
-    }
 
-    // === PERFIL ===
+    // MODAL
+    function toggleModal(id) {
+      const modal = document.getElementById(id);
+      modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+    }
+    window.toggleModal = toggleModal;
+    document.getElementById("timerBtn").addEventListener("click", () => toggleModal("modalTimer"));
+
+    // SEÇÕES
+    function mostrarSecao(id) {
+      document.querySelectorAll(".secao").forEach(s => s.classList.add("oculto"));
+      if (id === "jogo") return;
+      document.getElementById(id).classList.remove("oculto");
+    }
+    window.mostrarSecao = mostrarSecao;
+
+    // PERFIL / LOGOUT
     onAuthStateChanged(auth, (user) => {
       const emailEl = document.getElementById("userEmail");
       if (user) emailEl.textContent = `Logado como: ${user.email}`;
       else window.location.href = "index.html";
     });
+
     window.logout = async () => {
       await signOut(auth);
       window.location.href = "index.html";
