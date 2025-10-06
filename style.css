@@ -1,321 +1,131 @@
-/* ==========================
-   BASE E GERAL
-========================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* UNIVERSAL */
 body {
-  font-family: 'Poppins', Arial, sans-serif;
-  background: linear-gradient(135deg, #0b0b20, #101036, #0b0b20);
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: #0b0b20;
   color: #fff;
-  line-height: 1.6;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  overflow-x: hidden;
 }
 
-/* ==========================
-   SPLASH SCREEN
-========================== */
-#splash {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* IFRAME JOGO */
+#gameArea {
   width: 100%;
   height: 100vh;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-#splash img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.fade-out {
-  opacity: 0;
-  transition: opacity 1s ease-out;
-}
-
-/* ==========================
-   HEADER E TOPO
-========================== */
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 25px;
-  background: rgba(0, 0, 0, 0.5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-.logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #4a90ff;
-  text-decoration: none;
-}
-.hamburger {
-  font-size: 1.5rem;
-  background: none;
   border: none;
-  color: white;
-  cursor: pointer;
-}
-.acoes a {
-  margin-left: 10px;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 8px;
-  padding: 8px 15px;
-  transition: 0.3s;
-}
-.btn-preto {
-  background: #222;
-  color: #fff;
-}
-.btn-preto:hover {
-  background: #333;
-}
-.btn-azul {
-  background: #4a90ff;
-  color: white;
-}
-.btn-azul:hover {
-  background: #3578e5;
 }
 
-/* ==========================
-   MENU LATERAL
-========================== */
-.menu-lateral {
+/* TIMER FLUTUANTE */
+.timer-float {
   position: fixed;
-  top: 0;
-  left: -260px;
-  width: 260px;
-  height: 100%;
-  background: #111;
-  padding: 70px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  transition: left 0.3s;
-  z-index: 1000;
-}
-.menu-lateral a {
-  text-decoration: none;
-  color: #fff;
+  bottom: 100px;
+  left: 20px;
+  background: #00c851;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 20px;
   font-size: 1rem;
-  background: #1f1f3a;
-  padding: 10px;
-  border-radius: 6px;
-  transition: 0.2s;
-}
-.menu-lateral a:hover {
-  background: #4a90ff;
-}
-.menu-lateral.ativo {
-  left: 0;
-}
-
-/* ==========================
-   FOTOS E OPÇÕES
-========================== */
-.fotos {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 90px;
-}
-.foto-img {
-  width: 45%;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-.foto-img:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-}
-
-/* Efeito pulsante */
-.pulse-glow {
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(74, 144, 255, 0.5); }
-  70% { box-shadow: 0 0 0 20px rgba(74, 144, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(74, 144, 255, 0); }
-}
-
-/* ==========================
-   CARDS E SEÇÕES
-========================== */
-.opcoes {
-  padding: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-}
-.card {
-  background: #1a1a3d;
-  border-radius: 10px;
-  padding: 15px 20px;
-  width: 45%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  text-align: center;
-  transition: 0.3s;
-  cursor: pointer;
-}
-.card:hover {
-  background: #4a90ff;
-}
-.frase {
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.jogar {
-  display: block;
-  text-decoration: none;
-  background: #4a90ff;
-  color: #fff;
-  padding: 10px 0;
-  border-radius: 8px;
   font-weight: bold;
-  transition: 0.3s;
-}
-.jogar:hover {
-  background: #3578e5;
-}
-
-/* ==========================
-   MODAL DE INFORMAÇÃO
-========================== */
-.modal-info {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-.modal-info .conteudo {
-  background: #1a1a3d;
-  padding: 25px;
-  border-radius: 12px;
-  width: 85%;
-  max-width: 400px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-.modal-info h2 {
-  margin-bottom: 10px;
-  color: #4a90ff;
-}
-.modal-info p {
-  color: #ddd;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-.fechar {
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  font-size: 1.2rem;
-  color: #fff;
   cursor: pointer;
-}
-
-/* ==========================
-   WHATSAPP FIXO
-========================== */
-.whatsapp {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  background: #25d366;
-  color: white;
-  font-size: 1.8rem;
-  border-radius: 50%;
-  width: 55px;
-  height: 55px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
   z-index: 999;
 }
 
-/* ==========================
-   RODAPÉ UNIVERSAL (DASH)
-========================== */
-#footer {
-  width: 100%;
-  background: #111;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 12px 0;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+/* MODAL */
+.modal {
+  display: none;
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 100;
+  right: 0;
+  top: 0;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
-.footer-btn {
+.modal-content {
+  background: #1a1a3d;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+.alerta {
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+.alerta.tempo { background: #222; color: #fff; }
+.alerta.aviso { background: #ff4444; color: white; }
+.btn-fechar {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #12122b;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0;
+  box-shadow: 0 -3px 10px rgba(0,0,0,0.4);
+  z-index: 999;
+}
+.nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   color: #ccc;
-  text-decoration: none;
   font-size: 0.85rem;
-  transition: 0.3s;
+  cursor: pointer;
 }
-.footer-btn i {
-  font-size: 1.4rem;
-  margin-bottom: 3px;
+.nav-item span {
+  margin-top: 2px;
 }
-.footer-btn.active,
-.footer-btn:hover {
-  color: #4a90ff;
-}
-
-/* Botão central (JOGO) */
-.footer-btn.jogo {
-  background: #ff4d4d;
-  color: white;
+.nav-item.central {
+  background: #ff6600;
+  color: #fff;
   border-radius: 50%;
-  width: 65px;
-  height: 65px;
-  display: flex;
+  width: 60px;
+  height: 60px;
   justify-content: center;
   align-items: center;
-  font-size: 1.6rem;
-  position: relative;
-  top: -25px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  transition: 0.3s;
-}
-.footer-btn.jogo:hover {
-  background: #ff6666;
+  font-size: 1.5rem;
+  margin-top: -30px;
+  display: flex;
 }
 
-/* ==========================
-   RESPONSIVIDADE
-========================== */
-@media (max-width: 768px) {
-  .card { width: 100%; }
-  .foto-img { width: 100%; }
-  .acoes a { padding: 6px 10px; font-size: 0.85rem; }
+/* SEÇÕES */
+.secao {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 80px);
+  background: #0b0b20;
+  padding: 20px;
+  overflow-y: auto;
+}
+.oculto {
+  display: none;
+}
+.hist-item {
+  background: #222;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 5px 0;
+  font-size: 0.9rem;
 }
