@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - 7XX</title>
   <link rel="stylesheet" href="style.css">
+
   <style>
     /* ===== HISTÓRICO EM GRID ===== */
     #listaHistorico {
@@ -16,14 +17,15 @@
 
     .hist-item {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 70px;
-      border-radius: 8px;
+      height: 80px;
+      border-radius: 10px;
       font-weight: bold;
       font-size: 0.95rem;
       color: white;
-      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       transition: transform 0.2s;
     }
 
@@ -34,6 +36,13 @@
     .azul { background: #007bff; }
     .roxo { background: #8a2be2; }
     .rosa { background: #ff4da6; }
+
+    /* Hora dentro do card */
+    .hora {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
 
     /* ===== FILTROS ===== */
     .filtros {
@@ -119,7 +128,7 @@
   <!-- Firebase e Scripts -->
   <script type="module">
     import { auth, db } from "./firebase.js";
-    import { doc, getDocs, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc } 
+    import { doc, getDocs, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc, limit } 
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { signOut, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -174,8 +183,15 @@
       } else {
         valor = (Math.random() * 19 + 1).toFixed(2);
         cor = valor < 2.0 ? "azul" : valor <= 10.0 ? "roxo" : "rosa";
-        await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(agora) });
-        await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(agora) });
+        const data = {
+          valor: parseFloat(valor),
+          cor,
+          criado: serverTimestamp(),
+          hora: formatarHora(agora),
+          dataLocal: new Date().toISOString()
+        };
+        await setDoc(ref, data);
+        await addDoc(collection(db, "historico_sinais"), data);
       }
 
       exibirResultado(valor, cor);
@@ -193,8 +209,7 @@
     function atualizarHistorico(valor, cor, hora) {
       const item = document.createElement("div");
       item.className = `hist-item ${cor}`;
-      item.textContent = `${valor}x`;
-      item.setAttribute("data-hora", hora);
+      item.innerHTML = `<div>${valor}x</div><div class="hora">${hora}</div>`;
       historicoCache.unshift({ valor, cor, hora });
       listaHistorico.prepend(item);
     }
@@ -216,7 +231,7 @@
     window.mostrarSecao = mostrarSecao;
 
     async function carregarHistorico() {
-      const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
+      const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"), limit(100));
       const snap = await getDocs(q);
       listaHistorico.innerHTML = "";
       historicoCache = [];
@@ -225,21 +240,19 @@
         const h = d.data();
         const item = document.createElement("div");
         item.className = `hist-item ${h.cor}`;
-        item.textContent = `${h.valor.toFixed(2)}x`;
-        item.setAttribute("data-hora", h.hora);
+        item.innerHTML = `<div>${h.valor.toFixed(2)}x</div><div class="hora">${h.hora}</div>`;
         listaHistorico.appendChild(item);
         historicoCache.push({ valor: h.valor, cor: h.cor, hora: h.hora });
       });
     }
-    carregarHistorico();
+    await carregarHistorico();
+    filtrarHistorico("todas");
 
-    // FILTROS DE COR
     document.querySelectorAll(".filtros button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("ativo"));
         btn.classList.add("ativo");
-        const cor = btn.dataset.cor;
-        filtrarHistorico(cor);
+        filtrarHistorico(btn.dataset.cor);
       });
     });
 
@@ -250,12 +263,11 @@
         .forEach(h => {
           const item = document.createElement("div");
           item.className = `hist-item ${h.cor}`;
-          item.textContent = `${h.valor.toFixed(2)}x`;
+          item.innerHTML = `<div>${h.valor.toFixed(2)}x</div><div class="hora">${h.hora}</div>`;
           listaHistorico.appendChild(item);
         });
     }
 
-    // PERFIL E LOGOUT
     onAuthStateChanged(auth, (user) => {
       const emailEl = document.getElementById("userEmail");
       if (user) emailEl.textContent = `Logado como: ${user.email}`;
