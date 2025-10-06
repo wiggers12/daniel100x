@@ -181,7 +181,7 @@
         ({ valor, cor } = snap.data());
       } else {
         valor = (Math.random() * 19 + 1).toFixed(2);
-        cor = valor < 2.0 ? "azul" : valor <= 10.0 ? "roxo" : "rosa";
+        cor = valor <= 10.0 ? "roxo" : "rosa";
         await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(proximaEntrada) });
         await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, hora: formatarHora(proximaEntrada), criado: serverTimestamp() });
       }
