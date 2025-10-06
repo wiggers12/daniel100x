@@ -21,6 +21,7 @@
       <p><strong>Horário:</strong> <span id="hora"></span></p>
       <p><strong>Proteção:</strong> 3x</p>
       <p><strong>Probabilidade:</strong> 100x</p>
+      <h3 id="resultadoPrevisto"></h3>
       <div class="alerta tempo">⏰ Entrar 30 segundos antes e 30 segundos depois</div>
       <div class="alerta aviso">⚠️ Jogue com responsabilidade!</div>
       <button class="btn-fechar" onclick="toggleModal('modalTimer')">Fechar</button>
@@ -61,13 +62,19 @@
   <!-- Firebase e Scripts -->
   <script type="module">
     import { auth, db } from "./firebase.js";
-    import { doc, getDocs, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { doc, getDocs, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const timerBtn = document.getElementById("timerBtn");
     const horaEl = document.getElementById("hora");
     const listaHistorico = document.getElementById("listaHistorico");
+    const resultadoPrevisto = document.getElementById("resultadoPrevisto");
     const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
+
+    // Formatador de hora
+    function formatarHora(dt) {
+      return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
     // TIMER contínuo
     function calcularProximoHorario() {
@@ -84,7 +91,7 @@
       const agora = new Date();
       const proxima = calcularProximoHorario();
       let diff = Math.floor((proxima - agora) / 1000);
-      horaEl.textContent = proxima.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      horaEl.textContent = formatarHora(proxima);
 
       clearInterval(window.timerInterval);
       window.timerInterval = setInterval(() => {
@@ -98,10 +105,62 @@
 
     iniciarTimer();
 
+    // RESULTADO PERSISTENTE POR MINUTO
+    async function gerarResultadoPersistente() {
+      const agora = new Date();
+      const chave = `${agora.getFullYear()}-${agora.getMonth()+1}-${agora.getDate()}-${agora.getHours()}-${agora.getMinutes()}`;
+      const ref = doc(db, "resultados_timer", chave);
+      const snap = await getDoc(ref);
+
+      let valor, cor;
+
+      if (snap.exists()) {
+        ({ valor, cor } = snap.data());
+      } else {
+        valor = (Math.random() * 19 + 1).toFixed(2);
+        cor = valor < 2.0 ? "azul" : valor <= 10.0 ? "roxo" : "rosa";
+
+        await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(agora) });
+        await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(agora) });
+      }
+
+      exibirResultado(valor, cor);
+      atualizarHistorico(valor, cor, formatarHora(agora));
+    }
+
+    // Exibir resultado no modal
+    function exibirResultado(valor, cor) {
+      resultadoPrevisto.textContent = `🎯 Resultado provável: ${valor}x`;
+      resultadoPrevisto.style.color =
+        cor === "azul" ? "#00bfff" :
+        cor === "roxo" ? "#b266ff" :
+        "#ff4da6";
+    }
+
+    // Atualizar histórico visualmente
+    function atualizarHistorico(valor, cor, hora) {
+      const item = document.createElement("div");
+      item.className = "hist-item";
+      item.style.background =
+        cor === "azul" ? "#005eff" :
+        cor === "roxo" ? "#7f00ff" :
+        "#ff4da6";
+      item.style.color = "#fff";
+      item.style.padding = "12px";
+      item.style.borderRadius = "8px";
+      item.style.fontWeight = "bold";
+      item.style.textAlign = "center";
+      item.style.marginBottom = "6px";
+      item.innerHTML = `${hora} — ${valor}x`;
+      listaHistorico.prepend(item);
+    }
+
     // Modal Timer
     function toggleModal(id) {
       const modal = document.getElementById(id);
-      modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+      const aberto = modal.style.display === "flex";
+      modal.style.display = aberto ? "none" : "flex";
+      if (!aberto) gerarResultadoPersistente();
     }
     window.toggleModal = toggleModal;
     timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
@@ -114,16 +173,27 @@
     }
     window.mostrarSecao = mostrarSecao;
 
-    // Carregar histórico
+    // Carregar histórico completo
     async function carregarHistorico() {
       const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
       const snap = await getDocs(q);
       listaHistorico.innerHTML = "";
       snap.forEach(d => {
         const h = d.data();
+        const cor =
+          h.cor === "azul" ? "#005eff" :
+          h.cor === "roxo" ? "#7f00ff" :
+          "#ff4da6";
         const div = document.createElement("div");
         div.className = "hist-item";
-        div.textContent = `[${h.origem}] ${h.timer}s | Min: ${h.minimo}x - Max: ${h.maximo}x | ${new Date(h.criado).toLocaleTimeString()}`;
+        div.style.background = cor;
+        div.style.color = "#fff";
+        div.style.padding = "12px";
+        div.style.borderRadius = "8px";
+        div.style.fontWeight = "bold";
+        div.style.textAlign = "center";
+        div.style.marginBottom = "6px";
+        div.textContent = `${h.hora || '--:--'} — ${h.valor.toFixed(2)}x`;
         listaHistorico.appendChild(div);
       });
     }
