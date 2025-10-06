@@ -13,7 +13,6 @@
       gap: 8px;
       margin-top: 15px;
     }
-
     .hist-item {
       display: flex;
       justify-content: center;
@@ -26,11 +25,7 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
       transition: transform 0.2s;
     }
-
-    .hist-item:hover {
-      transform: scale(1.05);
-    }
-
+    .hist-item:hover { transform: scale(1.05); }
     .azul { background: #007bff; }
     .roxo { background: #8a2be2; }
     .rosa { background: #ff4da6; }
@@ -42,7 +37,6 @@
       gap: 10px;
       margin: 10px 0;
     }
-
     .filtros button {
       background: #1a1a3d;
       color: white;
@@ -53,11 +47,7 @@
       cursor: pointer;
       transition: 0.2s;
     }
-
-    .filtros button:hover {
-      background: #333;
-    }
-
+    .filtros button:hover { background: #333; }
     .filtros .ativo {
       border-color: #ff4da6;
       background: #2a2a5f;
@@ -98,15 +88,12 @@
   <!-- SEÇÕES -->
   <section id="historico" class="secao oculto">
     <h2>📜 Histórico de Entradas</h2>
-
-    <!-- FILTROS DE COR -->
     <div class="filtros">
       <button data-cor="todas" class="ativo">Todas</button>
       <button data-cor="azul">Azul</button>
       <button data-cor="roxo">Roxo</button>
       <button data-cor="rosa">Rosa</button>
     </div>
-
     <div id="listaHistorico">Carregando...</div>
   </section>
 
@@ -116,10 +103,10 @@
     <button onclick="logout()">🚪 Sair</button>
   </section>
 
-  <!-- Firebase e Scripts -->
+  <!-- FIREBASE SCRIPT -->
   <script type="module">
     import { auth, db } from "./firebase.js";
-    import { doc, getDocs, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc } 
+    import { doc, onSnapshot, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc } 
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { signOut, onAuthStateChanged } 
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -129,9 +116,11 @@
     const listaHistorico = document.getElementById("listaHistorico");
     const resultadoPrevisto = document.getElementById("resultadoPrevisto");
     const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
-    let historicoCache = [];
-    let resultadoGerado = false;
 
+    let resultadoGerado = false;
+    let historicoCache = JSON.parse(localStorage.getItem("historicoCache") || "[]");
+
+    // ==== TIMER CONTROL ====
     function formatarHora(dt) {
       return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
@@ -168,26 +157,27 @@
         diff--;
       }, 1000);
     }
+
     iniciarTimer();
 
+    // ==== RESULTADO PERSISTENTE ====
     async function gerarResultadoPersistente() {
       const agora = new Date();
       const chave = `${agora.getFullYear()}-${agora.getMonth()+1}-${agora.getDate()}-${agora.getHours()}-${agora.getMinutes()}`;
       const ref = doc(db, "resultados_timer", chave);
       const snap = await getDoc(ref);
-
       let valor, cor;
+
       if (snap.exists()) {
         ({ valor, cor } = snap.data());
       } else {
         valor = (Math.random() * 19 + 1).toFixed(2);
         cor = valor < 2.0 ? "azul" : valor <= 10.0 ? "roxo" : "rosa";
-        await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(agora) });
-        await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(agora) });
+        await setDoc(ref, { valor: parseFloat(valor), cor, hora: formatarHora(agora), criado: serverTimestamp() });
+        await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, hora: formatarHora(agora), criado: serverTimestamp() });
       }
 
       exibirResultado(valor, cor);
-      atualizarHistorico(valor, cor, formatarHora(agora));
     }
 
     function exibirResultado(valor, cor) {
@@ -198,49 +188,23 @@
         "#ff4da6";
     }
 
-    function atualizarHistorico(valor, cor, hora) {
-      const item = document.createElement("div");
-      item.className = `hist-item ${cor}`;
-      item.textContent = `${valor}x`;
-      item.setAttribute("data-hora", hora);
-      historicoCache.unshift({ valor, cor, hora });
-      listaHistorico.prepend(item);
-    }
-
-    function toggleModal(id) {
-      const modal = document.getElementById(id);
-      const aberto = modal.style.display === "flex";
-      modal.style.display = aberto ? "none" : "flex";
-    }
-    window.toggleModal = toggleModal;
-    timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
-
-    function mostrarSecao(id) {
-      document.querySelectorAll(".secao").forEach(s => s.classList.add("oculto"));
-      if (id === "jogo") return;
-      document.getElementById(id).classList.remove("oculto");
-    }
-    window.mostrarSecao = mostrarSecao;
-
-    async function carregarHistorico() {
-      const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
-      const snap = await getDocs(q);
+    // ==== HISTÓRICO EM TEMPO REAL ====
+    const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
+    onSnapshot(q, (snap) => {
       listaHistorico.innerHTML = "";
       historicoCache = [];
-
       snap.forEach(d => {
         const h = d.data();
+        historicoCache.push(h);
         const item = document.createElement("div");
         item.className = `hist-item ${h.cor}`;
         item.textContent = `${h.valor.toFixed(2)}x`;
-        item.setAttribute("data-hora", h.hora);
         listaHistorico.appendChild(item);
-        historicoCache.push({ valor: h.valor, cor: h.cor, hora: h.hora });
       });
-    }
-    carregarHistorico();
+      localStorage.setItem("historicoCache", JSON.stringify(historicoCache));
+    });
 
-    // FILTROS DE COR
+    // ==== FILTROS DE COR ====
     document.querySelectorAll(".filtros button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("ativo"));
@@ -262,7 +226,7 @@
         });
     }
 
-    // PERFIL E LOGOUT
+    // ==== PERFIL E LOGOUT ====
     onAuthStateChanged(auth, (user) => {
       const emailEl = document.getElementById("userEmail");
       if (user) emailEl.textContent = `Logado como: ${user.email}`;
