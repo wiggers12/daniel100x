@@ -46,69 +46,79 @@ body {
 }
 
 /* ===============================
-   LOGIN / CADASTRO CENTRALIZADO
+   LOGIN PREMIUM CENTRALIZADO
 ================================== */
-.form-container {
+.login-container {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(20, 20, 50, 0.8);
+  border-radius: 18px;
+  padding: 50px 35px;
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 162, 255, 0.2);
+  animation: fadeIn 1.2s ease;
+}
+.login-container h1 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: #fff;
+  text-shadow: 0 0 15px rgba(0, 162, 255, 0.4);
+}
+.login-container form {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  padding: 20px;
-  text-align: center;
-  transition: opacity 0.8s ease;
+  gap: 18px;
 }
-body:not(.ready) .form-container {
-  opacity: 0;
-  pointer-events: none;
-}
-body.ready .form-container {
-  opacity: 1;
-  pointer-events: auto;
-}
-.form-container h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.1);
-}
-.form-container input {
-  width: 90%;
-  max-width: 320px;
-  padding: 12px 15px;
-  margin-bottom: 15px;
-  border: none;
-  border-radius: 8px;
-  background: #19193a;
+.login-container input {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background: #181832;
   color: #fff;
   font-size: 1rem;
   outline: none;
+  transition: 0.3s ease;
 }
-.form-container button {
-  width: 90%;
-  max-width: 320px;
-  padding: 12px;
-  background: #007bff;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
+.login-container input:focus {
+  border-color: #007bff;
+  background: #1c1c3f;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+.btn-azul {
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+  color: white;
   font-weight: bold;
-  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
   cursor: pointer;
   transition: 0.3s;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
 }
-.form-container button:hover {
-  background: #0066cc;
+.btn-azul:hover {
+  transform: scale(1.03);
+  background: linear-gradient(90deg, #00c6ff, #007bff);
+  box-shadow: 0 0 12px rgba(0, 162, 255, 0.4);
 }
-.form-container p {
-  margin-top: 10px;
-  font-size: 0.9rem;
+.login-container p {
+  margin-top: 20px;
+  font-size: 0.95rem;
+  color: #bbb;
 }
-.form-container a {
+.login-container a {
   color: #3b82f6;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;
+  transition: 0.3s;
 }
+.login-container a:hover {
+  text-decoration: underline;
+}
+
+
 
 /* ===============================
    IFRAME JOGO
