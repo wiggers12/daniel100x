@@ -1,186 +1,145 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - 7XX</title>
-  <style>
-    body {
-      margin: 0;
-      background: #0b0b20;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Jogo ocupa a tela inteira */
-    #gameArea {
-      flex: 1;
-      width: 100%;
-      border: none;
-    }
-
-    /* Rodapé */
-    #footer {
-      width: 100%;
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      position: fixed;
-      bottom: 20px;
-      left: 0;
-      right: 0;
-      pointer-events: none;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 25px;
-      padding: 12px 20px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: 0.3s;
-      pointer-events: auto;
-    }
-
-    .btn-timer {
-      background: #00c851;
-      color: white;
-      min-width: 100px;
-      justify-content: center;
-    }
-
-    .btn-telegram {
-      background: #0088cc;
-      color: white;
-      margin-bottom: 8px;
-    }
-
-    .btn-sair {
-      background: #444;
-      color: #fff;
-      font-size: 0.8rem;
-      padding: 6px 12px;
-      align-self: center;
-    }
-
-    /* Modal Timer */
-    .modal {
-      display: none;
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1a1a3d;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-      width: 90%;
-      max-width: 450px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      z-index: 999;
-    }
-
-    .modal h2 { margin-bottom: 10px; }
-
-    .modal button {
-      margin-top: 15px;
-      padding: 10px;
-      width: 100%;
-      background: #ff4444;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Área do jogo -->
-  <iframe id="gameArea" src="https://rn72q.com/game/action/3602?pid=575973404"></iframe>
+  <!-- JOGO -->
+  <iframe id="gameArea" src="https://rn72q.com/game/action/3602?pid=575973404" allowfullscreen></iframe>
 
-  <!-- Modal Timer -->
+  <!-- TIMER FLUTUANTE -->
+  <button id="timerBtn" class="timer-float">00:00</button>
+
+  <!-- MODAL TIMER -->
   <div id="modalTimer" class="modal">
-    <h2>⏳ Próxima Entrada</h2>
-    <p><strong>Horário:</strong> <span id="hora"></span></p>
-    <p><strong>Proteção:</strong> 3x</p>
-    <p><strong>Probabilidade:</strong> 100x</p>
-    <div style="margin-top:10px; background:#222; color:#fff; padding:10px; border-radius:6px;">
-      ⏰ Entrar 1 min antes e 1 min depois
-    </div>
-    <div style="margin-top:10px; background:#ff4444; color:white; padding:10px; border-radius:6px;">
-      ⚠️ Jogue com responsabilidade!
-    </div>
-    <button onclick="toggleModal('modalTimer')">Fechar</button>
-  </div>
-
-  <!-- Rodapé -->
-  <div id="footer">
-    <button id="timerBtn" class="btn btn-timer">00:00</button>
-    <div style="display:flex; flex-direction:column; align-items:flex-end;">
-      <a href="https://t.me/aviatorvip100x" target="_blank" class="btn btn-telegram">📢 Telegram</a>
-      <button class="btn btn-sair" onclick="location.href='index.html'">🚪 Sair</button>
+    <div class="modal-content">
+      <h2>⏳ Próxima Entrada</h2>
+      <p><strong>Horário:</strong> <span id="hora"></span></p>
+      <p><strong>Proteção:</strong> 3x</p>
+      <p><strong>Probabilidade:</strong> 100x</p>
+      <div class="alerta tempo">⏰ Entrar 1 min antes e 1 min depois</div>
+      <div class="alerta aviso">⚠️ Jogue com responsabilidade!</div>
+      <button class="btn-fechar" onclick="toggleModal('modalTimer')">Fechar</button>
     </div>
   </div>
 
-  <!-- Timer -->
-  <script>
+  <!-- RODAPÉ -->
+  <footer class="navbar">
+    <div class="nav-item" onclick="mostrarSecao('home')">
+      🏠 <span>Início</span>
+    </div>
+    <div class="nav-item" onclick="mostrarSecao('historico')">
+      📜 <span>Histórico</span>
+    </div>
+    <div class="nav-item central" onclick="mostrarSecao('jogo')">
+      🎮
+    </div>
+    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">
+      📢 <span>Telegram</span>
+    </a>
+    <div class="nav-item" onclick="mostrarSecao('perfil')">
+      👤 <span>Perfil</span>
+    </div>
+  </footer>
+
+  <!-- SEÇÕES -->
+  <section id="historico" class="secao oculto">
+    <h2>📜 Histórico de Entradas</h2>
+    <div id="listaHistorico">Carregando...</div>
+  </section>
+
+  <section id="perfil" class="secao oculto">
+    <h2>👤 Meu Perfil</h2>
+    <p id="userEmail">Usuário logado...</p>
+    <button onclick="logout()">🚪 Sair</button>
+  </section>
+
+  <!-- Firebase e Scripts -->
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { doc, getDocs, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
     const timerBtn = document.getElementById("timerBtn");
     const horaEl = document.getElementById("hora");
-
-    // Minutos válidos fixos
+    const listaHistorico = document.getElementById("listaHistorico");
     const minutosValidos = [1,4,7,9,11,14,17,19,21,24,27,29,31,34,37,39,41,44,47,49,51,54,59];
 
+    // TIMER contínuo
     function calcularProximoHorario() {
       const agora = new Date();
-      const minutoAtual = agora.getMinutes();
-      const horaAtual = agora.getHours();
-
-      let proximoMin = minutosValidos.find(m => m > minutoAtual);
-      let proximaHora = horaAtual;
-      if (!proximoMin) {
-        proximoMin = minutosValidos[0];
-        proximaHora = (horaAtual + 1) % 24;
-      }
-
-      return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proximaHora, proximoMin, 0);
+      const min = agora.getMinutes();
+      const hora = agora.getHours();
+      let proxMin = minutosValidos.find(m => m > min);
+      let proxHora = hora;
+      if (!proxMin) { proxMin = minutosValidos[0]; proxHora = (hora + 1) % 24; }
+      return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proxHora, proxMin, 0);
     }
 
-    function atualizarTimer() {
+    function iniciarTimer() {
       const agora = new Date();
-      const proximaEntrada = calcularProximoHorario();
-      let diffSegundos = Math.floor((proximaEntrada - agora) / 1000);
+      const proxima = calcularProximoHorario();
+      let diff = Math.floor((proxima - agora) / 1000);
+      horaEl.textContent = proxima.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      if (diffSegundos < 0) diffSegundos = 0;
-
-      const min = String(Math.floor(diffSegundos / 60)).padStart(2, "0");
-      const sec = String(diffSegundos % 60).padStart(2, "0");
-      timerBtn.textContent = `${min}:${sec}`;
-      horaEl.textContent = proximaEntrada.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      clearInterval(window.timerInterval);
+      window.timerInterval = setInterval(() => {
+        if (diff <= 0) return iniciarTimer();
+        const min = String(Math.floor(diff / 60)).padStart(2, "0");
+        const seg = String(diff % 60).padStart(2, "0");
+        timerBtn.textContent = `${min}:${seg}`;
+        diff--;
+      }, 1000);
     }
 
-    // Atualiza sempre em tempo real
-    setInterval(atualizarTimer, 1000);
-    atualizarTimer();
+    iniciarTimer();
 
-    // Modal toggle
+    // Modal Timer
     function toggleModal(id) {
       const modal = document.getElementById(id);
-      modal.style.display = modal.style.display === "block" ? "none" : "block";
+      modal.style.display = modal.style.display === "flex" ? "none" : "flex";
     }
     window.toggleModal = toggleModal;
-
-    // Abrir modal ao clicar no timer
     timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
+
+    // Controle de seções
+    function mostrarSecao(id) {
+      document.querySelectorAll(".secao").forEach(s => s.classList.add("oculto"));
+      if (id === "jogo") return;
+      document.getElementById(id).classList.remove("oculto");
+    }
+    window.mostrarSecao = mostrarSecao;
+
+    // Carregar histórico
+    async function carregarHistorico() {
+      const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
+      const snap = await getDocs(q);
+      listaHistorico.innerHTML = "";
+      snap.forEach(d => {
+        const h = d.data();
+        const div = document.createElement("div");
+        div.className = "hist-item";
+        div.textContent = `[${h.origem}] ${h.timer}s | Min: ${h.minimo}x - Max: ${h.maximo}x | ${new Date(h.criado).toLocaleTimeString()}`;
+        listaHistorico.appendChild(div);
+      });
+    }
+    carregarHistorico();
+
+    // Perfil e logout
+    onAuthStateChanged(auth, (user) => {
+      const emailEl = document.getElementById("userEmail");
+      if (user) emailEl.textContent = `Logado como: ${user.email}`;
+      else window.location.href = "index.html";
+    });
+
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    };
   </script>
 </body>
 </html>
