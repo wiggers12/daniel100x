@@ -1,378 +1,321 @@
-/* ================================
-   RESET E BASE
-================================= */
+/* ==========================
+   BASE E GERAL
+========================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 body {
-  font-family: 'Poppins', sans-serif;
-  background: #0d0d2a;
+  font-family: 'Poppins', Arial, sans-serif;
+  background: linear-gradient(135deg, #0b0b20, #101036, #0b0b20);
   color: #fff;
-  line-height: 1.5;
-}
-
-/* ================================
-   HEADER / TOPO
-================================= */
-.topbar {
-  display: grid;
-  grid-template-columns: 50px 1fr auto; /* hambúrguer | logo | botões */
-  align-items: center;
-  padding: 12px 15px;
-  background: #1a1a3d;
-}
-
-.hamburger {
-  font-size: 1.6rem;
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  justify-self: start;
-}
-
-.logo {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #4a90ff;
-  text-decoration: none;
-  text-align: center;
-  justify-self: center;
-}
-
-.acoes {
-  display: flex;
-  gap: 10px;
-  justify-self: end;
-}
-
-.btn-preto,
-.btn-azul {
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: bold;
-}
-
-.btn-preto {
-  background: #222;
-  color: #fff;
-}
-
-.btn-azul {
-  background: #4a90ff;
-  color: #fff;
-}
-
-/* ================================
-   MENU LATERAL
-================================= */
-.menu-lateral {
-  position: fixed;
-  top: 0;
-  left: -250px;
-  width: 220px;
-  height: 100%;
-  background: #1a1a3d;
-  padding-top: 60px;
-  transition: left 0.3s;
+  line-height: 1.6;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
 }
 
-.menu-lateral a {
-  padding: 15px;
-  color: #fff;
-  text-decoration: none;
-  border-bottom: 1px solid #333;
-}
-
-.menu-lateral a:hover {
-  background: #4a90ff;
-}
-
-.menu-lateral.ativo {
-  left: 0;
-}
-
-/* ================================
-   FOTOS (sempre lado a lado)
-================================= */
-.fotos {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin: 30px auto;
-  flex-wrap: nowrap; /* nunca empilha */
-}
-
-.foto-img {
-  width: 45%;
-  max-width: 300px;
-  border-radius: 12px;
-  object-fit: cover;
-  cursor: pointer;
-  display: block;
-  transition: transform 0.3s;
-  animation: pulseGlow 2s infinite;
-  box-shadow: 0 0 12px rgba(74,144,255,0.4);
-}
-
-.foto-img:hover {
-  transform: scale(1.05);
-}
-
-@keyframes pulseGlow {
-  0%   { transform: scale(1); box-shadow: 0 0 12px rgba(74,144,255,0.4); }
-  50%  { transform: scale(1.05); box-shadow: 0 0 25px rgba(74,144,255,0.9); }
-  100% { transform: scale(1); box-shadow: 0 0 12px rgba(74,144,255,0.4); }
-}
-
-/* ================================
-   CARDS / FRASES
-================================= */
-.opcoes {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 20px;
-}
-
-.card {
-  background: #1a1a3d;
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
-}
-
-.card:hover {
-  background: #2a2a4d;
-  transform: scale(1.02);
-}
-
-.jogar {
-  text-decoration: none;
-  color: #4a90ff;
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-/* ================================
-   MODAL
-================================= */
-.modal-info {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.85);
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  padding: 20px;
-}
-
-.modal-info .conteudo {
-  background: #1a1a3d;
-  padding: 25px;
-  border-radius: 12px;
-  max-width: 450px;
-  width: 100%;
-  text-align: center;
-  animation: fadeInUp 0.4s ease;
-  position: relative;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-}
-
-.modal-info h2 {
-  margin-bottom: 12px;
-  color: #4a90ff;
-}
-
-.modal-info p {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #ddd;
-}
-
-.modal-info .fechar {
-  position: absolute;
-  top: 12px;
-  right: 18px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #ff4444;
-}
-
-@keyframes fadeInUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-/* ================================
-   FORMULÁRIOS LOGIN / CADASTRO
-================================= */
-.form-container {
-  max-width: 400px;
-  margin: 40px auto;
-  background: #1a1a3d;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
-
-.form-container h2 {
-  margin-bottom: 20px;
-  color: #4a90ff;
-}
-
-.form-container input {
-  width: 100%;
-  padding: 12px;
-  margin: 12px 0;
-  border-radius: 6px;
-  border: none;
-  outline: none;
-  font-size: 1rem;
-  background: #222;
-  color: #fff;
-}
-
-.form-container input:focus {
-  border: 2px solid #4a90ff;
-  background: #111;
-}
-
-.form-container button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #4a90ff;
-  color: #fff;
-  font-weight: bold;
-  font-size: 1rem;
-  transition: 0.3s;
-}
-
-.form-container button:hover {
-  background: #367ae0;
-}
-
-/* ================================
-   SEÇÃO SORTEIOS E GESTÃO
-================================= */
-#planosContainer, .gestao-container, .sorteio-container {
-  max-width: 600px;
-  margin: 30px auto;
-  padding: 20px;
-  background: #1a1a3d;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
-
-#planosContainer h2,
-.gestao-container h2,
-.sorteio-container h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #4a90ff;
-}
-
-#planosContainer .card,
-.gestao-container .card,
-.sorteio-container .card {
-  margin-bottom: 15px;
-}
-
-/* ================================
-   BOTÃO FIXO WHATSAPP
-================================= */
-.whatsapp {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #25d366;
-  color: #fff;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  text-decoration: none;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  transition: transform 0.2s;
-}
-
-.whatsapp:hover {
-  transform: scale(1.1);
-}
-
-/* ================================
-   RESPONSIVIDADE
-================================= */
-@media (max-width: 768px) {
-  .topbar {
-    grid-template-columns: 40px 1fr auto;
-  }
-  .logo { font-size: 1.2rem; }
-  .acoes a { font-size: 0.8rem; }
-
-  .foto-img {
-    width: 48%;
-  }
-}
-
-@media (max-width: 480px) {
-  .topbar {
-    grid-template-columns: 35px 1fr auto;
-    padding: 10px;
-  }
-  .logo { font-size: 1rem; }
-  .acoes a { padding: 4px 8px; }
-
-  .foto-img {
-    width: 45%;
-  }
-
-  .form-container {
-    width: 90%;
-    padding: 20px;
-  }
-}
-/* Splash screen */
+/* ==========================
+   SPLASH SCREEN
+========================== */
 #splash {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: #000;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+}
+#splash img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fade-out {
+  opacity: 0;
   transition: opacity 1s ease-out;
 }
 
-#splash img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain; /* Mostra a imagem inteira */
+/* ==========================
+   HEADER E TOPO
+========================== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-#splash.fade-out {
-  opacity: 0;
-  pointer-events: none;
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4a90ff;
+  text-decoration: none;
+}
+.hamburger {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+.acoes a {
+  margin-left: 10px;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 8px 15px;
+  transition: 0.3s;
+}
+.btn-preto {
+  background: #222;
+  color: #fff;
+}
+.btn-preto:hover {
+  background: #333;
+}
+.btn-azul {
+  background: #4a90ff;
+  color: white;
+}
+.btn-azul:hover {
+  background: #3578e5;
+}
+
+/* ==========================
+   MENU LATERAL
+========================== */
+.menu-lateral {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  background: #111;
+  padding: 70px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: left 0.3s;
+  z-index: 1000;
+}
+.menu-lateral a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 1rem;
+  background: #1f1f3a;
+  padding: 10px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+.menu-lateral a:hover {
+  background: #4a90ff;
+}
+.menu-lateral.ativo {
+  left: 0;
+}
+
+/* ==========================
+   FOTOS E OPÇÕES
+========================== */
+.fotos {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 90px;
+}
+.foto-img {
+  width: 45%;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.foto-img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Efeito pulsante */
+.pulse-glow {
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(74, 144, 255, 0.5); }
+  70% { box-shadow: 0 0 0 20px rgba(74, 144, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 144, 255, 0); }
+}
+
+/* ==========================
+   CARDS E SEÇÕES
+========================== */
+.opcoes {
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+.card {
+  background: #1a1a3d;
+  border-radius: 10px;
+  padding: 15px 20px;
+  width: 45%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  transition: 0.3s;
+  cursor: pointer;
+}
+.card:hover {
+  background: #4a90ff;
+}
+.frase {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.jogar {
+  display: block;
+  text-decoration: none;
+  background: #4a90ff;
+  color: #fff;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+.jogar:hover {
+  background: #3578e5;
+}
+
+/* ==========================
+   MODAL DE INFORMAÇÃO
+========================== */
+.modal-info {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+.modal-info .conteudo {
+  background: #1a1a3d;
+  padding: 25px;
+  border-radius: 12px;
+  width: 85%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.modal-info h2 {
+  margin-bottom: 10px;
+  color: #4a90ff;
+}
+.modal-info p {
+  color: #ddd;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.fechar {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 1.2rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* ==========================
+   WHATSAPP FIXO
+========================== */
+.whatsapp {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: #25d366;
+  color: white;
+  font-size: 1.8rem;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 999;
+}
+
+/* ==========================
+   RODAPÉ UNIVERSAL (DASH)
+========================== */
+#footer {
+  width: 100%;
+  background: #111;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+}
+.footer-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: 0.3s;
+}
+.footer-btn i {
+  font-size: 1.4rem;
+  margin-bottom: 3px;
+}
+.footer-btn.active,
+.footer-btn:hover {
+  color: #4a90ff;
+}
+
+/* Botão central (JOGO) */
+.footer-btn.jogo {
+  background: #ff4d4d;
+  color: white;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.6rem;
+  position: relative;
+  top: -25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transition: 0.3s;
+}
+.footer-btn.jogo:hover {
+  background: #ff6666;
+}
+
+/* ==========================
+   RESPONSIVIDADE
+========================== */
+@media (max-width: 768px) {
+  .card { width: 100%; }
+  .foto-img { width: 100%; }
+  .acoes a { padding: 6px 10px; font-size: 0.85rem; }
 }
