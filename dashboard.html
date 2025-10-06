@@ -5,6 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - 7XX</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* ===== HISTÓRICO EM GRID ===== */
+    #listaHistorico {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .hist-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 70px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: white;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+
+    .hist-item:hover {
+      transform: scale(1.05);
+    }
+
+    .azul { background: #007bff; }
+    .roxo { background: #8a2be2; }
+    .rosa { background: #ff4da6; }
+
+    /* ===== FILTROS ===== */
+    .filtros {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .filtros button {
+      background: #1a1a3d;
+      color: white;
+      border: 2px solid #555;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .filtros button:hover {
+      background: #333;
+    }
+
+    .filtros .ativo {
+      border-color: #ff4da6;
+      background: #2a2a5f;
+    }
+  </style>
 </head>
 <body>
 
@@ -30,26 +88,25 @@
 
   <!-- RODAPÉ -->
   <footer class="navbar">
-    <div class="nav-item" onclick="mostrarSecao('home')">
-      🏠 <span>Início</span>
-    </div>
-    <div class="nav-item" onclick="mostrarSecao('historico')">
-      📜 <span>Histórico</span>
-    </div>
-    <div class="nav-item central" onclick="mostrarSecao('jogo')">
-      🎮
-    </div>
-    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">
-      📢 <span>Telegram</span>
-    </a>
-    <div class="nav-item" onclick="mostrarSecao('perfil')">
-      👤 <span>Perfil</span>
-    </div>
+    <div class="nav-item" onclick="mostrarSecao('home')">🏠 <span>Início</span></div>
+    <div class="nav-item" onclick="mostrarSecao('historico')">📜 <span>Histórico</span></div>
+    <div class="nav-item central" onclick="mostrarSecao('jogo')">🎮</div>
+    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
+    <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
   </footer>
 
   <!-- SEÇÕES -->
   <section id="historico" class="secao oculto">
     <h2>📜 Histórico de Entradas</h2>
+
+    <!-- FILTROS DE COR -->
+    <div class="filtros">
+      <button data-cor="todas" class="ativo">Todas</button>
+      <button data-cor="azul">Azul</button>
+      <button data-cor="roxo">Roxo</button>
+      <button data-cor="rosa">Rosa</button>
+    </div>
+
     <div id="listaHistorico">Carregando...</div>
   </section>
 
@@ -62,21 +119,22 @@
   <!-- Firebase e Scripts -->
   <script type="module">
     import { auth, db } from "./firebase.js";
-    import { doc, getDocs, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDocs, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { signOut, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const timerBtn = document.getElementById("timerBtn");
     const horaEl = document.getElementById("hora");
     const listaHistorico = document.getElementById("listaHistorico");
     const resultadoPrevisto = document.getElementById("resultadoPrevisto");
     const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
+    let historicoCache = [];
 
-    // Formatador de hora
     function formatarHora(dt) {
       return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    // TIMER contínuo
     function calcularProximoHorario() {
       const agora = new Date();
       const min = agora.getMinutes();
@@ -102,10 +160,8 @@
         diff--;
       }, 1000);
     }
-
     iniciarTimer();
 
-    // RESULTADO PERSISTENTE POR MINUTO
     async function gerarResultadoPersistente() {
       const agora = new Date();
       const chave = `${agora.getFullYear()}-${agora.getMonth()+1}-${agora.getDate()}-${agora.getHours()}-${agora.getMinutes()}`;
@@ -113,13 +169,11 @@
       const snap = await getDoc(ref);
 
       let valor, cor;
-
       if (snap.exists()) {
         ({ valor, cor } = snap.data());
       } else {
         valor = (Math.random() * 19 + 1).toFixed(2);
         cor = valor < 2.0 ? "azul" : valor <= 10.0 ? "roxo" : "rosa";
-
         await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(agora) });
         await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(agora) });
       }
@@ -128,7 +182,6 @@
       atualizarHistorico(valor, cor, formatarHora(agora));
     }
 
-    // Exibir resultado no modal
     function exibirResultado(valor, cor) {
       resultadoPrevisto.textContent = `🎯 Resultado provável: ${valor}x`;
       resultadoPrevisto.style.color =
@@ -137,25 +190,15 @@
         "#ff4da6";
     }
 
-    // Atualizar histórico visualmente
     function atualizarHistorico(valor, cor, hora) {
       const item = document.createElement("div");
-      item.className = "hist-item";
-      item.style.background =
-        cor === "azul" ? "#005eff" :
-        cor === "roxo" ? "#7f00ff" :
-        "#ff4da6";
-      item.style.color = "#fff";
-      item.style.padding = "12px";
-      item.style.borderRadius = "8px";
-      item.style.fontWeight = "bold";
-      item.style.textAlign = "center";
-      item.style.marginBottom = "6px";
-      item.innerHTML = `${hora} — ${valor}x`;
+      item.className = `hist-item ${cor}`;
+      item.textContent = `${valor}x`;
+      item.setAttribute("data-hora", hora);
+      historicoCache.unshift({ valor, cor, hora });
       listaHistorico.prepend(item);
     }
 
-    // Modal Timer
     function toggleModal(id) {
       const modal = document.getElementById(id);
       const aberto = modal.style.display === "flex";
@@ -165,7 +208,6 @@
     window.toggleModal = toggleModal;
     timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
 
-    // Controle de seções
     function mostrarSecao(id) {
       document.querySelectorAll(".secao").forEach(s => s.classList.add("oculto"));
       if (id === "jogo") return;
@@ -173,33 +215,47 @@
     }
     window.mostrarSecao = mostrarSecao;
 
-    // Carregar histórico completo
     async function carregarHistorico() {
       const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
       const snap = await getDocs(q);
       listaHistorico.innerHTML = "";
+      historicoCache = [];
+
       snap.forEach(d => {
         const h = d.data();
-        const cor =
-          h.cor === "azul" ? "#005eff" :
-          h.cor === "roxo" ? "#7f00ff" :
-          "#ff4da6";
-        const div = document.createElement("div");
-        div.className = "hist-item";
-        div.style.background = cor;
-        div.style.color = "#fff";
-        div.style.padding = "12px";
-        div.style.borderRadius = "8px";
-        div.style.fontWeight = "bold";
-        div.style.textAlign = "center";
-        div.style.marginBottom = "6px";
-        div.textContent = `${h.hora || '--:--'} — ${h.valor.toFixed(2)}x`;
-        listaHistorico.appendChild(div);
+        const item = document.createElement("div");
+        item.className = `hist-item ${h.cor}`;
+        item.textContent = `${h.valor.toFixed(2)}x`;
+        item.setAttribute("data-hora", h.hora);
+        listaHistorico.appendChild(item);
+        historicoCache.push({ valor: h.valor, cor: h.cor, hora: h.hora });
       });
     }
     carregarHistorico();
 
-    // Perfil e logout
+    // FILTROS DE COR
+    document.querySelectorAll(".filtros button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("ativo"));
+        btn.classList.add("ativo");
+        const cor = btn.dataset.cor;
+        filtrarHistorico(cor);
+      });
+    });
+
+    function filtrarHistorico(cor) {
+      listaHistorico.innerHTML = "";
+      historicoCache
+        .filter(h => cor === "todas" || h.cor === cor)
+        .forEach(h => {
+          const item = document.createElement("div");
+          item.className = `hist-item ${h.cor}`;
+          item.textContent = `${h.valor.toFixed(2)}x`;
+          listaHistorico.appendChild(item);
+        });
+    }
+
+    // PERFIL E LOGOUT
     onAuthStateChanged(auth, (user) => {
       const emailEl = document.getElementById("userEmail");
       if (user) emailEl.textContent = `Logado como: ${user.email}`;
