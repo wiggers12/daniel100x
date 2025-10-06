@@ -71,7 +71,7 @@
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 0 10px rgba(0,0,0,0.4);
-      z-index: 999;
+      z-index: 99;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -83,12 +83,31 @@
       margin-top: 2px;
       opacity: 0.9;
     }
+
+    /* ===== SEÇÕES ===== */
+    .secao { display: none; padding: 20px; color: #fff; }
+    .secao.ativa { display: block; }
+
+    iframe#gameArea {
+      width: 100%;
+      height: calc(100vh - 120px);
+      border: none;
+      display: block;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0d0b16, #1a1030);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+    }
   </style>
 </head>
 <body>
 
-  <!-- JOGO -->
-  <iframe id="gameArea" src="https://rn72q.com/game/action/3602?pid=575973404" allowfullscreen></iframe>
+  <!-- SEÇÃO PRINCIPAL (JOGO) -->
+  <section id="home" class="secao ativa">
+    <iframe id="gameArea" src="https://rn72q.com/game/action/3602?pid=575973404" allowfullscreen></iframe>
+  </section>
 
   <!-- TIMER -->
   <button id="timerBtn" class="timer-float">
@@ -97,7 +116,7 @@
   </button>
 
   <!-- MODAL -->
-  <div id="modalTimer" class="modal">
+  <div id="modalTimer" class="modal" style="display:none;">
     <div class="modal-content">
       <h2>⏳ Próxima Entrada</h2>
       <p><strong>Horário:</strong> <span id="hora"></span></p>
@@ -110,18 +129,9 @@
     </div>
   </div>
 
-  <!-- RODAPÉ -->
-  <footer class="navbar">
-    <div class="nav-item" onclick="mostrarSecao('home')">🏠 <span>Início</span></div>
-    <div class="nav-item" onclick="mostrarSecao('historico')">📜 <span>Histórico</span></div>
-    <div class="nav-item central" onclick="mostrarSecao('jogo')">🎮</div>
-    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
-    <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
-  </footer>
-
   <!-- HISTÓRICO -->
-  <section id="historico" class="secao oculto">
-    <h2>📜 Histórico de Entradas</h2>
+  <section id="historico" class="secao">
+    <h2>📜 Tip miner</h2>
     <div class="filtros">
       <button data-cor="todas" class="ativo">Todas</button>
       <button data-cor="azul">Azul</button>
@@ -131,13 +141,23 @@
     <div id="listaHistorico">Carregando...</div>
   </section>
 
-  <section id="perfil" class="secao oculto">
+  <!-- PERFIL -->
+  <section id="perfil" class="secao">
     <h2>👤 Meu Perfil</h2>
     <p id="userEmail">Usuário logado...</p>
     <button onclick="logout()">🚪 Sair</button>
   </section>
 
-  <!-- SCRIPT FIREBASE -->
+  <!-- RODAPÉ -->
+  <footer class="navbar">
+    <div class="nav-item" onclick="mostrarSecao('home')">🏠 <span>Início</span></div>
+    <div class="nav-item" onclick="mostrarSecao('historico')">📜 <span>Histórico</span></div>
+    <div class="nav-item central" onclick="mostrarSecao('home')">🎮</div>
+    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
+    <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
+  </footer>
+
+  <!-- FIREBASE SCRIPT -->
   <script type="module">
     import { auth, db } from "./firebase.js";
     import {
@@ -147,6 +167,7 @@
     import { signOut, onAuthStateChanged }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+    // ELEMENTOS
     const timerTempo = document.getElementById("timerTempo");
     const timerValor = document.getElementById("timerValor");
     const horaEl = document.getElementById("hora");
@@ -156,6 +177,12 @@
     let proximaEntrada, historicoCache = [], resultadoAtual = null;
 
     const formatarHora = d => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Função para alternar seções
+    window.mostrarSecao = (id) => {
+      document.querySelectorAll(".secao").forEach(s => s.classList.remove("ativa"));
+      document.getElementById(id).classList.add("ativa");
+    };
 
     function calcularProximoHorario() {
       const agora = new Date();
@@ -201,7 +228,7 @@
       window.timerInterval = setInterval(async () => {
         if (diff <= 0) {
           await gerarResultado();
-          diff = 60; // evita loop rápido
+          diff = 60;
         }
         const min = String(Math.floor(diff / 60)).padStart(2, "0");
         const seg = String(diff % 60).padStart(2, "0");
@@ -230,10 +257,7 @@
       });
     }
 
-    // Recarregar cache local
-    const cacheLocal = localStorage.getItem("historico7xx");
-    if (cacheLocal) atualizarHistorico(JSON.parse(cacheLocal));
-
+    // Filtros
     document.querySelectorAll(".filtros button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("ativo"));
