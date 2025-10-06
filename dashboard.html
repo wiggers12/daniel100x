@@ -52,6 +52,41 @@
       border-color: #ff4da6;
       background: #2a2a5f;
     }
+
+    /* ===== MODAL ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+    }
+    .modal.ativo {
+      display: flex;
+      pointer-events: all;
+    }
+    .modal-content {
+      background: #1a1a3d;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      color: white;
+      max-width: 320px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+    .btn-fechar {
+      background: #ff4da6;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      margin-top: 12px;
+    }
   </style>
 </head>
 <body>
@@ -72,17 +107,17 @@
       <h3 id="resultadoPrevisto"></h3>
       <div class="alerta tempo">⏰ Entrar 30 segundos antes e 30 segundos depois</div>
       <div class="alerta aviso">⚠️ Jogue com responsabilidade!</div>
-      <button class="btn-fechar" onclick="toggleModal('modalTimer')">Fechar</button>
+      <button class="btn-fechar" onclick="window.toggleModal('modalTimer')">Fechar</button>
     </div>
   </div>
 
   <!-- RODAPÉ -->
   <footer class="navbar">
-    <div class="nav-item" onclick="mostrarSecao('home')">🏠 <span>Início</span></div>
-    <div class="nav-item" onclick="mostrarSecao('historico')">📜 <span>Histórico</span></div>
-    <div class="nav-item central" onclick="mostrarSecao('jogo')">🎮</div>
+    <div class="nav-item" onclick="window.mostrarSecao('home')">🏠 <span>Início</span></div>
+    <div class="nav-item" onclick="window.mostrarSecao('historico')">📜 <span>Histórico</span></div>
+    <div class="nav-item central" onclick="window.mostrarSecao('jogo')">🎮</div>
     <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
-    <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
+    <div class="nav-item" onclick="window.mostrarSecao('perfil')">👤 <span>Perfil</span></div>
   </footer>
 
   <!-- SEÇÕES -->
@@ -100,11 +135,11 @@
   <section id="perfil" class="secao oculto">
     <h2>👤 Meu Perfil</h2>
     <p id="userEmail">Usuário logado...</p>
-    <button onclick="logout()">🚪 Sair</button>
+    <button onclick="window.logout()">🚪 Sair</button>
   </section>
 
-  <!-- FIREBASE SCRIPT -->
-  <script type="module">
+  <!-- FIREBASE E LÓGICA -->
+  <script type="module" defer>
     import { auth, db } from "./firebase.js";
     import { doc, onSnapshot, collection, query, orderBy, addDoc, serverTimestamp, getDoc, setDoc } 
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -116,15 +151,13 @@
     const listaHistorico = document.getElementById("listaHistorico");
     const resultadoPrevisto = document.getElementById("resultadoPrevisto");
     const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
-
     let resultadoGerado = false;
     let historicoCache = JSON.parse(localStorage.getItem("historicoCache") || "[]");
 
-    // ==== TIMER CONTROL ====
+    // === TIMER E RESULTADOS ===
     function formatarHora(dt) {
       return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
-
     function calcularProximoHorario() {
       const agora = new Date();
       const min = agora.getMinutes();
@@ -157,10 +190,8 @@
         diff--;
       }, 1000);
     }
-
     iniciarTimer();
 
-    // ==== RESULTADO PERSISTENTE ====
     async function gerarResultadoPersistente() {
       const agora = new Date();
       const chave = `${agora.getFullYear()}-${agora.getMonth()+1}-${agora.getDate()}-${agora.getHours()}-${agora.getMinutes()}`;
@@ -176,7 +207,6 @@
         await setDoc(ref, { valor: parseFloat(valor), cor, hora: formatarHora(agora), criado: serverTimestamp() });
         await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, hora: formatarHora(agora), criado: serverTimestamp() });
       }
-
       exibirResultado(valor, cor);
     }
 
@@ -188,7 +218,21 @@
         "#ff4da6";
     }
 
-    // ==== HISTÓRICO EM TEMPO REAL ====
+    // === MODAL ===
+    window.toggleModal = function(id) {
+      const modal = document.getElementById(id);
+      modal.classList.toggle("ativo");
+    };
+    timerBtn.addEventListener("click", () => window.toggleModal("modalTimer"));
+
+    // === SEÇÕES ===
+    window.mostrarSecao = function(id) {
+      document.querySelectorAll(".secao").forEach(s => s.classList.add("oculto"));
+      if (id === "jogo") return;
+      document.getElementById(id).classList.remove("oculto");
+    };
+
+    // === HISTÓRICO ===
     const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
     onSnapshot(q, (snap) => {
       listaHistorico.innerHTML = "";
@@ -204,7 +248,7 @@
       localStorage.setItem("historicoCache", JSON.stringify(historicoCache));
     });
 
-    // ==== FILTROS DE COR ====
+    // === FILTROS ===
     document.querySelectorAll(".filtros button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("ativo"));
@@ -213,7 +257,6 @@
         filtrarHistorico(cor);
       });
     });
-
     function filtrarHistorico(cor) {
       listaHistorico.innerHTML = "";
       historicoCache
@@ -226,13 +269,12 @@
         });
     }
 
-    // ==== PERFIL E LOGOUT ====
+    // === PERFIL ===
     onAuthStateChanged(auth, (user) => {
       const emailEl = document.getElementById("userEmail");
       if (user) emailEl.textContent = `Logado como: ${user.email}`;
       else window.location.href = "index.html";
     });
-
     window.logout = async () => {
       await signOut(auth);
       window.location.href = "index.html";
