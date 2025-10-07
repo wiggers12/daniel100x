@@ -219,23 +219,26 @@
     }
 
     async function iniciarTimer() {
-      const agora = new Date();
-      proximaEntrada = calcularProximoHorario();
-      let diff = Math.floor((proximaEntrada - agora) / 1000);
-      horaEl.textContent = formatarHora(proximaEntrada);
+  const agora = new Date();
+  proximaEntrada = calcularProximoHorario();
+  let diff = Math.floor((proximaEntrada - agora) / 1000);
+  horaEl.textContent = formatarHora(proximaEntrada);
 
-      clearInterval(window.timerInterval);
-      window.timerInterval = setInterval(async () => {
-        if (diff <= 0) {
-          await gerarResultado();
-          diff = 60;
-        }
-        const min = String(Math.floor(diff / 60)).padStart(2, "0");
-        const seg = String(diff % 60).padStart(2, "0");
-        timerTempo.textContent = `${min}:${seg}`;
-        diff--;
-      }, 1000);
+  // 🔹 Gera o primeiro resultado imediatamente
+  await gerarResultado();
+
+  clearInterval(window.timerInterval);
+  window.timerInterval = setInterval(async () => {
+    if (diff <= 0) {
+      await gerarResultado();
+      diff = 60;
     }
+    const min = String(Math.floor(diff / 60)).padStart(2, "0");
+    const seg = String(diff % 60).padStart(2, "0");
+    timerTempo.textContent = `${min}:${seg}`;
+    diff--;
+  }, 1000);
+}
 
     function ouvirHistorico() {
       const q = query(collection(db, "historico_sinais"), orderBy("hora", "desc"));
