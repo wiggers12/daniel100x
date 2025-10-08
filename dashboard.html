@@ -95,7 +95,7 @@
       font-family: 'Poppins', sans-serif;
     }
 
-    /* ===== NOVO BOTÃO EXTRA ===== */
+    /* ===== BOTÕES DE JOGOS ===== */
     .nav-item.jogo-extra {
       font-weight: bold;
       color: #ffcc00;
@@ -155,12 +155,11 @@
 
   <!-- RODAPÉ -->
   <footer class="navbar">
-    <div class="nav-item" onclick="mostrarSecao('home')">🏠 <span>Início</span></div>
+    <div class="nav-item" onclick="mostrarSecao('home');abrirAviator()">✈️ <span>Aviator</span></div>
+    <div class="nav-item jogo-extra" onclick="abrirBigBet()">🎲 <span>BigBet</span></div>
     <div class="nav-item" onclick="mostrarSecao('historico')">📜 <span>Histórico</span></div>
-    <div class="nav-item central" onclick="mostrarSecao('home')">🎮</div>
-    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
-    <div class="nav-item jogo-extra" onclick="abrirJogoExtra()">🎲 Outro Jogo</div>
     <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
+    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
   </footer>
 
   <!-- SCRIPT -->
@@ -183,19 +182,16 @@
     const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
     let proximaEntrada, historicoCache = [], resultadoAtual = null;
 
+    // ===== FUNÇÕES DE JOGOS =====
+    window.abrirAviator = () => {
+      gameArea.src = "https://rn72q.com/game/action/3602?pid=575973404";
+    };
+    window.abrirBigBet = () => {
+      gameArea.src = "https://lxgo.me/go?brand=bigbet&bta=30211_0253";
+    };
+
+    // ===== TIMER E FIREBASE =====
     const formatarHora = d => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    window.mostrarSecao = id => {
-      document.querySelectorAll(".secao").forEach(s => s.classList.remove("ativa"));
-      document.getElementById(id).classList.add("ativa");
-    };
-
-    // NOVO BOTÃO DE OUTRO JOGO (abre dentro do iframe)
-    window.abrirJogoExtra = () => {
-      const url = "https://lxgo.me/go?brand=bigbet&bta=30211_0253";
-      gameArea.src = url;
-      mostrarSecao("home");
-    };
 
     function calcularProximoHorario() {
       const agora = new Date();
@@ -281,7 +277,7 @@
       });
     }
 
-    // FILTROS
+    // ===== FILTROS =====
     document.querySelectorAll(".filtros button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("ativo"));
@@ -292,12 +288,14 @@
       });
     });
 
+    // ===== TIMER MODAL =====
     document.getElementById("timerBtn").addEventListener("click", () => toggleModal("modalTimer"));
     window.toggleModal = id => {
       const modal = document.getElementById(id);
       modal.style.display = modal.style.display === "flex" ? "none" : "flex";
     };
 
+    // ===== PERFIL =====
     onAuthStateChanged(auth, user => {
       const emailEl = document.getElementById("userEmail");
       if (user) emailEl.textContent = `Logado como: ${user.email}`;
