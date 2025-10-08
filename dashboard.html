@@ -105,6 +105,23 @@
     .nav-item span { display: block; font-size: 0.75rem; opacity: 0.8; }
     .nav-item:hover { color: #ff4da6; }
     .ativo-jogo { color: #ffcc00; font-weight: bold; }
+
+    /* ===== TELAS DE CONTEÚDO ===== */
+    #historico, #perfil {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: calc(100vh - 120px);
+      background: rgba(10, 5, 20, 0.96);
+      overflow-y: auto;
+      display: none;
+      z-index: 90;
+      transition: opacity 0.3s;
+    }
+    #historico.ativo, #perfil.ativo {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from {opacity:0} to {opacity:1} }
   </style>
 </head>
 <body>
@@ -119,14 +136,8 @@
     </div>
   </section>
 
-  <!-- TIMER -->
-  <button id="timerBtn" class="timer-float">
-    <span id="timerTempo">00:00</span>
-    <small id="timerValor">🎯 --</small>
-  </button>
-
   <!-- HISTÓRICO -->
-  <section id="historico" class="secao">
+  <section id="historico">
     <h2>📜 Tip Miner</h2>
     <div class="filtros">
       <button data-cor="todas" class="ativo">Todas</button>
@@ -137,20 +148,28 @@
   </section>
 
   <!-- PERFIL -->
-  <section id="perfil" class="secao">
+  <section id="perfil">
     <h2>👤 Meu Perfil</h2>
     <p id="userEmail">Usuário logado...</p>
     <button onclick="logout()">🚪 Sair</button>
   </section>
 
+  <!-- TIMER -->
+  <button id="timerBtn" class="timer-float">
+    <span id="timerTempo">00:00</span>
+    <small id="timerValor">🎯 --</small>
+  </button>
+
   <!-- NAVBAR -->
   <footer class="navbar">
     <div class="nav-item ativo-jogo" id="btnAviator" onclick="mostrarAviator()">✈️ <span>Aviator</span></div>
     <div class="nav-item" id="btnBigBet" onclick="mostrarBigBet()">🎲 <span>BigBet</span></div>
-    <div class="nav-item" onclick="mostrarSecao('historico')">📜 <span>Histórico</span></div>
-    <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
+    <div class="nav-item" onclick="abrirHistorico()">📜 <span>Histórico</span></div>
+    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
+    <div class="nav-item" onclick="abrirPerfil()">👤 <span>Perfil</span></div>
   </footer>
 
+  <!-- SCRIPT -->
   <script type="module">
     import { auth, db } from "./firebase.js";
     import {
@@ -160,13 +179,50 @@
     import { signOut, onAuthStateChanged }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // ===== TIMER E HISTÓRICO =====
+    // ===== ELEMENTOS =====
+    const aviatorFrame = document.getElementById("aviatorFrame");
+    const bigbetFrame = document.getElementById("bigbetFrame");
+    const btnAviator = document.getElementById("btnAviator");
+    const btnBigBet = document.getElementById("btnBigBet");
+    const historicoSec = document.getElementById("historico");
+    const perfilSec = document.getElementById("perfil");
+    const listaHistorico = document.getElementById("listaHistorico");
     const timerTempo = document.getElementById("timerTempo");
     const timerValor = document.getElementById("timerValor");
-    const listaHistorico = document.getElementById("listaHistorico");
     const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
     let proximaEntrada, historicoCache = [];
 
+    // ===== TROCAR JOGOS =====
+    window.mostrarAviator = () => {
+      fecharTelas();
+      aviatorFrame.classList.remove("oculto");
+      bigbetFrame.classList.add("oculto");
+      btnAviator.classList.add("ativo-jogo");
+      btnBigBet.classList.remove("ativo-jogo");
+    };
+    window.mostrarBigBet = () => {
+      fecharTelas();
+      bigbetFrame.classList.remove("oculto");
+      aviatorFrame.classList.add("oculto");
+      btnBigBet.classList.add("ativo-jogo");
+      btnAviator.classList.remove("ativo-jogo");
+    };
+
+    // ===== HISTÓRICO / PERFIL =====
+    function fecharTelas() {
+      historicoSec.classList.remove("ativo");
+      perfilSec.classList.remove("ativo");
+    }
+    window.abrirHistorico = () => {
+      fecharTelas();
+      historicoSec.classList.add("ativo");
+    };
+    window.abrirPerfil = () => {
+      fecharTelas();
+      perfilSec.classList.add("ativo");
+    };
+
+    // ===== FIREBASE / TIMER =====
     const formatarHora = d => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     function calcularProximoHorario() {
@@ -207,7 +263,6 @@
       const agora = new Date();
       proximaEntrada = calcularProximoHorario();
       let diff = Math.floor((proximaEntrada - agora) / 1000);
-
       await gerarResultado();
 
       clearInterval(window.timerInterval);
@@ -247,26 +302,7 @@
       });
     }
 
-    // ===== ALTERNAR JOGOS =====
-    const aviatorFrame = document.getElementById("aviatorFrame");
-    const bigbetFrame = document.getElementById("bigbetFrame");
-    const btnAviator = document.getElementById("btnAviator");
-    const btnBigBet = document.getElementById("btnBigBet");
-
-    window.mostrarAviator = () => {
-      aviatorFrame.classList.remove("oculto");
-      bigbetFrame.classList.add("oculto");
-      btnAviator.classList.add("ativo-jogo");
-      btnBigBet.classList.remove("ativo-jogo");
-    };
-    window.mostrarBigBet = () => {
-      bigbetFrame.classList.remove("oculto");
-      aviatorFrame.classList.add("oculto");
-      btnBigBet.classList.add("ativo-jogo");
-      btnAviator.classList.remove("ativo-jogo");
-    };
-
-    // ===== PERFIL =====
+    // ===== PERFIL / AUTH =====
     onAuthStateChanged(auth, user => {
       const emailEl = document.getElementById("userEmail");
       if (user) emailEl.textContent = `Logado como: ${user.email}`;
