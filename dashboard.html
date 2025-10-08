@@ -94,6 +94,18 @@
       color: white;
       font-family: 'Poppins', sans-serif;
     }
+
+    /* ===== NOVO BOTÃO EXTRA ===== */
+    .nav-item.jogo-extra {
+      font-weight: bold;
+      color: #ffcc00;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .nav-item.jogo-extra:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body>
@@ -147,6 +159,7 @@
     <div class="nav-item" onclick="mostrarSecao('historico')">📜 <span>Histórico</span></div>
     <div class="nav-item central" onclick="mostrarSecao('home')">🎮</div>
     <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
+    <div class="nav-item jogo-extra" onclick="abrirJogoExtra()">🎲 Outro Jogo</div>
     <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
   </footer>
 
@@ -166,6 +179,7 @@
     const horaEl = document.getElementById("hora");
     const resultadoPrevisto = document.getElementById("resultadoPrevisto");
     const listaHistorico = document.getElementById("listaHistorico");
+    const gameArea = document.getElementById("gameArea");
     const minutosValidos = [1,4,7,8,9,11,14,17,18,19,21,24,27,28,29,31,34,37,38,39,41,44,47,48,49,51,54,57,58,59];
     let proximaEntrada, historicoCache = [], resultadoAtual = null;
 
@@ -174,6 +188,13 @@
     window.mostrarSecao = id => {
       document.querySelectorAll(".secao").forEach(s => s.classList.remove("ativa"));
       document.getElementById(id).classList.add("ativa");
+    };
+
+    // NOVO BOTÃO DE OUTRO JOGO (abre dentro do iframe)
+    window.abrirJogoExtra = () => {
+      const url = "https://lxgo.me/go?brand=bigbet&bta=30211_0253";
+      gameArea.src = url;
+      mostrarSecao("home");
     };
 
     function calcularProximoHorario() {
@@ -195,8 +216,7 @@
       if (snap.exists()) ({ valor, cor } = snap.data());
       else {
         valor = (Math.random() * 19 + 1).toFixed(2);
-        // 🔹 Descarta valores abaixo de 2
-        if (valor < 2) return;
+        if (valor < 2) return; // descarta azuis
         cor = valor <= 10.0 ? "roxo" : "rosa";
         await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(proximaEntrada) });
         await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, hora: formatarHora(proximaEntrada), criado: serverTimestamp() });
@@ -220,7 +240,7 @@
       let diff = Math.floor((proximaEntrada - agora) / 1000);
       horaEl.textContent = formatarHora(proximaEntrada);
 
-      await gerarResultado(); // gera previsão inicial
+      await gerarResultado();
 
       clearInterval(window.timerInterval);
       window.timerInterval = setInterval(async () => {
