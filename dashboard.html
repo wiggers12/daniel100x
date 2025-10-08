@@ -13,7 +13,6 @@
       gap: 8px;
       margin-top: 15px;
     }
-
     .hist-item {
       display: flex;
       justify-content: center;
@@ -26,9 +25,7 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
       transition: transform 0.2s;
     }
-
     .hist-item:hover { transform: scale(1.05); }
-    .azul { background: #007bff; }
     .roxo { background: #8a2be2; }
     .rosa { background: #ff4da6; }
 
@@ -39,7 +36,6 @@
       gap: 10px;
       margin: 10px 0;
     }
-
     .filtros button {
       background: #1a1a3d;
       color: white;
@@ -50,7 +46,6 @@
       cursor: pointer;
       transition: 0.2s;
     }
-
     .filtros button:hover { background: #333; }
     .filtros .ativo {
       border-color: #ff4da6;
@@ -77,7 +72,6 @@
       align-items: center;
       justify-content: center;
     }
-
     .timer-float small {
       font-size: 0.8rem;
       margin-top: 2px;
@@ -134,7 +128,6 @@
     <h2>📜 Tip miner</h2>
     <div class="filtros">
       <button data-cor="todas" class="ativo">Todas</button>
-      <button data-cor="azul">Azul</button>
       <button data-cor="roxo">Roxo</button>
       <button data-cor="rosa">Rosa</button>
     </div>
@@ -157,7 +150,7 @@
     <div class="nav-item" onclick="mostrarSecao('perfil')">👤 <span>Perfil</span></div>
   </footer>
 
-  <!-- FIREBASE SCRIPT -->
+  <!-- SCRIPT -->
   <script type="module">
     import { auth, db } from "./firebase.js";
     import {
@@ -178,8 +171,7 @@
 
     const formatarHora = d => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Função para alternar seções
-    window.mostrarSecao = (id) => {
+    window.mostrarSecao = id => {
       document.querySelectorAll(".secao").forEach(s => s.classList.remove("ativa"));
       document.getElementById(id).classList.add("ativa");
     };
@@ -199,19 +191,23 @@
       const ref = doc(db, "resultados_timer", chave);
       const snap = await getDoc(ref);
       let valor, cor;
+
       if (snap.exists()) ({ valor, cor } = snap.data());
       else {
         valor = (Math.random() * 19 + 1).toFixed(2);
-        cor = valor < 2.0 ? "azul" : valor <= 10.0 ? "roxo" : "rosa";
+        // 🔹 Descarta valores abaixo de 2
+        if (valor < 2) return;
+        cor = valor <= 10.0 ? "roxo" : "rosa";
         await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp(), hora: formatarHora(proximaEntrada) });
         await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, hora: formatarHora(proximaEntrada), criado: serverTimestamp() });
       }
+
       resultadoAtual = { valor, cor };
       exibirResultado(valor, cor);
     }
 
     function exibirResultado(valor, cor) {
-      const corHex = cor === "azul" ? "#007bff" : cor === "roxo" ? "#8a2be2" : "#ff4da6";
+      const corHex = cor === "roxo" ? "#8a2be2" : "#ff4da6";
       timerValor.textContent = `🎯 ${valor}x`;
       resultadoPrevisto.textContent = `🎯 Resultado previsto: ${valor}x`;
       timerValor.style.color = corHex;
@@ -219,32 +215,37 @@
     }
 
     async function iniciarTimer() {
-  const agora = new Date();
-  proximaEntrada = calcularProximoHorario();
-  let diff = Math.floor((proximaEntrada - agora) / 1000);
-  horaEl.textContent = formatarHora(proximaEntrada);
+      const agora = new Date();
+      proximaEntrada = calcularProximoHorario();
+      let diff = Math.floor((proximaEntrada - agora) / 1000);
+      horaEl.textContent = formatarHora(proximaEntrada);
 
-  // 🔹 Gera o primeiro resultado imediatamente
-  await gerarResultado();
+      await gerarResultado(); // gera previsão inicial
 
-  clearInterval(window.timerInterval);
-  window.timerInterval = setInterval(async () => {
-    if (diff <= 0) {
-      await gerarResultado();
-      diff = 60;
+      clearInterval(window.timerInterval);
+      window.timerInterval = setInterval(async () => {
+        if (diff <= 0) {
+          await gerarResultado();
+          ouvirHistorico();
+          proximaEntrada = calcularProximoHorario();
+          diff = Math.floor((proximaEntrada - new Date()) / 1000);
+          horaEl.textContent = formatarHora(proximaEntrada);
+        }
+        const min = String(Math.floor(diff / 60)).padStart(2, "0");
+        const seg = String(diff % 60).padStart(2, "0");
+        timerTempo.textContent = `${min}:${seg}`;
+        diff--;
+      }, 1000);
     }
-    const min = String(Math.floor(diff / 60)).padStart(2, "0");
-    const seg = String(diff % 60).padStart(2, "0");
-    timerTempo.textContent = `${min}:${seg}`;
-    diff--;
-  }, 1000);
-}
 
     function ouvirHistorico() {
       const q = query(collection(db, "historico_sinais"), orderBy("hora", "desc"));
       onSnapshot(q, snap => {
         historicoCache = [];
-        snap.forEach(d => historicoCache.push(d.data()));
+        snap.forEach(d => {
+          const dado = d.data();
+          if (dado.valor >= 2) historicoCache.push(dado);
+        });
         atualizarHistorico(historicoCache);
         localStorage.setItem("historico7xx", JSON.stringify(historicoCache));
       });
@@ -260,7 +261,7 @@
       });
     }
 
-    // Filtros
+    // FILTROS
     document.querySelectorAll(".filtros button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("ativo"));
