@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - 7XX</title>
+
+  <style>
+    /* =============================
+       DARK PREMIUM VISUAL
+    ============================= */
+    body {
+      background: linear-gradient(135deg, #0a0a0f, #1a1030);
+      color: #f1f1f1;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      transition: background 0.3s;
+    }
+
+    /* ===== ÁREA DE JOGOS ===== */
+    .game-container {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 120px);
+    }
+    iframe {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: none;
+      transition: opacity 0.6s ease;
+    }
+    iframe.oculto {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ===== HISTÓRICO ===== */
+    #listaHistorico {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .hist-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 70px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      transition: transform 0.2s;
+    }
+    .hist-item:hover { transform: scale(1.07); }
+    .roxo { background: linear-gradient(145deg, #5e2cff, #b98eff); }
+    .rosa { background: linear-gradient(145deg, #ff4da6, #ff82d3); }
+
+    .filtros {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .filtros button {
+      background: #14141f;
+      color: #f1f1f1;
+      border: 1px solid #2d2d3d;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .filtros button:hover {
+      background: #ff4da6;
+      color: white;
+    }
+    .filtros .ativo {
+      border-color: #ff4da6;
+      background: #2a2a5f;
+    }
+
+    /* ===== TIMER FLOAT ===== */
+    .timer-float {
+      position: fixed;
+      bottom: 100px;
+      left: 20px;
+      background: linear-gradient(135deg, #00c851, #00a65a);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 22px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0,200,81,0.5);
+      z-index: 99;
+    }
+    .timer-float small {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    /* ===== MODAL TIMER ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(10, 10, 15, 0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+    .modal-content {
+      background: linear-gradient(160deg, #11111a, #1d1d2a);
+      border: 2px solid #ff4da6;
+      border-radius: 16px;
+      padding: 25px;
+      text-align: center;
+      max-width: 90%;
+      box-shadow: 0 0 25px rgba(255,77,166,0.3);
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-content h2 { color: #ff4da6; margin-bottom: 10px; }
+    .modal-content h3 { color: #ffd95a; margin-top: 10px; }
+    .modal-content .alerta {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+    .btn-fechar {
+      background: #ff4da6;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      margin-top: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .btn-fechar:hover { background: #ff7cc4; }
+
+    /* ===== SEÇÕES ===== */
+    .secao { display: none; padding: 20px; color: #fff; }
+    .secao.ativa { display: block; }
+
+    /* ===== NAVBAR ===== */
+    footer.navbar {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background: rgba(12, 12, 18, 0.9);
+      padding: 10px 0;
+      border-top: 2px solid #ff4da6;
+      z-index: 100;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+    }
+    .nav-item {
+      text-align: center;
+      color: #ccc;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: 0.3s;
+    }
+    .nav-item span { display: block; font-size: 0.75rem; opacity: 0.8; }
+    .nav-item:hover { color: #ff4da6; }
+    .ativo-jogo {
+      color: #ffd95a;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(255,217,90,0.5);
+    }
+
+    /* ===== HISTÓRICO E PERFIL ===== */
+    #historico, #perfil {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: calc(100vh - 120px);
+      background: rgba(10, 5, 20, 0.96);
+      overflow-y: auto;
+      display: none;
+      z-index: 90;
+      transition: opacity 0.3s;
+    }
+    #historico.ativo, #perfil.ativo {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+  </style>
+</head>
+<body>
+
+  <!-- ÁREA DE JOGOS -->
+  <section id="home" class="secao ativa">
+    <div class="game-container">
+      <iframe id="xxFrame" src="https://rn72q.com/game/action/3602?pid=575973404"></iframe>
+    </div>
+  </section>
+
+  <!-- HISTÓRICO -->
+  <section id="historico">
+    <h2>📜 Tip Miner</h2>
+    <div class="filtros">
+      <button data-cor="todas" class="ativo">Todas</button>
+      <button data-cor="roxo">Roxo</button>
+      <button data-cor="rosa">Rosa</button>
+    </div>
+    <div id="listaHistorico">Carregando...</div>
+  </section>
+
+  <!-- PERFIL -->
+  <section id="perfil">
+    <h2>👤 Meu Perfil</h2>
+    <p id="userEmail">Usuário logado...</p>
+    <button onclick="logout()">🚪 Sair</button>
+  </section>
+
+  <!-- TIMER FLOAT -->
+  <button id="timerBtn" class="timer-float">
+    <span id="timerTempo">00:00</span>
+    <small id="timerValor">🎯 --</small>
+  </button>
+
+  <!-- MODAL DO TIMER -->
+  <div id="modalTimer" class="modal">
+    <div class="modal-content">
+      <h2>⏳ Próxima Entrada</h2>
+      <p><strong>Horário:</strong> <span id="horaPrevista">--:--</span></p>
+      <h3 id="resultadoPrevisto">🎯 Aguardando...</h3>
+      <div class="alerta tempo">⏰ Entrar 30 segundos antes e 30 segundos depois</div>
+      <div class="alerta aviso">Proteção 2x alvo 100x</div>
+      <div class="alerta aviso">⚠️ Jogue com responsabilidade!</div>
+      <button class="btn-fechar" onclick="toggleModal('modalTimer')">Fechar</button>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <footer class="navbar">
+    <div class="nav-item ativo-jogo" id="btn7xx" onclick="mostrar7xx()">✈️ <span>7XX</span></div>
+    <div class="nav-item" onclick="abrirHistorico()">📜 <span>Histórico</span></div>
+    <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
+    <div class="nav-item" onclick="abrirPerfil()">👤 <span>Perfil</span></div>
+  </footer>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import {
+      doc, getDoc, setDoc, addDoc, collection, query,
+      orderBy, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const xxFrame = document.getElementById("xxFrame");
+    const bigbetFrame = document.getElementById("bigbetFrame");
+    const btn7xx = document.getElementById("btn7xx");
+    const btnBigBet = document.getElementById("btnBigBet");
+    const historicoSec = document.getElementById("historico");
+    const perfilSec = document.getElementById("perfil");
+    const listaHistorico = document.getElementById("listaHistorico");
+    const timerTempo = document.getElementById("timerTempo");
+    const timerValor = document.getElementById("timerValor");
+    const horaPrevista = document.getElementById("horaPrevista");
+    const resultadoPrevisto = document.getElementById("resultadoPrevisto");
+
+    const minutosValidos = [
+  2, 3, 6, 7, 9, 11, 12, 13, 16, 17, 18, 19,
+  22, 23, 26, 27, 28, 29, 32, 33, 36, 37, 38, 39,
+  42, 43, 46, 47, 48, 49, 52, 53, 56, 57, 58, 59
+];
+    let proximaEntrada, historicoCache = [];
+
+    // ===== FUNÇÕES DE TROCA DE JOGOS =====
+    window.mostrar7xx = () => {
+      fecharTelas();
+      xxFrame.classList.remove("oculto");
+      bigbetFrame.classList.add("oculto");
+      btn7xx.classList.add("ativo-jogo");
+      btnBigBet.classList.remove("ativo-jogo");
+    };
+    window.mostrarBigBet = () => {
+      fecharTelas();
+      bigbetFrame.classList.remove("oculto");
+      xxFrame.classList.add("oculto");
+      btnBigBet.classList.add("ativo-jogo");
+      btn7xx.classList.remove("ativo-jogo");
+    };
+
+    // ===== HISTÓRICO E PERFIL =====
+    function fecharTelas() {
+      historicoSec.classList.remove("ativo");
+      perfilSec.classList.remove("ativo");
+      document.getElementById("modalTimer").style.display = "none";
+    }
+    window.abrirHistorico = () => { fecharTelas(); historicoSec.classList.add("ativo"); };
+    window.abrirPerfil = () => { fecharTelas(); perfilSec.classList.add("ativo"); };
+
+    // ===== MODAL TIMER =====
+    const timerBtn = document.getElementById("timerBtn");
+    window.toggleModal = (id) => {
+      const modal = document.getElementById(id);
+      modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+    };
+    timerBtn.addEventListener("click", () => toggleModal("modalTimer"));
+
+    // ===== TIMER FIREBASE =====
+    const formatarHora = d => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    function calcularProximoHorario() {
+      const agora = new Date();
+      const min = agora.getMinutes();
+      const hora = agora.getHours();
+      let proxMin = minutosValidos.find(m => m > min);
+      let proxHora = hora;
+      if (!proxMin) { proxMin = minutosValidos[0]; proxHora = (hora + 1) % 24; }
+      return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), proxHora, proxMin, 0);
+    }
+
+    async function gerarResultado() {
+      const chave = `${proximaEntrada.getFullYear()}-${proximaEntrada.getMonth()+1}-${proximaEntrada.getDate()}-${proximaEntrada.getHours()}-${proximaEntrada.getMinutes()}`;
+      const ref = doc(db, "resultados_timer", chave);
+      const snap = await getDoc(ref);
+      let valor, cor;
+
+      if (snap.exists()) ({ valor, cor } = snap.data());
+      else {
+        valor = (Math.random() * 19 + 1).toFixed(2);
+        if (valor < 2) return;
+        cor = valor <= 10 ? "roxo" : "rosa";
+        await setDoc(ref, { valor: parseFloat(valor), cor, criado: serverTimestamp() });
+        await addDoc(collection(db, "historico_sinais"), { valor: parseFloat(valor), cor, criado: serverTimestamp() });
+      }
+
+      exibirResultado(valor, cor);
+    }
+
+    function exibirResultado(valor, cor) {
+      const corHex = cor === "roxo" ? "#8a2be2" : "#ff4da6";
+      timerValor.textContent = `🎯 ${valor}x`;
+      resultadoPrevisto.textContent = `🎯 Próximo: ${valor}x`;
+      timerValor.style.color = corHex;
+      resultadoPrevisto.style.color = corHex;
+      horaPrevista.textContent = formatarHora(proximaEntrada);
+    }
+
+    async function iniciarTimer() {
+      const agora = new Date();
+      proximaEntrada = calcularProximoHorario();
+      let diff = Math.floor((proximaEntrada - agora) / 1000);
+      await gerarResultado();
+
+      clearInterval(window.timerInterval);
+      window.timerInterval = setInterval(async () => {
+        if (diff <= 0) {
+          await gerarResultado();
+          ouvirHistorico();
+          proximaEntrada = calcularProximoHorario();
+          diff = Math.floor((proximaEntrada - new Date()) / 1000);
+        }
+        const min = String(Math.floor(diff / 60)).padStart(2, "0");
+        const seg = String(diff % 60).padStart(2, "0");
+        timerTempo.textContent = `${min}:${seg}`;
+        diff--;
+      }, 1000);
+    }
+
+    function ouvirHistorico() {
+      const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
+      onSnapshot(q, snap => {
+        historicoCache = [];
+        snap.forEach(d => {
+          const dado = d.data();
+          if (dado.valor >= 2) historicoCache.push(dado);
+        });
+        atualizarHistorico(historicoCache);
+      });
+    }
+
+    function atualizarHistorico(lista) {
+      listaHistorico.innerHTML = "";
+      lista.forEach(h => {
+        const div = document.createElement("div");
+        div.className = `hist-item ${h.cor}`;
+        div.textContent = `${h.valor.toFixed(2)}x`;
+        listaHistorico.appendChild(div);
+      });
+    }
+
+    // ===== PERFIL =====
+    onAuthStateChanged(auth, user => {
+      const emailEl = document.getElementById("userEmail");
+      if (user) emailEl.textContent = `Logado como: ${user.email}`;
+      else window.location.href = "index.html";
+    });
+    window.logout = async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    };
+
+    iniciarTimer();
+    ouvirHistorico();
+  </script>
+</body>
+</html>
