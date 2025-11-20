@@ -230,20 +230,33 @@
     </section>
 
     <!-- TIMER FLOAT -->
-    <button id="timerBtn" class="timer-float" onclick="toggleModal('modalTimer')">
+    <!-- Botão agora chama a função de análise -->
+    <button id="timerBtn" class="timer-float" onclick="abrirModalAnalise()">
         <span id="timerTempo">00:00</span>
-        <small id="timerValor">🎯 --</small>
+        <small id="timerValor">🎯 Análise</small>
     </button>
 
     <!-- MODAL DO TIMER -->
     <div id="modalTimer" class="modal" onclick="if(event.target.id === 'modalTimer') toggleModal('modalTimer')">
         <div class="modal-content">
-            <h2>⏳ Próxima Entrada</h2>
-            <p><strong>Horário:</strong> <span id="horaPrevista">--:--</span></p>
-            <h3 id="resultadoPrevisto">🎯 Aguardando...</h3>
-            <div class="alerta tempo">⏰ Entrar 30 segundos antes e 30 segundos depois</div>
-            <div class="alerta aviso">Proteção 2x alvo 100x</div>
-            <div class="alerta aviso">⚠️ Jogue com responsabilidade!</div>
+            <h2>⏳ Sugestão de Entrada</h2>
+            <p><strong>Horário de Referência:</strong> <span id="horaPrevista">--:--</span></p>
+            
+            <!-- Novos elementos para a Análise -->
+            <h3 id="sugestaoCor">🎯 Analisando...</h3>
+            
+            <div id="analiseEstatistica" style="text-align: left; margin-top: 15px; font-size: 0.9rem;">
+                <!-- O conteúdo será injetado pelo JavaScript -->
+            </div>
+            
+            <div id="sugestaoEntrada" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #2d2d3d; font-weight: bold; color: #ffd95a;">
+                <!-- O conteúdo será injetado pelo JavaScript -->
+            </div>
+            
+            <div class="alerta aviso" style="margin-top: 20px;">
+                ⚠️ Lembre-se: O algoritmo de análise é heurístico. Jogue com responsabilidade!
+            </div>
+            
             <button class="btn-fechar" onclick="toggleModal('modalTimer')">Fechar</button>
         </div>
     </div>
@@ -259,7 +272,7 @@
     <!-- CÓDIGO JAVASCRIPT/FIREBASE -->
     <script type="module">
 
-    /* ===== IMPORTS E INICIALIZAÇÃO DO FIREBASE (Integrado do firebase.js) ===== */
+    /* ===== IMPORTS E INICIALIZAÇÃO DO FIREBASE (Integrado) ===== */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, query, orderBy, onSnapshot, doc, setLogLevel } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -281,9 +294,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    // const rtdb = getDatabase(app); // Não usado no código, mas mantido a inicialização.
 
-    // Configura o log do Firestore para DEBUG
     setLogLevel('debug'); 
 
     // Tenta logar anonimamente se não houver usuário logado (para acesso ao Firestore)
@@ -385,7 +396,8 @@
                     const data = doc.data();
                     historicoCompleto.push({ 
                         ...data, 
-                        valor: parseFloat(data.valor).toFixed(2) // Garante formato x.xx
+                        // O valor já vem como string, mas garantimos o formato x.xx
+                        valor: parseFloat(data.valor).toFixed(2)
                     });
                 });
                 
@@ -440,13 +452,114 @@
 
 
         /* ==================================
-            4. INÍCIO DA APLICAÇÃO
+            4. FUNÇÃO DE ANÁLISE ESTATÍSTICA (NOVO)
+        ================================== */
+        /**
+         * Gera uma sugestão de entrada com base nos últimos N resultados.
+         */
+        function gerarAnaliseSinais() {
+            const ULTIMOS_SINAIS = 15;
+            const history = historicoCompleto.slice(0, ULTIMOS_SINAIS);
+
+            if (history.length === 0) {
+                return {
+                    sugestao: 'Aguarde novos resultados',
+                    cor: 'N/A',
+                    analise: 'Aguardando dados históricos para iniciar a análise.'
+                };
+            }
+
+            let countRosa = 0;
+            let countRoxo = 0;
+            let countAcima250 = 0;
+            
+            history.forEach(s => {
+                if (s.cor === 'rosa') {
+                    countRosa++;
+                } else if (s.cor === 'roxo') {
+                    countRoxo++;
+                }
+                
+                if (parseFloat(s.valor) >= 2.50) {
+                    countAcima250++;
+                }
+            });
+            
+            const probRosa = (countRosa / history.length) * 100;
+            const probRoxo = (countRoxo / history.length) * 100;
+
+            let sugestaoCor = '';
+            let analiseTexto = `Análise baseada nos últimos ${history.length} sinais:\n`;
+
+            if (probRosa > 65) {
+                sugestaoCor = 'roxo';
+                analiseTexto += `Rosa predominou (${probRosa.toFixed(0)}%). Sugestão: Apostar no ${sugestaoCor.toUpperCase()} (inversão de cor).`;
+            } else if (probRoxo > 65) {
+                sugestaoCor = 'rosa';
+                analiseTexto += `Roxo predominou (${probRoxo.toFixed(0)}%). Sugestão: Apostar no ${sugestaoCor.toUpperCase()} (inversão de cor).`;
+            } else if (countAcima250 < (ULTIMOS_SINAIS * 0.3)) {
+                sugestaoCor = probRosa > probRoxo ? 'rosa' : 'roxo';
+                analiseTexto += `Baixa frequência de multiplicadores altos (apenas ${countAcima250}/${history.length}). Sugestão: Entrada Forte (Multiplicador Alto).`;
+            } else {
+                sugestaoCor = probRosa > probRoxo ? 'roxo' : 'rosa';
+                analiseTexto += `Distribuição equilibrada de cores. Sugestão: Seguir a cor menos frequente (${sugestaoCor.toUpperCase()}).`;
+            }
+            
+            return {
+                sugestao: sugestaoCor.toUpperCase(),
+                cor: sugestaoCor,
+                analise: analiseTexto,
+                taxaAcima250: (countAcima250 / history.length) * 100
+            };
+        }
+        
+        /**
+         * Popula o modal de análise e o abre.
+         */
+        window.abrirModalAnalise = () => {
+            const analise = gerarAnaliseSinais();
+            const ultimoSinal = historicoCompleto[0];
+
+            // 1. Horário de Referência (último sinal, se houver)
+            document.getElementById('horaPrevista').textContent = ultimoSinal ? ultimoSinal.hora : '--:--:--';
+            
+            // 2. Sugestão de Cor
+            const sugestaoCorElement = document.getElementById('sugestaoCor');
+            sugestaoCorElement.textContent = `🎯 Próxima Entrada Sugerida: ${analise.sugestao}`;
+            sugestaoCorElement.style.color = analise.cor === 'roxo' ? 'var(--cor-secundaria)' : 'var(--cor-primaria)';
+
+            // 3. Análise Estatística Detalhada
+            const analiseStatsElement = document.getElementById('analiseEstatistica');
+            analiseStatsElement.innerHTML = `
+                <p style="font-weight: bold;">Estatísticas (${analise.history ? analise.history.length : 0} Sinais):</p>
+                <ul>
+                    <li>- Rosa: ${analise.cor === 'rosa' ? 'ALTA PROB.' : 'Normal'}</li>
+                    <li>- Roxo: ${analise.cor === 'roxo' ? 'ALTA PROB.' : 'Normal'}</li>
+                    <li>- Acima 2.5x: ${analise.taxaAcima250 ? analise.taxaAcima250.toFixed(0) : 0}%</li>
+                </ul>
+                <p style="margin-top: 10px; border-top: 1px solid #2d2d3d; padding-top: 5px;">${analise.analise.replace(/\n/g, '<br>')}</p>
+            `;
+
+            // 4. Sugestões de Entrada/Saída
+            const sugestaoEntradaElement = document.getElementById('sugestaoEntrada');
+            sugestaoEntradaElement.innerHTML = `
+                <p><strong>REGRAS DE ENTRADA:</strong></p>
+                <p>1. Cobertura: SAÍDA 2.00x</p>
+                <p>2. Alvo Principal: SAÍDA 4.00x (ou acima)</p>
+            `;
+
+            toggleModal('modalTimer');
+        }
+
+
+        /* ==================================
+            5. INÍCIO DA APLICAÇÃO
         ================================== */
         ouvirUltimoSinal();
         ouvirHistorico();
 
         /* ==================================
-            5. PERFIL E AUTENTICAÇÃO (MANTIDO)
+            6. PERFIL E AUTENTICAÇÃO (MANTIDO)
         ================================== */
         onAuthStateChanged(auth, user => {
             if (user) {
