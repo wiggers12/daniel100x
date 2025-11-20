@@ -372,17 +372,17 @@
       }, 1000);
     }
 
-    function ouvirHistorico() {
-      const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
-      onSnapshot(q, snap => {
-        historicoCache = [];
-        snap.forEach(d => {
-          const dado = d.data();
-          if (dado.valor >= 2) historicoCache.push(dado);
-        });
-        atualizarHistorico(historicoCache);
-      });
-    }
+   function ouvirHistorico() {
+  const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
+  onSnapshot(q, snap => {
+    historicoCache = [];
+    snap.forEach(d => {
+      const dado = d.data();
+      historicoCache.push(dado); // ✔️ Agora exibe TODOS os valores
+    });
+    atualizarHistorico(historicoCache);
+  });
+}
 
     function atualizarHistorico(lista) {
       listaHistorico.innerHTML = "";
