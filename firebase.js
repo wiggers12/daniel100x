@@ -1,27 +1,25 @@
 // firebase.js
 
-// Importa os módulos principais do Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Configuração copiada exatamente do seu Firebase Console
 const firebaseConfig = {
-  apiKey: "AIzaSyBrD8e7fzfvhHscwCMhrnriFoRoxDwCC0s",
-  authDomain: "dani100.firebaseapp.com",
-  projectId: "dani100",
-  storageBucket: "dani100.firebasestorage.app", // ✅ conforme você me mostrou
-  messagingSenderId: "962697367179",
-  appId: "1:962697367179:web:200d37dcdc9ef065698e8e",
-  measurementId: "G-HW82VXR78V",
-  databaseURL: "https://dani100-default-rtdb.firebaseio.com" // 🔹 necessário para o Realtime Database
+  apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
+  authDomain: "aviatordaniel100x.firebaseapp.com",
+  databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com",
+  projectId: "aviatordaniel100x",
+  storageBucket: "aviatordaniel100x.firebasestorage.app",
+  messagingSenderId: "169015417803",
+  appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
+  measurementId: "G-EES9SVSV72"
 };
 
-// Inicializa o Firebase
+// Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 
-// Exporta os serviços para uso nos outros arquivos
+// Exporta serviços
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const rtdb = getDatabase(app);
