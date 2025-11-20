@@ -1,1 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - 7XX</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =============================
+            DARK PREMIUM VISUAL (AJUSTADO)
+        ============================= */
+        :root {
+            --cor-primaria: #ff4da6; /* Rosa */
+            --cor-secundaria: #5e2cff; /* Roxo */
+            --cor-fundo-escuro: #0a0a0f;
+            --cor-card-claro: #1d1d2a;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--cor-fundo-escuro), #1a1030);
+            color: #f1f1f1;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            margin-bottom: 70px;
+        }
+
+        /* ===== ÁREA DE JOGOS ===== */
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 65px); 
+        }
+        iframe {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ===== HISTÓRICO VISUAL ===== */
+        #listaHistorico {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 8px;
+            padding: 10px;
+        }
+        .hist-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+        }
+        .roxo { background: linear-gradient(145deg, var(--cor-secundaria), #b98eff); }
+        .rosa { background: linear-gradient(145deg, var(--cor-primaria), #ff82d3); }
+
+        .filtros {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 0 15px;
+        }
+        .filtros button {
+            background: #14141f;
+            color: #f1f1f1;
+            border: 1px solid #2d2d3d;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .filtros button.ativo {
+            background: var(--cor-primaria);
+            color: white;
+            border-color: var(--cor-primaria);
+        }
+
+        /* ===== ÚLTIMO SINAL CARD (NOVO) ===== */
+        #ultimoSinalCard {
+            padding: 15px;
+            margin: 15px;
+            border-radius: 12px;
+            background: var(--cor-card-claro);
+            box-shadow: 0 0 15px rgba(255, 77, 166, 0.2);
+            text-align: center;
+        }
+        #ultimoSinalCard h2 {
+            margin-top: 0;
+            color: #ccc;
+            font-size: 1.2rem;
+        }
+        #ultimoSinalCard .valor {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--cor-primaria);
+            text-shadow: 0 0 10px rgba(255, 77, 166, 0.8);
+        }
+
+        /* ===== TIMER FLOAT & MODAL (ESTILOS OMITIDOS, mantidos do código anterior) ===== */
+        .timer-float {
+            position: fixed;
+            bottom: 80px; 
+            right: 20px; 
+            background: linear-gradient(135deg, #00c851, #00a65a);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 22px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0,200,81,0.5);
+            z-index: 99;
+        }
+        .timer-float span { display: block; }
+        .timer-float small { display: block; font-size: 0.8rem; opacity: 0.9; margin-top: 2px; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .modal-content {
+            background: linear-gradient(160deg, #11111a, #1d1d2a);
+            border: 2px solid #ff4da6;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            box-shadow: 0 0 25px rgba(255,77,166,0.3);
+        }
+        .modal-content h2 { color: #ff4da6; margin-bottom: 10px; }
+        .modal-content h3 { color: #ffd95a; margin-top: 10px; }
+        .modal-content .alerta {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+        .btn-fechar {
+            background: #ff4da6;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        /* ===== SEÇÕES E NAVBAR ===== */
+        .secao { display: none; padding: 15px; }
+        .secao.ativa { display: block; }
+        footer.navbar {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background: rgba(12, 12, 18, 0.95);
+            padding: 10px 0;
+            border-top: 2px solid var(--cor-primaria);
+            z-index: 100;
+        }
+        .nav-item {
+            text-align: center;
+            color: #ccc;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .nav-item span { display: block; font-size: 0.75rem; opacity: 0.8; }
+        .nav-item.ativo-nav, .nav-item:hover { color: var(--cor-primaria); }
+        .nav-item.ativo-jogo {
+            color: #ffd95a;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(255,217,90,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ÁREA DE JOGOS -->
+    <section id="home" class="secao ativa">
+        <!-- Card para Último Sinal, exibido na Home (acima do Iframe) -->
+        <div id="ultimoSinalCard">
+            <h2>🔥 Último Sinal</h2>
+            <div class="valor" id="ultimoValor">--</div>
+            <span id="ultimoCor">--</span> | <span id="ultimoHorario">--:--:--</span>
+        </div>
+        
+        <div class="game-container">
+            <!-- Link do Jogo -->
+            <iframe id="xxFrame" src="https://rn72q.com/game/action/3602?pid=575973404"></iframe>
+        </div>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section id="historico" class="secao">
+        <h2>📜 Histórico Completo</h2>
+        <div class="filtros">
+            <button data-cor="todas" class="ativo">Todas</button>
+            <button data-cor="roxo">Roxo</button>
+            <button data-cor="rosa">Rosa</button>
+        </div>
+        <div id="listaHistorico">Carregando...</div>
+    </section>
+
+    <!-- PERFIL -->
+    <section id="perfil" class="secao">
+        <h2>👤 Meu Perfil</h2>
+        <p id="userEmail">Usuário logado...</p>
+        <button class="btn-fechar" onclick="logout()">🚪 Sair</button>
+    </section>
+
+    <!-- TIMER FLOAT -->
+    <!-- Botão agora chama a função de análise -->
+    <button id="timerBtn" class="timer-float" onclick="abrirModalAnalise()">
+        <span id="timerTempo">00:00</span>
+        <small id="timerValor">🎯 Análise</small>
+    </button>
+
+    <!-- MODAL DO TIMER -->
+    <div id="modalTimer" class="modal" onclick="if(event.target.id === 'modalTimer') toggleModal('modalTimer')">
+        <div class="modal-content">
+            <h2>⏳ Sugestão de Entrada</h2>
+            <p><strong>Horário de Referência:</strong> <span id="horaPrevista">--:--</span></p>
+            
+            <!-- Novos elementos para a Análise -->
+            <h3 id="sugestaoCor">🎯 Analisando...</h3>
+            
+            <div id="analiseEstatistica" style="text-align: left; margin-top: 15px; font-size: 0.9rem;">
+                <!-- O conteúdo será injetado pelo JavaScript -->
+            </div>
+            
+            <div id="sugestaoEntrada" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #2d2d3d; font-weight: bold; color: #ffd95a;">
+                <!-- O conteúdo será injetado pelo JavaScript -->
+            </div>
+            
+            <div class="alerta aviso" style="margin-top: 20px;">
+                ⚠️ Lembre-se: O algoritmo de análise é heurístico. Jogue com responsabilidade!
+            </div>
+            
+            <button class="btn-fechar" onclick="toggleModal('modalTimer')">Fechar</button>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <footer class="navbar">
+        <div class="nav-item ativo-jogo" id="btn7xx" data-secao="home" onclick="mudarSecao(this, 'home')">✈️ <span>7XX</span></div>
+        <div class="nav-item" data-secao="historico" onclick="mudarSecao(this, 'historico')">📜 <span>Histórico</span></div>
+        <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
+        <div class="nav-item" data-secao="perfil" onclick="mudarSecao(this, 'perfil')">👤 <span>Perfil</span></div>
+    </footer>
+
+    <!-- CÓDIGO JAVASCRIPT/FIREBASE -->
+    <script type="module">
+
+    /* ===== IMPORTS E INICIALIZAÇÃO DO FIREBASE (Integrado) ===== */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, setLogLevel } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
+        authDomain: "aviatordaniel100x.firebaseapp.com",
+        databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com",
+        projectId: "aviatordaniel100x",
+        storageBucket: "aviatordaniel100x.firebasestorage.app",
+        messagingSenderId: "169015417803",
+        appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
+        measurementId: "G-EES9SVSV72"
+    };
+
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    setLogLevel('debug'); 
+
+    // Tenta logar anonimamente se não houver usuário logado (para acesso ao Firestore)
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            signInAnonymously(auth).catch(error => {
+                console.error("Erro ao fazer login anônimo:", error);
+            });
+        }
+    });
+
+    /* FIM DA INTEGRAÇÃO DO FIREBASE.JS */
+
+    window.addEventListener("DOMContentLoaded", () => {
+        
+        console.log("🔥 Sistema iniciado e Firebase configurado!");
+
+        /* === ELEMENTOS === */
+        const secoes = {
+            home: document.getElementById("home"),
+            historico: document.getElementById("historico"),
+            perfil: document.getElementById("perfil")
+        };
+        const navItems = document.querySelectorAll(".nav-item");
+        const listaHistorico = document.getElementById("listaHistorico");
+
+        /* ======================
+            ESTADO E FUNÇÕES GLOBAIS
+        ====================== */
+        let historicoCompleto = [];
+        let filtroCorAtual = 'todas'; // Estado para saber qual filtro aplicar
+
+        /**
+         * Alterna a seção visível e atualiza a navbar
+         */
+        window.mudarSecao = (btn, idSecao) => {
+            // 1. Esconde todas as seções
+            Object.values(secoes).forEach(sec => sec.classList.remove("ativa"));
+
+            // 2. Mostra a seção desejada
+            secoes[idSecao].classList.add("ativa");
+
+            // 3. Atualiza a Navbar
+            navItems.forEach(item => {
+                item.classList.remove("ativo-jogo");
+                item.classList.remove("ativo-nav");
+            });
+
+            if (idSecao === 'home') {
+                document.getElementById('btn7xx').classList.add('ativo-jogo');
+            } else if (btn && btn.tagName === 'DIV') { // Só para itens de navegação divisórios
+                 btn.classList.add("ativo-nav");
+            }
+        };
+
+        window.toggleModal = (id) => {
+            const modal = document.getElementById(id);
+            modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+        };
+
+        /* ==================================
+            1. OUVIR ÚLTIMO SINAL (DO FIRESTORE)
+        ================================== */
+        function ouvirUltimoSinal() {
+            const ref = doc(db, "ultimo_sinal", "dados");
+
+            onSnapshot(ref, snap => {
+                if (!snap.exists()) return;
+
+                const d = snap.data();
+                const valorFormatado = parseFloat(d.valor).toFixed(2);
+                
+                document.getElementById("ultimoValor").textContent = `${valorFormatado}x`;
+                document.getElementById("ultimoCor").textContent = d.cor === 'roxo' ? 'ROXO' : 'ROSA';
+                document.getElementById("ultimoHorario").textContent = d.hora;
+                
+                // Aplica a cor do último sinal
+                document.getElementById("ultimoValor").style.color = d.cor === 'roxo' ? 'var(--cor-secundaria)' : 'var(--cor-primaria)';
+            }, error => {
+                console.error("Erro ao ouvir último sinal:", error);
+            });
+        }
+
+
+        /* ==================================
+            2. OUVIR HISTÓRICO COMPLETO (DO FIRESTORE)
+        ================================== */
+        function ouvirHistorico() {
+            console.log("📡 Conectando ao histórico de sinais...");
+
+            const q = query(
+                collection(db, "historico_sinais"),
+                orderBy("criado", "desc")
+            );
+
+            onSnapshot(q, snap => {
+                historicoCompleto = [];
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    historicoCompleto.push({ 
+                        ...data, 
+                        // O valor já vem como string, mas garantimos o formato x.xx
+                        valor: parseFloat(data.valor).toFixed(2)
+                    });
+                });
+                
+                // Atualiza o histórico com o filtro atual
+                renderizarHistorico(filtroCorAtual); 
+            }, err => {
+                console.error("❌ Firestore ERRO no Histórico:", err);
+                listaHistorico.innerHTML = "<p>Erro ao carregar sinais</p>";
+            });
+        }
+
+        /* ==================================
+            3. RENDERIZAÇÃO E FILTRO
+        ================================== */
+        function renderizarHistorico(corFiltro) {
+            listaHistorico.innerHTML = "";
+
+            let dadosFiltrados = historicoCompleto;
+
+            if (corFiltro !== "todas") {
+                dadosFiltrados = historicoCompleto.filter(s => s.cor === corFiltro);
+            }
+
+            if (dadosFiltrados.length === 0) {
+                listaHistorico.innerHTML = `<p style="padding: 20px;">Nenhum sinal ${corFiltro === 'todas' ? '' : corFiltro} encontrado.</p>`;
+                return;
+            }
+
+            // Uso de DocumentFragment para inserção eficiente
+            const fragment = document.createDocumentFragment();
+
+            dadosFiltrados.forEach(d => {
+                const div = document.createElement("div");
+                div.className = `hist-item ${d.cor}`;
+                div.textContent = `${d.valor}x`;
+                fragment.appendChild(div);
+            });
+            
+            listaHistorico.appendChild(fragment);
+        }
+        
+        // Configuração dos Botões de Filtro
+        document.querySelectorAll(".filtros button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelector(".filtros .ativo").classList.remove("ativo");
+                btn.classList.add("ativo");
+                
+                filtroCorAtual = btn.dataset.cor; // Atualiza o estado global do filtro
+                renderizarHistorico(filtroCorAtual);
+            });
+        });
+
+
+        /* ==================================
+            4. FUNÇÃO DE ANÁLISE ESTATÍSTICA (NOVO)
+        ================================== */
+        /**
+         * Gera uma sugestão de entrada com base nos últimos N resultados.
+         */
+        function gerarAnaliseSinais() {
+            const ULTIMOS_SINAIS = 15;
+            const history = historicoCompleto.slice(0, ULTIMOS_SINAIS);
+
+            if (history.length === 0) {
+                return {
+                    sugestao: 'Aguarde novos resultados',
+                    cor: 'N/A',
+                    analise: 'Aguardando dados históricos para iniciar a análise.'
+                };
+            }
+
+            let countRosa = 0;
+            let countRoxo = 0;
+            let countAcima250 = 0;
+            
+            history.forEach(s => {
+                if (s.cor === 'rosa') {
+                    countRosa++;
+                } else if (s.cor === 'roxo') {
+                    countRoxo++;
+                }
+                
+                if (parseFloat(s.valor) >= 2.50) {
+                    countAcima250++;
+                }
+            });
+            
+            const probRosa = (countRosa / history.length) * 100;
+            const probRoxo = (countRoxo / history.length) * 100;
+
+            let sugestaoCor = '';
+            let analiseTexto = `Análise baseada nos últimos ${history.length} sinais:\n`;
+
+            if (probRosa > 65) {
+                sugestaoCor = 'roxo';
+                analiseTexto += `Rosa predominou (${probRosa.toFixed(0)}%). Sugestão: Apostar no ${sugestaoCor.toUpperCase()} (inversão de cor).`;
+            } else if (probRoxo > 65) {
+                sugestaoCor = 'rosa';
+                analiseTexto += `Roxo predominou (${probRoxo.toFixed(0)}%). Sugestão: Apostar no ${sugestaoCor.toUpperCase()} (inversão de cor).`;
+            } else if (countAcima250 < (ULTIMOS_SINAIS * 0.3)) {
+                sugestaoCor = probRosa > probRoxo ? 'rosa' : 'roxo';
+                analiseTexto += `Baixa frequência de multiplicadores altos (apenas ${countAcima250}/${history.length}). Sugestão: Entrada Forte (Multiplicador Alto).`;
+            } else {
+                sugestaoCor = probRosa > probRoxo ? 'roxo' : 'rosa';
+                analiseTexto += `Distribuição equilibrada de cores. Sugestão: Seguir a cor menos frequente (${sugestaoCor.toUpperCase()}).`;
+            }
+            
+            return {
+                sugestao: sugestaoCor.toUpperCase(),
+                cor: sugestaoCor,
+                analise: analiseTexto,
+                taxaAcima250: (countAcima250 / history.length) * 100
+            };
+        }
+        
+        /**
+         * Popula o modal de análise e o abre.
+         */
+        window.abrirModalAnalise = () => {
+            const analise = gerarAnaliseSinais();
+            const ultimoSinal = historicoCompleto[0];
+
+            // 1. Horário de Referência (último sinal, se houver)
+            document.getElementById('horaPrevista').textContent = ultimoSinal ? ultimoSinal.hora : '--:--:--';
+            
+            // 2. Sugestão de Cor
+            const sugestaoCorElement = document.getElementById('sugestaoCor');
+            sugestaoCorElement.textContent = `🎯 Próxima Entrada Sugerida: ${analise.sugestao}`;
+            sugestaoCorElement.style.color = analise.cor === 'roxo' ? 'var(--cor-secundaria)' : 'var(--cor-primaria)';
+
+            // 3. Análise Estatística Detalhada
+            const analiseStatsElement = document.getElementById('analiseEstatistica');
+            analiseStatsElement.innerHTML = `
+                <p style="font-weight: bold;">Estatísticas (${analise.history ? analise.history.length : 0} Sinais):</p>
+                <ul>
+                    <li>- Rosa: ${analise.cor === 'rosa' ? 'ALTA PROB.' : 'Normal'}</li>
+                    <li>- Roxo: ${analise.cor === 'roxo' ? 'ALTA PROB.' : 'Normal'}</li>
+                    <li>- Acima 2.5x: ${analise.taxaAcima250 ? analise.taxaAcima250.toFixed(0) : 0}%</li>
+                </ul>
+                <p style="margin-top: 10px; border-top: 1px solid #2d2d3d; padding-top: 5px;">${analise.analise.replace(/\n/g, '<br>')}</p>
+            `;
+
+            // 4. Sugestões de Entrada/Saída
+            const sugestaoEntradaElement = document.getElementById('sugestaoEntrada');
+            sugestaoEntradaElement.innerHTML = `
+                <p><strong>REGRAS DE ENTRADA:</strong></p>
+                <p>1. Cobertura: SAÍDA 2.00x</p>
+                <p>2. Alvo Principal: SAÍDA 4.00x (ou acima)</p>
+            `;
+
+            toggleModal('modalTimer');
+        }
+
+
+        /* ==================================
+            5. INÍCIO DA APLICAÇÃO
+        ================================== */
+        ouvirUltimoSinal();
+        ouvirHistorico();
+
+        /* ==================================
+            6. PERFIL E AUTENTICAÇÃO (MANTIDO)
+        ================================== */
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                // Tenta exibir o email se não for anônimo
+                document.getElementById("userEmail").textContent =
+                    `Logado como: ${user.email || 'Usuário Anônimo'}`;
+            }
+        });
+
+        window.logout = async () => {
+            await signOut(auth);
+            // Redirecionamento simulado
+            // window.location.href = "index.html"; 
+            console.log("Usuário deslogado (chamada real feita).");
+        };
+
+    });
+    </script>
+</body>
+</html>
 
