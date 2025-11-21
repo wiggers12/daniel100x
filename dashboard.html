@@ -15,8 +15,8 @@
             --cor-primaria: #ff4da6; /* Rosa */
             --cor-secundaria: #5e2cff; /* Roxo */
             --cor-terciaria: #00bcd4; /* Azul */
-            --cor-gold: #ffd700; /* Ouro */
-            --cor-verde: #00e676; /* Verde */
+            --cor-gold: #ffd700; /* Ouro para 100x */
+            --cor-verde: #00e676; /* Verde para proteção */
             --cor-fundo-escuro: #0a0a0f;
             --cor-card-claro: #1d1d2a;
             --altura-header: 60px;
@@ -43,8 +43,7 @@
             z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
         .nav-item {
-            text-align: center; color: #888; font-weight: 500; cursor: pointer;
-            font-size: 1.2rem; transition: 0.3s; text-decoration: none;
+            text-align: center; color: #888; font-weight: 500; cursor: pointer; font-size: 1.2rem; transition: 0.3s; text-decoration: none;
         }
         .nav-item span { display: block; font-size: 0.6rem; opacity: 0.8; margin-top: 0px; }
         .nav-item.ativo-nav, .nav-item:hover { color: var(--cor-primaria); }
@@ -61,8 +60,9 @@
         }
         .stat-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; border-right: 1px solid rgba(255,255,255,0.05); padding: 0 5px;
+            height: 100%; border-right: 1px solid rgba(255,255,255,0.05); position: relative; padding: 0 5px;
         }
+        .stat-item:last-child { border-right: none; }
         .stat-label { font-size: 0.55rem; color: #aaa; text-transform: uppercase; margin-bottom: 2px; text-align: center; }
         .stat-value { font-size: 1.0rem; font-weight: 800; color: #fff; text-align: center; }
         .stat-sub { font-size: 0.6rem; color: #777; font-size: 0.9rem; }
@@ -159,7 +159,7 @@
     <header class="navbar-top">
         <div class="nav-item ativo-jogo" id="btn7xx" data-secao="home" onclick="mudarSecao(this, 'home')">✈️ <span>Jogo</span></div>
         
-        <!-- BOTÃO CHAT IA (NOVO) -->
+        <!-- BOTÃO CHAT IA -->
         <div class="nav-item btn-ia-chat" onclick="toggleModal('modalChatIA')">🤖 <span>Chat IA</span></div>
         
         <div class="nav-item" data-secao="historico" onclick="mudarSecao(this, 'historico')">📜 <span>Histórico</span></div>
@@ -238,20 +238,20 @@
         </div>
     </div>
 
-    <!-- MODAL CHAT IA (NOVO) -->
+    <!-- MODAL CHAT IA -->
     <div id="modalChatIA" class="modal">
         <div class="modal-content chat-modal-content">
             <div class="chat-header">
-                <span>🤖 IA ANALISTA 7XX</span>
+                <span>🤖 IA ANALISTA (500x)</span>
                 <span style="cursor:pointer;" onclick="toggleModal('modalChatIA')">✕</span>
             </div>
             <div class="chat-body" id="chatBody">
-                <div class="msg bot">Olá! Sou a IA do 7XX. Estou analisando o histórico em tempo real. Como posso ajudar?</div>
+                <div class="msg bot">Olá! Analisei as últimas 500 rodadas. O meu cérebro está a 100%. Como posso ajudar?</div>
             </div>
             <div class="chat-footer">
                 <div class="quick-questions">
-                    <button class="quick-btn" onclick="enviarPerguntaRapida('tendencia')">📈 Qual a tendência?</button>
-                    <button class="quick-btn" onclick="enviarPerguntaRapida('entrada')">🚀 Devo entrar?</button>
+                    <button class="quick-btn" onclick="enviarPerguntaRapida('tendencia')">📈 Tendência?</button>
+                    <button class="quick-btn" onclick="enviarPerguntaRapida('entrada')">🚀 Entrar?</button>
                     <button class="quick-btn" onclick="enviarPerguntaRapida('rosa')">🌸 Próxima Rosa?</button>
                 </div>
                 <div class="chat-input-area">
@@ -294,7 +294,7 @@
         let countGreens = 0;
         let countReds = 0;
         
-        // Variável GLOBAL do histórico para a IA ler
+        // Variável GLOBAL do histórico para a IA ler (500 itens)
         let historicoGlobalIA = [];
 
         function updateClock() {
@@ -318,7 +318,7 @@
 
         const secoes = { home: document.getElementById("home"), historico: document.getElementById("historico"), perfil: document.getElementById("perfil") };
         const navItems = document.querySelectorAll(".nav-item");
-        const listaHistorico = document.getElementById("listaHistorico");
+        
         let filtroCorAtual = 'todas';
 
         window.mudarSecao = (btn, idSecao) => {
@@ -368,7 +368,7 @@
             return 'azul'; 
         }
 
-        /* === LÓGICA DO CHAT IA (NOVO) === */
+        /* === CÉREBRO DA IA (500 RODADAS) === */
         window.enviarPerguntaRapida = (tipo) => {
             let texto = "";
             if(tipo === 'tendencia') texto = "Qual a tendência do mercado agora?";
@@ -386,7 +386,6 @@
             adicionarMsgChat(texto, 'user');
             input.value = "";
             
-            // IA Básica para texto livre
             let tipo = 'geral';
             const t = texto.toLowerCase();
             if(t.includes('tendencia') || t.includes('mercado')) tipo = 'tendencia';
@@ -406,39 +405,49 @@
         }
 
         function processarRespostaIA(tipo) {
-            if(historicoGlobalIA.length < 5) {
-                adicionarMsgChat("Ainda estou coletando dados do mercado... Aguarde alguns instantes.", 'bot');
+            if(historicoGlobalIA.length < 50) {
+                adicionarMsgChat("Estou a compilar os últimos 500 resultados... Aguarde um momento.", 'bot');
                 return;
             }
 
-            const ultimos10 = historicoGlobalIA.slice(0, 10);
+            // Dados de Longo Prazo (500) vs Curto Prazo (20)
+            const ultimos500 = historicoGlobalIA; 
+            const ultimos20 = historicoGlobalIA.slice(0, 20);
             const ultimos5 = historicoGlobalIA.slice(0, 5);
             
-            // Cálculos Básicos
-            const media10 = ultimos10.reduce((a,b)=>a+b.valor,0) / 10;
-            const contaRosas = ultimos10.filter(v => v.valor >= 10).length;
-            const contaAzuis = ultimos5.filter(v => v.valor < 2).length;
-            const ultimaVela = ultimos5[0].valor;
+            // Cálculos Inteligentes
+            const media500 = ultimos500.reduce((a,b)=>a+b.valor,0) / ultimos500.length;
+            const media20 = ultimos20.reduce((a,b)=>a+b.valor,0) / 20;
+            
+            const rosas500 = ultimos500.filter(v => v.valor >= 10).length;
+            const porcentagemRosa = (rosas500 / 500) * 100; // % de Rosas no geral
+            
+            const contaAzuisRecente = ultimos5.filter(v => v.valor < 2).length;
 
             let resposta = "";
 
             if (tipo === 'tendencia') {
-                if (media10 > 3.0) resposta = `📈 **Tendência ALTA!** A média das últimas 10 rodadas é forte (${media10.toFixed(2)}x). Mercado pagando bem.`;
-                else if (contaAzuis >= 3) resposta = `📉 **Tendência de BAIXA.** Cuidado! Muitas velas azuis recentes. Aguarde recuperação.`;
-                else resposta = `⚖️ **Mercado Lateral.** Alternância entre velas boas e ruins. Jogue com cautela (Gale 2).`;
+                if (media20 > media500) {
+                    resposta = `📈 **TENDÊNCIA DE ALTA!**\n\nO mercado está a pagar ACIMA da média geral.\nMédia Recente: ${media20.toFixed(2)}x\nMédia Geral (500): ${media500.toFixed(2)}x\n\nAproveite para buscar velas roxas.`;
+                } else {
+                    resposta = `📉 **TENDÊNCIA DE BAIXA.**\n\nO mercado está a pagar ABAIXO da média geral.\nMédia Recente: ${media20.toFixed(2)}x\nMédia Geral (500): ${media500.toFixed(2)}x\n\nJogue com cautela, muitas correções.`;
+                }
             } 
             else if (tipo === 'entrada') {
-                if (contaAzuis >= 4) resposta = `🚨 **NÃO ENTRE!** Sequência de ${contaAzuis} velas azuis (Correção). Espere quebrar o padrão.`;
-                else if (ultimaVela >= 2.00) resposta = `✅ **Boa oportunidade!** O mercado parece estável. Busque 2.00x com proteção.`;
-                else resposta = `🤔 Momento incerto. Se for entrar, mão baixa e saia em 1.50x.`;
+                if (contaAzuisRecente >= 4) resposta = `🚨 **PERIGO!** Sequência de ${contaAzuisRecente} velas azuis. O mercado está em correção forte. Não entre agora.`;
+                else if (media20 > 3.00) resposta = `✅ **MOMENTO EXCELENTE!** A média recente está altíssima (${media20.toFixed(2)}x). Pode fazer entradas buscando 2.00x a 3.00x.`;
+                else resposta = `⚖️ Mercado estável. Se for entrar, use mão baixa e saia rápido (1.50x).`;
             }
             else if (tipo === 'rosa') {
-                if (contaRosas > 2) resposta = `🌸 **Chuva de Rosas!** Já saíram ${contaRosas} rosas recentemente. Pode haver uma pausa agora.`;
-                else if (contaRosas === 0) resposta = `🕒 **Rosa Atrasada.** Nenhuma rosa nas últimas 10. A probabilidade está aumentando! Fique atento aos minutos pagantes.`;
-                else resposta = `🌸 Padrão normal. Rosas saindo espaçadas. Mantenha a proteção.`;
+                resposta = `🌸 **ANÁLISE DE ROSAS (500x):**\n\nNas últimas 500 rodadas saíram **${rosas500} Rosas**.\nIsso é **${porcentagemRosa.toFixed(1)}%** do total.\n\n`;
+                
+                const ultimaRosaIndex = ultimos500.findIndex(v => v.valor >= 10);
+                if (ultimaRosaIndex === -1) resposta += "⚠️ Não encontrei rosas recentes (Estranho).";
+                else if (ultimaRosaIndex < 10) resposta += `A última rosa saiu há **${ultimaRosaIndex} rodadas**. Pode haver uma pausa.`;
+                else resposta += `A última rosa saiu há **${ultimaRosaIndex} rodadas**. Está ficando ATRASADA! A chance aumentou.`;
             }
             else {
-                resposta = "🤖 Sou treinado para analisar tendências, entradas e velas rosas. Use os botões rápidos para melhor precisão!";
+                resposta = "🤖 Sou uma IA avançada que analisa as últimas 500 rodadas. Use os botões para ver tendências e previsões.";
             }
 
             adicionarMsgChat(resposta, 'bot');
@@ -463,7 +472,8 @@
         }
 
         function ouvirHistorico() {
-            const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"));
+            // LIMITADO A 500 PARA A IA FICAR INTELIGENTE
+            const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"), limit(500));
             onSnapshot(q, snap => {
                 if(!snap.empty) {
                    const novoItem = snap.docs[0].data();
@@ -481,13 +491,15 @@
                    }
                 }
                 isFirstLoad = false;
-                historicoGlobalIA = []; // Reseta para encher com dados novos
+                historicoGlobalIA = []; 
                 const listaTemp = [];
                 snap.forEach(doc => {
                     const data = doc.data();
                     const v = parseFloat(data.valor);
-                    listaTemp.push({ ...data, valor: v });
-                    historicoGlobalIA.push({ ...data, valor: v }); // Popula memória da IA
+                    // Salva tudo na memória da IA
+                    historicoGlobalIA.push({ ...data, valor: v });
+                    // Salva apenas os 60 primeiros para exibir na lista (para não pesar o visual)
+                    if(listaTemp.length < 60) listaTemp.push({ ...data, valor: v });
                 });
                 
                 renderizarHistorico(listaTemp);
@@ -597,8 +609,10 @@
                 if(filtroCorAtual === 'todas') filtroCorAtual = 'todas';
                 else if(filtroCorAtual === 'roxo') filtroCorAtual = 'roxo';
                 else if(filtroCorAtual === 'rosa') filtroCorAtual = 'rosa';
-                // Recarrega com a lista global
-                renderizarHistorico(historicoGlobalIA);
+                // Recarrega com a lista visual (apenas 60)
+                // A IA continua usando a lista global (500)
+                // Para a lista visual, filtramos os 60 primeiros da global
+                renderizarHistorico(historicoGlobalIA.slice(0, 60));
             });
         });
 
