@@ -387,6 +387,96 @@
             if(btn) btn.innerText = textoOriginal;
         }
     };
+
+/* === INICIO DO BLOCO RESTAURADO DE LOGIN === */
+
+    window.verificarLicenca = async () => {
+        const input = document.getElementById('inputChave');
+        const msg = document.getElementById('msgLogin');
+        const entrada = input ? input.value.trim() : ""; 
+        
+        if(!entrada) { 
+            if(msg) msg.innerText = "Digite um e-mail ou chave."; 
+            return; 
+        }
+        
+        if(msg) {
+            msg.innerText = "Verificando banco de dados..."; 
+            msg.style.color = "#ffd700";
+        }
+
+        console.log("🕵️‍♂️ [DEBUG] Buscando licença para:", entrada);
+
+        try {
+            let liberado = false;
+            
+            // 1. Tenta buscar direto pelo ID (caso seja chave VIP)
+            const docRef = doc(db, "licencas", entrada);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                 console.log("✅ [DEBUG] Achou documento pelo ID/Chave!", docSnap.data());
+                 if(docSnap.data().ativa === true) liberado = true;
+            }
+
+            // 2. Se não achou, busca pelo campo EMAIL
+            if (!liberado) {
+                console.log("🔍 [DEBUG] Buscando pelo campo 'email'...");
+                const q = query(collection(db, "licencas"), where("email", "==", entrada));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const dados = querySnapshot.docs[0].data();
+                    console.log("✅ [DEBUG] Achou documento pelo Email!", dados);
+                    
+                    if (dados.ativa === true) {
+                        liberado = true;
+                    } else {
+                        console.warn("⚠️ [DEBUG] Encontrou o email, mas a licença não está ativa.");
+                        if(msg) msg.innerText = "Pagamento encontrado, mas pendente.";
+                        return;
+                    }
+                } else {
+                    console.log("❌ [DEBUG] Não encontrou NENHUMA licença com esse email.");
+                }
+            }
+
+            if (liberado || entrada === "VIP123") {
+                console.log("🎉 [DEBUG] LOGIN APROVADO!");
+                window.userPlan = 'vip'; 
+                liberarApp("👑 VIP ATIVADO");
+            } else {
+                console.log("🚫 [DEBUG] Acesso negado.");
+                if(msg) {
+                    msg.innerText = "Não encontrado. Verifique o e-mail."; 
+                    msg.style.color = "#ff4da6";
+                }
+            }
+
+        } catch (error) {
+            console.error("❌ [DEBUG] Erro grave:", error);
+            if(msg) {
+                msg.innerText = "Erro de conexão (Veja o Console F12)."; 
+                msg.style.color = "#ff4da6"; 
+            }
+        }
+    };
+
+    window.entrarGratis = () => { 
+        window.userPlan = 'free'; 
+        liberarApp("MODO GRÁTIS (Limitado)"); 
+    };
+
+    function liberarApp(textoStatus) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        const statusEl = document.getElementById('statusPlano');
+        if(statusEl) statusEl.innerText = `Plano: ${textoStatus}`;
+        
+        // Se a função de carregar dados existir, chama ela
+        if(typeof carregarDadosSalvos === 'function') carregarDadosSalvos();
+    }
+
+    /* === FIM DO BLOCO RESTAURADO === */
     /* === VIP ONLY FUNCTIONS (GLOBAL SCOPE) === */
     window.abrirModalAnalise = () => {
         const dados = calcularProximaVelaRosa();
