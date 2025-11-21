@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - 7XX</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Fonte digital para o relógio -->
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
     <style>
@@ -24,7 +25,7 @@
             height: 100vh; box-sizing: border-box;
         }
 
-        /* TELA DE LOGIN */
+        /* TELA DE LOGIN / LICENÇA */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(10, 10, 15, 0.98); z-index: 9999;
@@ -57,7 +58,7 @@
         }
         .btn-free { background: transparent; border: 1px solid #555; color: #aaa; font-size: 0.8rem; margin-top: 10px; }
         
-        /* NAVBAR */
+        /* NAVBAR TOPO */
         .navbar-top {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--altura-header);
             display: flex; justify-content: space-around; align-items: center;
@@ -70,6 +71,7 @@
         .nav-item.ativo-nav, .nav-item:hover { color: var(--cor-primaria); }
         .nav-item.ativo-jogo { color: #ffd95a; text-shadow: 0 0 8px rgba(255,217,90,0.5); }
         
+        /* Ícone VIP no cabeçalho */
         .nav-vip { color: var(--cor-gold); animation: pulse vip 2s infinite; cursor: pointer; }
 
         /* RODAPÉ STATS */
@@ -117,7 +119,7 @@
         .filtros button { background: #14141f; color: #f1f1f1; border: 1px solid #2d2d3d; border-radius: 8px; padding: 6px 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .filtros button.ativo { background: var(--cor-primaria); color: white; border-color: var(--cor-primaria); }
 
-        /* TIMER FLOAT */
+        /* TIMER FLOAT (LADO ESQUERDO) */
         .timer-float {
             position: fixed; bottom: 90px; left: 20px; background: #111; color: #00e676;
             border: 2px solid #333; border-radius: 12px; padding: 10px 15px; text-align: center;
@@ -163,18 +165,13 @@
 </head>
 <body>
 
-    <!-- TELA LOGIN -->
+    <!-- TELA DE LOGIN / LICENÇA -->
     <div id="loginOverlay">
         <div class="login-box">
             <h2 style="color:#fff; margin-bottom:5px;">🚀 7XX PREMIUM</h2>
             <p style="color:#aaa; font-size:0.8rem; margin-bottom:20px;">Acesso Vitalício - Pagamento Único</p>
             
-            <!-- FORM WHATSAPP -->
-            <div id="pagamentoBox" style="margin-bottom:20px;">
-                <p style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">Digite seu WhatsApp para receber a chave:</p>
-                <input id="inputWhats" type="tel" placeholder="Ex: 51999999999" style="padding:12px; width:100%; border-radius:8px; border:1px solid #444; background:#0a0a0f; color:#fff; margin-bottom:10px; text-align:center;">
-                <button class="btn-buy" onclick="abrirPagamento()">🛒 COMPRAR ACESSO (R$ 29,00)</button>
-            </div>
+            <button class="btn-login btn-buy" onclick="comprarAcesso()">🛒 COMPRAR ACESSO (R$ 29,00)</button>
 
             <div style="margin: 20px 0; border-top: 1px solid #333;"></div>
 
@@ -188,18 +185,23 @@
         </div>
     </div>
 
+    <!-- SONS -->
     <audio id="somRosa" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3"></audio>
     <audio id="somRoxo" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3"></audio>
 
+    <!-- NAVBAR (ATUALIZADO) -->
     <header class="navbar-top">
         <div class="nav-item ativo-jogo" id="btn7xx" data-secao="home" onclick="mudarSecao(this, 'home')">✈️ <span>Jogo</span></div>
         <div class="nav-item btn-ia-chat" onclick="abrirChatIA()">🤖 <span>Chat IA</span></div>
         <div class="nav-item" data-secao="historico" onclick="mudarSecao(this, 'historico')">📜 <span>Histórico</span></div>
         <div class="nav-item" data-secao="perfil" onclick="mudarSecao(this, 'perfil')">👤 <span>Perfil</span></div>
+        
+        <!-- NOVOS ÍCONES (TELEGRAM E ASSINATURA) -->
         <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
-        <div class="nav-item nav-vip" onclick="abrirPagamentoHeader()">💎 <span>Assinar</span></div>
+        <div class="nav-item nav-vip" onclick="comprarAcesso()">💎 <span>Assinar</span></div>
     </header>
 
+    <!-- JOGO -->
     <section id="home" class="secao ativa">
         <div class="game-container">
             <button class="btn-refresh-game" onclick="recarregarIframe()" title="Recarregar Jogo">↻</button>
@@ -207,6 +209,7 @@
         </div>
     </section>
 
+    <!-- HISTÓRICO -->
     <section id="historico" class="secao">
         <h2 style="text-align:center; margin-top:20px;">📜 Histórico Completo</h2>
         <div class="filtros">
@@ -217,6 +220,7 @@
         <div id="listaHistorico">Carregando...</div>
     </section>
 
+    <!-- PERFIL -->
     <section id="perfil" class="secao">
         <div style="padding:20px; text-align:center;">
             <h2>👤 Meu Perfil</h2>
@@ -226,11 +230,13 @@
         </div>
     </section>
 
+    <!-- BOTÃO FLUTUANTE -->
     <button id="timerBtn" class="timer-float" onclick="abrirModalAnalise()">
         <span id="relogioAoVivo">--:--:--</span>
         <small>VER SINAL</small>
     </button>
 
+    <!-- RODAPÉ -->
     <footer class="stats-footer">
         <div class="stat-item">
             <span class="stat-label">🎯 ASSERTIVIDADE</span>
@@ -252,6 +258,7 @@
         </div>
     </footer>
 
+    <!-- MODAL SINAL -->
     <div id="modalTimer" class="modal" onclick="if(event.target.id === 'modalTimer') toggleModal('modalTimer')">
         <div class="modal-content">
             <h2 style="color: #fff; margin: 0; font-size: 1.2rem;">🌸 ALERTA VELA ROSA</h2>
@@ -265,6 +272,7 @@
         </div>
     </div>
 
+    <!-- MODAL CHAT IA -->
     <div id="modalChatIA" class="modal">
         <div class="modal-content chat-modal-content">
             <div class="chat-header">
@@ -314,75 +322,14 @@
 
     onAuthStateChanged(auth, (user) => { if (!user) signInAnonymously(auth).catch(console.error); });
 
-    // --- FUNÇÕES GLOBAIS PARA SEREM ACESSADAS PELO HTML ---
-    
-    // 1. Função de Adicionar Mensagem (Chat)
-    window.adicionarMsgChat = (msg, sender) => {
-        const body = document.getElementById('chatBody');
-        if(!body) return;
-        const div = document.createElement('div');
-        div.className = `msg ${sender}`;
-        div.innerText = msg;
-        body.appendChild(div);
-        body.scrollTop = body.scrollHeight;
-    };
-
-    // 2. Função do Modal
+    /* === GLOBAL HELPERS === */
     window.toggleModal = (id) => {
         const modal = document.getElementById(id);
         if(modal) modal.style.display = modal.style.display === "flex" ? "none" : "flex";
     };
 
-    // 3. Funções de Pagamento
-    window.abrirPagamento = () => {
-        let whats = document.getElementById("inputWhats").value.trim();
-        if (!whats) { alert("Digite seu WhatsApp!"); return; }
-        whats = whats.replace(/\D/g, "");
-        if (whats.length >= 10 && whats.length <= 11) whats = "55" + whats;
-        window.open("https://mpago.la/2gKzMQz", "_blank");
-    };
-
-    window.abrirPagamentoHeader = () => { window.open("https://mpago.la/2gKzMQz", "_blank"); };
-
-    // 4. Função de Login
-    window.verificarLicenca = async () => {
-        const input = document.getElementById('inputChave');
-        const msg = document.getElementById('msgLogin');
-        const entrada = input.value.trim();
-        if(!entrada) { msg.innerText = "Digite um e-mail ou chave."; return; }
-        msg.innerText = "Verificando..."; msg.style.color = "#ffd700";
-        try {
-            let liberado = false;
-            const docRef = doc(db, "licencas", entrada);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists() && docSnap.data().ativa === true) { liberado = true; } 
-            else {
-                const q = query(collection(db, "licencas"), where("email", "==", entrada), where("ativa", "==", true));
-                const querySnapshot = await getDocs(q);
-                if (!querySnapshot.empty) liberado = true;
-            }
-            if (liberado || entrada === "VIP123") { window.userPlan = 'vip'; liberarApp("👑 VIP ATIVADO"); }
-            else { msg.innerText = "Não encontrado."; msg.style.color = "#ff4da6"; }
-        } catch (error) {
-            if(entrada === "VIP123") { window.userPlan = 'vip'; liberarApp("👑 VIP TESTE"); }
-            else { msg.innerText = "Erro de conexão."; msg.style.color = "#ff4da6"; }
-        }
-    };
-
-    // 5. Função Entrar Grátis
-    window.entrarGratis = () => { window.userPlan = 'free'; liberarApp("MODO GRÁTIS (Limitado)"); };
-
-    function liberarApp(textoStatus) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        const statusEl = document.getElementById('statusPlano');
-        if(statusEl) statusEl.innerText = `Plano: ${textoStatus}`;
-        carregarDadosSalvos();
-    }
-    
-    window.logout = async () => { await signOut(auth); location.reload(); };
-
-    // 6. Funções Auxiliares de Cálculo
     function formatarZero(num) { return num < 10 ? `0${num}` : num; }
+
     function calcularProximaVelaRosa() {
         const agora = new Date();
         const hora = agora.getHours();
@@ -397,53 +344,98 @@
         return { janela: `${formatarZero(hAntes)}:${formatarZero(mAntes)} até ${formatarZero(hDepois)}:${formatarZero(mDepois)}`, alvo: prox };
     }
 
-    // 7. Funções de Abertura de Modais
+    /* === SISTEMA DE COMPRA E LOGIN === */
+    window.comprarAcesso = () => {
+        window.open("https://mpago.la/2gKzMQz", "_blank");
+    };
+
+    window.verificarLicenca = async () => {
+        const input = document.getElementById('inputChave');
+        const msg = document.getElementById('msgLogin');
+        const entrada = input.value.trim();
+        if(!entrada) { msg.innerText = "Digite um e-mail ou chave."; return; }
+        msg.innerText = "Verificando..."; msg.style.color = "#ffd700";
+
+        try {
+            let liberado = false;
+            const docRef = doc(db, "licencas", entrada);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists() && docSnap.data().ativa === true) { liberado = true; } 
+            else {
+                const q = query(collection(db, "licencas"), where("email", "==", entrada), where("ativa", "==", true));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) liberado = true;
+            }
+
+            if (liberado || entrada === "VIP123") {
+                window.userPlan = 'vip'; liberarApp("👑 VIP ATIVADO");
+            } else {
+                msg.innerText = "Não encontrado. Verifique ou compre agora."; msg.style.color = "#ff4da6";
+            }
+        } catch (error) {
+            console.error(error);
+            if(entrada === "VIP123") { window.userPlan = 'vip'; liberarApp("👑 VIP TESTE"); }
+            else { msg.innerText = "Erro de conexão."; msg.style.color = "#ff4da6"; }
+        }
+    };
+
+    window.entrarGratis = () => { window.userPlan = 'free'; liberarApp("MODO GRÁTIS (Limitado)"); };
+    function liberarApp(textoStatus) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        const statusEl = document.getElementById('statusPlano');
+        if(statusEl) statusEl.innerText = `Plano: ${textoStatus}`;
+        carregarDadosSalvos();
+    }
+
+    window.logout = async () => { await signOut(auth); location.reload(); };
+
+    /* === VIP ONLY FUNCTIONS (GLOBAL SCOPE) === */
     window.abrirModalAnalise = () => {
         const dados = calcularProximaVelaRosa();
         const elH = document.getElementById("horarioEntrada");
         const elM = document.getElementById("minutoAlvo");
-        if(elH && elM) { elH.innerText = dados.janela; elM.innerText = dados.alvo; toggleModal('modalTimer'); }
+        
+        if(elH && elM) {
+            elH.innerText = dados.janela;
+            elM.innerText = dados.alvo;
+            toggleModal('modalTimer');
+        } else {
+            console.error("Elementos do modal não encontrados!");
+        }
     };
 
     window.abrirChatIA = () => {
         if (window.userPlan !== 'vip') { alert("🔒 CHAT IA BLOQUEADO!\n\nApenas membros VIP podem conversar com a IA Analista."); return; }
         toggleModal('modalChatIA');
     };
-    
-    // 8. Funções de Chat
-    window.enviarPerguntaRapida = (tipo) => {
-        let texto = "";
-        if(tipo === 'tendencia') texto = "Qual a tendência do mercado agora?";
-        if(tipo === 'entrada') texto = "Devo fazer uma entrada agora?";
-        if(tipo === 'rosa') texto = "Quando vem a próxima Rosa?";
-        window.adicionarMsgChat(texto, 'user');
-        // Timeout para simular resposta
-        setTimeout(() => document.dispatchEvent(new CustomEvent('processarIA', { detail: tipo })), 800);
+
+    // AJUSTE: FUNÇÃO GLOBAL PARA SER ACESSÍVEL NO HTML
+    window.adicionarMsgChat = (msg, sender) => {
+        const body = document.getElementById('chatBody');
+        const div = document.createElement('div');
+        div.className = `msg ${sender}`;
+        div.innerText = msg;
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
     };
 
-    window.enviarMsgUsuario = () => {
-        const input = document.getElementById('chatInput');
-        const texto = input.value.trim();
-        if(!texto) return;
-        window.adicionarMsgChat(texto, 'user');
-        input.value = "";
-        let tipo = 'geral';
-        const t = texto.toLowerCase();
-        if(t.includes('tendencia')) tipo = 'tendencia';
-        else if(t.includes('entrar')) tipo = 'entrada';
-        else if(t.includes('rosa')) tipo = 'rosa';
-        else if(t.includes('ola') || t.includes('oi')) tipo = 'saudacao';
-        else if(t.includes('perdi') || t.includes('red')) tipo = 'perda';
-        else if(t.includes('ganhei') || t.includes('green')) tipo = 'ganho';
-        setTimeout(() => document.dispatchEvent(new CustomEvent('processarIA', { detail: tipo })), 1000);
-    };
+    /* === PERSISTÊNCIA DE DADOS (LOCALSTORAGE) === */
+    // Variáveis globais
+    let historicoAcertos = []; 
+    let countGreens = 0;
+    let countReds = 0;
+    let ultimoStatusPrev = null; 
 
-
-    // --- PERSISTÊNCIA ---
-    let historicoAcertos = []; let countGreens = 0; let countReds = 0;
     function salvarDadosLocais() {
-        localStorage.setItem('dados7XX', JSON.stringify({ acertos: historicoAcertos, greens: countGreens, reds: countReds }));
+        const dados = {
+            acertos: historicoAcertos,
+            greens: countGreens,
+            reds: countReds
+        };
+        localStorage.setItem('dados7XX', JSON.stringify(dados));
     }
+
     function carregarDadosSalvos() {
         const salvos = localStorage.getItem('dados7XX');
         if (salvos) {
@@ -454,71 +446,52 @@
             atualizarUIPlacar();
         }
     }
+
     function atualizarUIPlacar() {
         const elPlacar = document.getElementById('placarSession');
-        if (elPlacar) elPlacar.innerHTML = `<span style="color:#00e676">${countGreens}G</span> • <span style="color:#ff4da6">${countReds}R</span>`;
+        if (elPlacar) {
+            elPlacar.innerHTML = `<span style="color:#00e676">${countGreens}G</span> • <span style="color:#ff4da6">${countReds}R</span>`;
+        }
+
         const elAssert = document.getElementById('valAssertividade');
         if(elAssert && historicoAcertos.length > 0) {
             const total = historicoAcertos.reduce((a,b) => a+b, 0);
             const pct = (total / historicoAcertos.length) * 100;
+            
             elAssert.innerText = pct.toFixed(0) + "%";
             elAssert.className = "stat-value";
-            if (pct >= 70) elAssert.classList.add("assert-high"); else if (pct >= 50) elAssert.classList.add("assert-mid"); else elAssert.classList.add("assert-low");
+            if (pct >= 70) elAssert.classList.add("assert-high"); 
+            else if (pct >= 50) elAssert.classList.add("assert-mid"); 
+            else elAssert.classList.add("assert-low");
+        }
+    }
+
+    /* === FUNÇÃO DE MONITORAMENTO AUTOMÁTICO DE PADRÕES === */
+    function monitorarPadroesChat(dadosRecentes) {
+        if (!dadosRecentes || dadosRecentes.length < 5) return;
+        const ultimos5 = dadosRecentes.slice(0, 5);
+        const contaAzuis = ultimos5.filter(v => v.valor < 2.00).length;
+        const media5 = ultimos5.reduce((a,b)=>a+b.valor,0) / 5;
+        let msgAutomatica = "";
+        
+        if (contaAzuis >= 4) {
+            msgAutomatica = "🚨 **ALERTA DE PERIGO!** Sequência de 4 velas azuis detectada. O mercado está em correção forte. Aguarde!";
+        } else if (media5 > 5.00) {
+            msgAutomatica = "🔥 **MERCADO QUENTE!** A média recente está acima de 5.00x. Ótimo momento para buscar velas roxas.";
+        }
+
+        if (msgAutomatica && msgAutomatica !== ultimoStatusPrev) {
+            window.adicionarMsgChat(msgAutomatica, 'bot');
+            ultimoStatusPrev = msgAutomatica;
         }
     }
 
 
-    // --- LÓGICA INTERNA ---
+    /* === MAIN LOGIC === */
     window.addEventListener("DOMContentLoaded", () => {
         let previsaoAtiva = false; let roundsRestantes = 0; let idPrevisaoAtual = null; let historicoGlobalIA = [];
-        let ultimoStatusPrev = null;
 
         carregarDadosSalvos();
-
-        // EVENTO CUSTOMIZADO PARA IA (Para conectar funções globais com dados locais)
-        document.addEventListener('processarIA', (e) => {
-            const tipo = e.detail;
-            processarRespostaIA(tipo);
-        });
-
-        function processarRespostaIA(tipo) {
-            if(historicoGlobalIA.length < 50) { window.adicionarMsgChat("Aguarde, coletando dados...", 'bot'); return; }
-            const ultimos5 = historicoGlobalIA.slice(0, 5);
-            const media5 = ultimos5.reduce((a,b)=>a+b.valor,0) / 5;
-            const rosas500 = historicoGlobalIA.filter(v => v.valor >= 10).length;
-            const contaAzuis = ultimos5.filter(v => v.valor < 2).length;
-            let resposta = "🤖 Use os botões para análise.";
-
-            if (tipo === 'tendencia') {
-                if (media5 > 2.5) resposta = `📈 **TENDÊNCIA DE ALTA!** Média Recente: ${media5.toFixed(2)}x`;
-                else resposta = `📉 **TENDÊNCIA DE BAIXA.** Média Recente: ${media5.toFixed(2)}x`;
-            } else if (tipo === 'entrada') {
-                if (contaAzuis >= 4) resposta = `🚨 **PERIGO!** 4 Azuis seguidos. Não entre.`;
-                else resposta = `✅ **OPORTUNIDADE!** Mercado estável.`;
-            } else if (tipo === 'rosa') {
-                resposta = `🌸 **ROSAS (500x):** ${rosas500} identificadas.`;
-            } else if (tipo === 'saudacao') resposta = "Olá! 👋 Estou monitorando o mercado.";
-              else if (tipo === 'perda') resposta = "Respire e siga a gestão. 🛡️";
-              else if (tipo === 'ganho') resposta = "Boa! 🚀 Lucro no bolso.";
-            
-            window.adicionarMsgChat(resposta, 'bot');
-        }
-
-        function monitorarPadroesChat(dadosRecentes) {
-            if (!dadosRecentes || dadosRecentes.length < 5) return;
-            const ultimos5 = dadosRecentes.slice(0, 5);
-            const contaAzuis = ultimos5.filter(v => v.valor < 2.00).length;
-            const media5 = ultimos5.reduce((a,b)=>a+b.valor,0) / 5;
-            let msgAutomatica = "";
-
-            if (contaAzuis >= 4) msgAutomatica = "🚨 **ALERTA!** 4 velas azuis seguidas. Cuidado!";
-            else if (media5 > 5.00) msgAutomatica = "🔥 **MERCADO QUENTE!** Média alta. Aproveite.";
-
-            if (msgAutomatica && msgAutomatica !== ultimoStatusPrev) {
-                window.adicionarMsgChat(msgAutomatica, 'bot');
-                ultimoStatusPrev = msgAutomatica;
-            }
-        }
 
         function updateClock() {
             const now = new Date();
@@ -532,6 +505,7 @@
         const somRosa = document.getElementById('somRosa');
         const somRoxo = document.getElementById('somRoxo');
         let isFirstLoad = true;
+
         function tocarSom(valor) {
             if(isFirstLoad) return;
             if(valor >= 10.00) { somRosa.currentTime=0; somRosa.play().catch(()=>{}); }
@@ -558,6 +532,67 @@
             if (valor >= 10.01) return 'rosa';
             if (valor >= 2.00) return 'roxo'; 
             return 'azul'; 
+        }
+
+        // CHAT IA
+        window.enviarPerguntaRapida = (tipo) => {
+            let texto = "";
+            if(tipo === 'tendencia') texto = "Qual a tendência do mercado agora?";
+            if(tipo === 'entrada') texto = "Devo fazer uma entrada agora?";
+            if(tipo === 'rosa') texto = "Quando vem a próxima Rosa?";
+            window.adicionarMsgChat(texto, 'user');
+            setTimeout(() => processarRespostaIA(tipo), 800);
+        };
+
+        window.enviarMsgUsuario = () => {
+            const input = document.getElementById('chatInput');
+            const texto = input.value.trim();
+            if(!texto) return;
+            window.adicionarMsgChat(texto, 'user');
+            input.value = "";
+            let tipo = 'geral';
+            const t = texto.toLowerCase();
+            if(t.includes('tendencia') || t.includes('mercado')) tipo = 'tendencia';
+            else if(t.includes('entrar') || t.includes('apostar')) tipo = 'entrada';
+            else if(t.includes('rosa') || t.includes('alta')) tipo = 'rosa';
+            else if(t.includes('ola') || t.includes('oi')) tipo = 'saudacao';
+            else if(t.includes('perdi') || t.includes('red')) tipo = 'perda';
+            else if(t.includes('ganhei') || t.includes('green')) tipo = 'ganho';
+            
+            setTimeout(() => processarRespostaIA(tipo), 1000);
+        };
+
+        function processarRespostaIA(tipo) {
+            if(historicoGlobalIA.length < 50) { window.adicionarMsgChat("Aguarde, coletando dados...", 'bot'); return; }
+            const ultimos500 = historicoGlobalIA; 
+            const ultimos20 = historicoGlobalIA.slice(0, 20);
+            const ultimos5 = historicoGlobalIA.slice(0, 5);
+            const media500 = ultimos500.reduce((a,b)=>a+b.valor,0) / ultimos500.length;
+            const media20 = ultimos20.reduce((a,b)=>a+b.valor,0) / 20;
+            const rosas500 = ultimos500.filter(v => v.valor >= 10).length;
+            const porcentagemRosa = (rosas500 / 500) * 100; 
+            const contaAzuisRecente = ultimos5.filter(v => v.valor < 2).length;
+            let resposta = "";
+
+            if (tipo === 'tendencia') {
+                if (media20 > media500) resposta = `📈 **TENDÊNCIA DE ALTA!**\nMédia Recente: ${media20.toFixed(2)}x\n(Geral: ${media500.toFixed(2)}x)`;
+                else resposta = `📉 **TENDÊNCIA DE BAIXA.**\nMédia Recente: ${media20.toFixed(2)}x\n(Geral: ${media500.toFixed(2)}x)`;
+            } else if (tipo === 'entrada') {
+                if (contaAzuisRecente >= 4) resposta = `🚨 **PERIGO!** Sequência de ${contaAzuisRecente} azuis. Não entre.`;
+                else if (media20 > 3.00) resposta = `✅ **EXCELENTE!** Média alta (${media20.toFixed(2)}x). Busque roxas.`;
+                else resposta = `⚖️ Mercado estável. Mão baixa.`;
+            } else if (tipo === 'rosa') {
+                resposta = `🌸 **ROSAS (500x):** ${rosas500} (${porcentagemRosa.toFixed(1)}%).`;
+            } else if (tipo === 'saudacao') {
+                resposta = "Olá! 👋 Estou de olho no mercado 24h. Pode perguntar!";
+            } else if (tipo === 'perda') {
+                 resposta = "Calma, faz parte. Respire, siga a gestão e espere o próximo sinal confirmado. 🛡️";
+            } else if (tipo === 'ganho') {
+                 resposta = "Boa! 🚀 Lucro no bolso. Se já bateu a meta, pare por hoje.";
+            } else {
+                resposta = "🤖 Entendi. Estou analisando os padrões. Use os botões para uma resposta mais técnica!";
+            }
+            window.adicionarMsgChat(resposta, 'bot');
         }
 
         // LISTENERS
@@ -588,6 +623,7 @@
                        const valorAntigo = historicoGlobalIA[0].valor;
                        if(valorNovo !== valorAntigo) {
                            tocarSom(valorNovo);
+                           // STOP WIN/LOSS
                            if (previsaoAtiva && window.userPlan === 'vip') {
                                if (valorNovo >= 2.00) { registrarResultadoAssertividade(1); finalizarPrevisao(); } 
                                else { roundsRestantes--; if (roundsRestantes <= 0) { registrarResultadoAssertividade(0); finalizarPrevisao(); } }
@@ -607,7 +643,11 @@
                 renderizarHistorico(listaTemp);
                 atualizarUltimaRosa(listaTemp);
                 atualizarTendencia(listaTemp);
-                if(window.userPlan === 'vip') { monitorarPadroesChat(listaTemp); }
+                
+                // NOVA FUNÇÃO IA PROATIVA
+                if(window.userPlan === 'vip') {
+                    monitorarPadroesChat(listaTemp);
+                }
             });
         }
 
@@ -620,6 +660,7 @@
             historicoAcertos.push(resultado);
             if (historicoAcertos.length > 20) historicoAcertos.shift();
             if (resultado === 1) countGreens++; else countReds++;
+            
             salvarDadosLocais();
             atualizarUIPlacar();
         }
@@ -653,6 +694,7 @@
                 if(!snap.empty) {
                     const docData = snap.docs[0];
                     const dados = docData.data();
+                    // SÓ EXIBE PREVISÃO SE FOR VIP
                     if (window.userPlan === 'vip' && docData.id !== idPrevisaoAtual) {
                         const agora = Date.now();
                         const tempoPrevisao = dados.criado ? dados.criado.toMillis() : 0;
