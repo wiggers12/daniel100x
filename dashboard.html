@@ -345,51 +345,48 @@
     }
 
     /* === SISTEMA DE COMPRA E LOGIN === */
-    window.comprarAcesso = () => {
-        window.open("https://mpago.la/2gKzMQz", "_blank");
-    };
+   window.comprarAcesso = async () => {
+        // Pega o botão para mudar o texto
+        const btn = document.querySelector('.btn-buy');
+        const textoOriginal = btn ? btn.innerText : "COMPRAR";
+        
+        // Pega o email que a pessoa digitou no input (se tiver)
+        const emailInput = document.getElementById('inputChave').value;
+        
+        // Se a pessoa não digitou email, pede um (opcional, mas recomendado)
+        if(!emailInput || !emailInput.includes('@')) {
+            alert("Por favor, digite seu E-MAIL no campo de login antes de comprar para liberarmos seu acesso automaticamente.");
+            return;
+        }
 
-    window.verificarLicenca = async () => {
-        const input = document.getElementById('inputChave');
-        const msg = document.getElementById('msgLogin');
-        const entrada = input.value.trim();
-        if(!entrada) { msg.innerText = "Digite um e-mail ou chave."; return; }
-        msg.innerText = "Verificando..."; msg.style.color = "#ffd700";
+        if(btn) btn.innerText = "⏳ Gerando Pagamento...";
 
         try {
-            let liberado = false;
-            const docRef = doc(db, "licencas", entrada);
-            const docSnap = await getDoc(docRef);
+            // SUBSTITUA A URL ABAIXO PELA URL DA SUA NOVA FUNÇÃO 'criarPreferencia'
+            const urlFuncao = "https://us-central1-aviatordaniel100x.cloudfunctions.net/criarPreferencia"; 
+            
+            const response = await fetch(urlFuncao, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: emailInput })
+            });
 
-            if (docSnap.exists() && docSnap.data().ativa === true) { liberado = true; } 
-            else {
-                const q = query(collection(db, "licencas"), where("email", "==", entrada), where("ativa", "==", true));
-                const querySnapshot = await getDocs(q);
-                if (!querySnapshot.empty) liberado = true;
-            }
+            const data = await response.json();
 
-            if (liberado || entrada === "VIP123") {
-                window.userPlan = 'vip'; liberarApp("👑 VIP ATIVADO");
+            if (data.link) {
+                // Abre o link oficial do Mercado Pago gerado na hora
+                window.location.href = data.link;
             } else {
-                msg.innerText = "Não encontrado. Verifique ou compre agora."; msg.style.color = "#ff4da6";
+                alert("Erro ao gerar link. Tente novamente.");
             }
-        } catch (error) {
-            console.error(error);
-            if(entrada === "VIP123") { window.userPlan = 'vip'; liberarApp("👑 VIP TESTE"); }
-            else { msg.innerText = "Erro de conexão."; msg.style.color = "#ff4da6"; }
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Erro de conexão ao criar pagamento.");
+        } finally {
+            if(btn) btn.innerText = textoOriginal;
         }
     };
-
-    window.entrarGratis = () => { window.userPlan = 'free'; liberarApp("MODO GRÁTIS (Limitado)"); };
-    function liberarApp(textoStatus) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        const statusEl = document.getElementById('statusPlano');
-        if(statusEl) statusEl.innerText = `Plano: ${textoStatus}`;
-        carregarDadosSalvos();
-    }
-
-    window.logout = async () => { await signOut(auth); location.reload(); };
-
     /* === VIP ONLY FUNCTIONS (GLOBAL SCOPE) === */
     window.abrirModalAnalise = () => {
         const dados = calcularProximaVelaRosa();
