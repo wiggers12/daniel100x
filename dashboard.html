@@ -9,29 +9,19 @@
 
     <style>
         /* =============================
-           DARK PREMIUM VISUAL
+            DARK PREMIUM VISUAL
         ============================= */
         :root {
-            --cor-primaria: #ff4da6; /* Rosa */
-            --cor-secundaria: #5e2cff; /* Roxo */
-            --cor-terciaria: #00bcd4; /* Azul */
-            --cor-gold: #ffd700; /* Ouro */
-            --cor-verde: #00e676; /* Verde */
-            --cor-fundo-escuro: #0a0a0f;
-            --altura-header: 60px;
-            --altura-footer: 75px;
+            --cor-primaria: #ff4da6; --cor-secundaria: #5e2cff; --cor-terciaria: #00bcd4;
+            --cor-gold: #ffd700; --cor-verde: #00e676; --cor-fundo-escuro: #0a0a0f;
+            --cor-card-claro: #1d1d2a; --altura-header: 60px; --altura-footer: 75px;
         }
 
         body {
             background: linear-gradient(135deg, var(--cor-fundo-escuro), #1a1030);
-            color: #f1f1f1;
-            font-family: 'Poppins', sans-serif;
-            overflow-x: hidden;
-            margin: 0;
-            padding-top: var(--altura-header);
-            padding-bottom: var(--altura-footer);
-            height: 100vh;
-            box-sizing: border-box;
+            color: #f1f1f1; font-family: 'Poppins', sans-serif; overflow-x: hidden;
+            margin: 0; padding-top: var(--altura-header); padding-bottom: var(--altura-footer);
+            height: 100vh; box-sizing: border-box;
         }
 
         /* TELA DE LOGIN */
@@ -47,7 +37,7 @@
         }
         .login-input {
             width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444;
-            background: #0a0a0f; color: #fff; margin-bottom: 15px; font-size: 1rem; text-align: center; box-sizing: border-box;
+            background: #0a0a0f; color: #fff; margin-bottom: 15px; font-size: 1rem; text-align: center;
         }
         .btn-login {
             width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;
@@ -55,7 +45,6 @@
         }
         .btn-vip { background: linear-gradient(90deg, var(--cor-primaria), var(--cor-secundaria)); color: #fff; box-shadow: 0 0 15px rgba(255, 77, 166, 0.4); }
         .btn-vip:hover { transform: scale(1.02); }
-        .btn-vip:disabled { background: #444; cursor: not-allowed; opacity: 0.5; }
         
         .btn-buy { 
             background: #00e676; color: #000; font-size: 1.1rem; 
@@ -67,18 +56,38 @@
             100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
         }
         .btn-free { background: transparent; border: 1px solid #555; color: #aaa; font-size: 0.8rem; margin-top: 10px; }
-
-        /* NAVBAR TOPO */
+        
+        /* NAVBAR */
         .navbar-top {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--altura-header);
             display: flex; justify-content: space-around; align-items: center;
             background: rgba(12, 12, 18, 0.98); border-bottom: 2px solid var(--cor-secundaria);
             z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            padding: 0 5px;
         }
-        .nav-item { text-align: center; color: #888; font-weight: 500; cursor: pointer; font-size: 1.2rem; transition: 0.3s; }
-        .nav-item span { display: block; font-size: 0.6rem; opacity: 0.8; }
+        .nav-item { text-align: center; color: #888; font-weight: 500; cursor: pointer; font-size: 1.1rem; text-decoration: none; padding: 5px; }
+        .nav-item span { display: block; font-size: 0.55rem; opacity: 0.8; margin-top: 0px; text-transform: uppercase;}
         .nav-item.ativo-nav, .nav-item:hover { color: var(--cor-primaria); }
         .nav-item.ativo-jogo { color: #ffd95a; text-shadow: 0 0 8px rgba(255,217,90,0.5); }
+        
+        .nav-vip { color: var(--cor-gold); animation: pulse vip 2s infinite; cursor: pointer; }
+
+        /* RODAPÉ STATS */
+        .stats-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: var(--altura-footer);
+            background: rgba(10, 10, 15, 0.98); border-top: 2px solid var(--cor-primaria);
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; align-items: center; z-index: 100;
+        }
+        .stat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; border-right: 1px solid rgba(255,255,255,0.05); position: relative; padding: 0 5px; }
+        .stat-item:last-child { border-right: none; }
+        .stat-label { font-size: 0.55rem; color: #aaa; text-transform: uppercase; margin-bottom: 2px; text-align: center; }
+        .stat-value { font-size: 1.0rem; font-weight: 800; color: #fff; text-align: center; }
+        .stat-sub { font-size: 0.9rem; font-weight:bold; margin-top:2px; }
+
+        #listaPrevisao { display: flex; gap: 3px; font-size: 0.75rem; font-weight: bold; }
+        .text-azul { color: var(--cor-terciaria); } .text-roxo { color: var(--cor-secundaria); } .text-rosa { color: var(--cor-primaria); text-shadow: 0 0 8px rgba(255, 77, 166, 0.4); }
+        .assert-high { color: #00e676; text-shadow: 0 0 8px rgba(0, 230, 118, 0.4); }
+        .assert-mid { color: #ffd700; } .assert-low { color: #ff4da6; }
 
         /* GAME CONTAINER */
         .game-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
@@ -88,93 +97,94 @@
             border: 1px solid #555; border-radius: 50%; width: 35px; height: 35px; cursor: pointer;
             z-index: 10; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
         }
+        .btn-refresh-game:hover { background: var(--cor-primaria); border-color: var(--cor-primaria); }
 
         /* HISTÓRICO */
         #listaHistorico { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; padding: 10px; padding-bottom: 80px; }
         .hist-item {
             display: flex; flex-direction: column; justify-content: center; align-items: center; height: 70px;
             border-radius: 10px; font-weight: bold; font-size: 1rem; color: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5); line-height: 1.1;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); transition: transform 0.2s; line-height: 1.1;
         }
-        .hist-item.novo { border: 2px solid #fff; animation: popIn 0.5s; }
+        .hist-item.novo { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 2px solid #fff; }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .azul { background: linear-gradient(145deg, #00b4db, #0083b0); }
         .roxo { background: linear-gradient(145deg, var(--cor-secundaria), #b98eff); }
         .rosa { background: linear-gradient(145deg, var(--cor-primaria), #ff82d3); }
         .hist-hora { font-size: 0.65rem; font-weight: normal; opacity: 0.9; margin-top: 2px; }
 
-        /* MODAL E CHAT */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 200; }
-        .modal-content { background: linear-gradient(160deg, #1a1a24, #252535); border: 2px solid var(--cor-primaria); border-radius: 20px; padding: 25px; width: 90%; max-width: 340px; max-height: 90vh; overflow-y: auto; }
-        
-        /* CHAT IA */
-        .chat-modal-content { padding: 0; display: flex; flex-direction: column; height: 80vh; background: #111; border: 1px solid var(--cor-terciaria); }
-        .chat-header { background: var(--cor-terciaria); padding: 15px; display: flex; justify-content: space-between; color: #000; font-weight: bold; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0a0a0f; }
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; animation: fadeIn 0.3s ease; }
-        .msg.bot { background: #1d1d2a; align-self: flex-start; border: 1px solid #333; }
-        .msg.user { background: var(--cor-terciaria); color: #000; align-self: flex-end; font-weight: 600; }
-        .chat-footer { padding: 10px; background: #1a1a24; border-top: 1px solid #333; }
-        .chat-input-area { display: flex; gap: 10px; margin-top: 10px;}
-        .chat-input { flex: 1; background: #0a0a0f; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; outline: none; }
-        .chat-send { background: var(--cor-terciaria); border: none; width: 40px; border-radius: 8px; cursor: pointer; color: #000; font-weight: bold; }
-        .quick-questions { display: flex; gap: 5px; overflow-x: auto; }
-        .quick-btn { background: rgba(0, 188, 212, 0.1); border: 1px solid var(--cor-terciaria); color: var(--cor-terciaria); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; white-space: nowrap; cursor: pointer; }
+        .filtros { display: flex; justify-content: center; gap: 10px; margin: 10px 0; padding: 0 15px; }
+        .filtros button { background: #14141f; color: #f1f1f1; border: 1px solid #2d2d3d; border-radius: 8px; padding: 6px 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .filtros button.ativo { background: var(--cor-primaria); color: white; border-color: var(--cor-primaria); }
 
         /* TIMER FLOAT */
         .timer-float {
             position: fixed; bottom: 90px; left: 20px; background: #111; color: #00e676;
             border: 2px solid #333; border-radius: 12px; padding: 10px 15px; text-align: center;
             cursor: pointer; box-shadow: 0 0 15px rgba(0, 230, 118, 0.3); z-index: 99;
+            display: flex; flex-direction: column; align-items: center; min-width: 90px;
         }
-        .timer-float span { display: block; font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; }
-        .timer-float small { font-size: 0.6rem; color: #aaa; text-transform: uppercase; }
+        .timer-float span { display: block; font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; font-weight: 400; letter-spacing: 1px; }
+        .timer-float small { display: block; font-size: 0.6rem; color: #aaa; margin-top: 2px; font-weight: 600; text-transform: uppercase; }
+        .timer-float:active { transform: scale(0.95); }
 
-        /* RODAPÉ STATS */
-        .stats-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: var(--altura-footer);
-            background: rgba(10, 10, 15, 0.98); border-top: 2px solid var(--cor-primaria);
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; align-items: center; z-index: 100;
-        }
-        .stat-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; border-right: 1px solid rgba(255,255,255,0.05);
-        }
-        .stat-label { font-size: 0.55rem; color: #aaa; text-transform: uppercase; margin-bottom: 2px; }
-        .stat-value { font-size: 1.0rem; font-weight: 800; color: #fff; }
-        .text-rosa { color: var(--cor-primaria); }
-        .text-roxo { color: var(--cor-secundaria); }
-        .text-azul { color: var(--cor-terciaria); }
-
-        .secao { display: none; height: 100%; }
-        .secao.ativa { display: block; }
+        /* MODAIS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 200; }
+        .modal-content { background: linear-gradient(160deg, #1a1a24, #252535); border: 2px solid var(--cor-primaria); border-radius: 20px; padding: 25px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 0 40px rgba(255,77,166,0.2); position: relative; max-height: 90vh; overflow-y: auto; }
         
-        .btn-fechar { background: var(--cor-primaria); color: #fff; border: none; padding: 10px; border-radius: 50px; width: 100%; margin-top:10px; font-weight:bold; cursor:pointer;}
         .sinal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .sinal-box { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); text-align: center;}
-        .sinal-box.full { grid-column: span 2; }
-        .sinal-value { display:block; font-size: 1.2rem; font-weight: bold; color: #fff; }
-        .destaque-gold { color: var(--cor-gold); }
+        .sinal-box { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .sinal-box.full { grid-column: span 2; background: rgba(255, 215, 0, 0.1); border-color: var(--cor-gold); }
+        .sinal-label { font-size: 0.75rem; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .sinal-value { font-size: 1.2rem; font-weight: bold; color: #fff; }
+        .destaque-verde { color: var(--cor-verde); }
+        .destaque-gold { color: var(--cor-gold); font-size: 1.5rem; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+
+        .btn-fechar { background: var(--cor-primaria); color: #fff; border: none; padding: 10px 20px; border-radius: 50px; margin-top: 20px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
+        
+        .secao { display: none; padding: 0; height: 100%; }
+        .secao.ativa { display: block; }
+
+        /* CHAT IA */
+        .chat-modal-content { padding: 0; display: flex; flex-direction: column; height: 80vh; background: #111; border: 1px solid var(--cor-terciaria); }
+        .chat-header { background: var(--cor-terciaria); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: #000; font-weight: bold; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0a0a0f; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; animation: fadeIn 0.3s ease; }
+        .msg.bot { background: #1d1d2a; align-self: flex-start; border: 1px solid #333; }
+        .msg.user { background: var(--cor-terciaria); color: #000; align-self: flex-end; font-weight: 600; }
+        .chat-footer { padding: 10px; background: #1a1a24; border-top: 1px solid #333; }
+        .quick-questions { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; }
+        .quick-btn { background: rgba(0, 188, 212, 0.1); border: 1px solid var(--cor-terciaria); color: var(--cor-terciaria); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; white-space: nowrap; cursor: pointer; }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input { flex: 1; background: #0a0a0f; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; outline: none; }
+        .chat-send { background: var(--cor-terciaria); border: none; width: 40px; border-radius: 8px; cursor: pointer; color: #000; font-weight: bold; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <!-- TELA LOGIN -->
     <div id="loginOverlay">
         <div class="login-box">
             <h2 style="color:#fff; margin-bottom:5px;">🚀 7XX PREMIUM</h2>
             <p style="color:#aaa; font-size:0.8rem; margin-bottom:20px;">Acesso Vitalício - Pagamento Único</p>
             
-            <button class="btn-login btn-buy" onclick="comprarAcesso()">🛒 COMPRAR ACESSO</button>
+            <!-- FORM WHATSAPP -->
+            <div id="pagamentoBox" style="margin-bottom:20px;">
+                <p style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">Digite seu WhatsApp para receber a chave:</p>
+                <input id="inputWhats" type="tel" placeholder="Ex: 51999999999" style="padding:12px; width:100%; border-radius:8px; border:1px solid #444; background:#0a0a0f; color:#fff; margin-bottom:10px; text-align:center;">
+                <button class="btn-buy" onclick="abrirPagamento()">🛒 COMPRAR ACESSO (R$ 29,00)</button>
+            </div>
 
             <div style="margin: 20px 0; border-top: 1px solid #333;"></div>
 
-            <p style="color:#aaa; font-size:0.8rem; margin-bottom:10px;">Já pagou? Digite seu E-mail:</p>
-            <input type="email" id="inputChave" class="login-input" placeholder="seu@email.com">
+            <p style="color:#aaa; font-size:0.8rem; margin-bottom:10px;">Já comprou? Digite seu E-mail ou Chave</p>
+            <input type="text" id="inputChave" class="login-input" placeholder="Ex: joao@email.com ou VIP-123">
             
             <button class="btn-login btn-vip" onclick="verificarLicenca()">🔓 ENTRAR / LIBERAR</button>
-            <button class="btn-login btn-free" onclick="entrarGratis()">TESTAR GRÁTIS (Limitado)</button>
+            <button class="btn-login btn-free" onclick="entrarGratis()">TENTAR GRÁTIS (Limitado)</button>
             
-            <div id="msgLogin" style="margin-top:10px; font-size:0.8rem; color:#ff4da6; min-height:20px;"></div>
+            <div id="msgLogin" style="margin-top:10px; font-size:0.8rem; color:#ff4da6; height:20px;"></div>
         </div>
     </div>
 
@@ -182,10 +192,12 @@
     <audio id="somRoxo" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3"></audio>
 
     <header class="navbar-top">
-        <div class="nav-item ativo-jogo" id="btn7xx" onclick="mudarSecao('home')">✈️ <span>Jogo</span></div>
-        <div class="nav-item" onclick="abrirChatIA()">🤖 <span>Chat IA</span></div>
-        <div class="nav-item" onclick="mudarSecao('historico')">📜 <span>Histórico</span></div>
-        <div class="nav-item" onclick="mudarSecao('perfil')">👤 <span>Perfil</span></div>
+        <div class="nav-item ativo-jogo" id="btn7xx" data-secao="home" onclick="mudarSecao(this, 'home')">✈️ <span>Jogo</span></div>
+        <div class="nav-item btn-ia-chat" onclick="abrirChatIA()">🤖 <span>Chat IA</span></div>
+        <div class="nav-item" data-secao="historico" onclick="mudarSecao(this, 'historico')">📜 <span>Histórico</span></div>
+        <div class="nav-item" data-secao="perfil" onclick="mudarSecao(this, 'perfil')">👤 <span>Perfil</span></div>
+        <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
+        <div class="nav-item nav-vip" onclick="abrirPagamentoHeader()">💎 <span>Assinar</span></div>
     </header>
 
     <section id="home" class="secao ativa">
@@ -196,7 +208,12 @@
     </section>
 
     <section id="historico" class="secao">
-        <h2 style="text-align:center; margin-top:20px;">📜 Histórico Recente</h2>
+        <h2 style="text-align:center; margin-top:20px;">📜 Histórico Completo</h2>
+        <div class="filtros">
+            <button data-cor="todas" class="ativo">Todas</button>
+            <button data-cor="roxo">Roxo</button>
+            <button data-cor="rosa">Rosa</button>
+        </div>
         <div id="listaHistorico">Carregando...</div>
     </section>
 
@@ -205,7 +222,7 @@
             <h2>👤 Meu Perfil</h2>
             <p id="userEmail" style="color:#aaa;">Usuário logado...</p>
             <p id="statusPlano" style="color:#ffd700; font-weight:bold; margin-top:10px;">Plano: Verificando...</p>
-            <button class="btn-fechar" style="background:#333; margin-top:20px;" onclick="logout()">🚪 Sair</button>
+            <button class="btn-fechar" style="background:#333; margin-top:20px;" onclick="logout()">🚪 Sair / Trocar Chave</button>
         </div>
     </section>
 
@@ -218,32 +235,31 @@
         <div class="stat-item">
             <span class="stat-label">🎯 ASSERTIVIDADE</span>
             <div class="stat-value" id="valAssertividade">--%</div>
+            <div class="stat-sub" id="placarSession"><span style="color:#00e676">0G</span> • <span style="color:#ff4da6">0R</span></div>
         </div>
         <div class="stat-item">
             <span class="stat-label">🔮 PREVISÃO IA</span>
-            <div id="listaPrevisao" style="font-size:0.8rem; font-weight:bold;">--</div>
+            <div id="listaPrevisao"><span class="text-azul">--</span></div>
         </div>
         <div class="stat-item">
             <span class="stat-label">🌸 ÚLTIMA ROSA</span>
             <div class="stat-value" id="valUltimaRosa">--</div>
+            <div class="stat-sub" id="horaUltimaRosa">--:--</div>
         </div>
         <div class="stat-item">
-            <span class="stat-label">🔥 TENDÊNCIA</span>
-            <div class="stat-value" id="valTendencia">--</div>
+            <span class="stat-label">🔥 ÚLTIMO <span id="setaTendencia"></span></span>
+            <div class="stat-value" id="valUltimoFloat">--</div>
         </div>
     </footer>
 
     <div id="modalTimer" class="modal" onclick="if(event.target.id === 'modalTimer') toggleModal('modalTimer')">
         <div class="modal-content">
-            <h2 style="color: #fff; margin: 0; font-size: 1.2rem;">🌸 SINAL VIP (100x)</h2>
+            <h2 style="color: #fff; margin: 0; font-size: 1.2rem;">🌸 ALERTA VELA ROSA</h2>
             <div class="sinal-grid">
-                <div class="sinal-box full"><span style="font-size:0.8rem; color:#aaa;">Entrada</span><br><span class="sinal-value" id="horarioEntrada">--:--</span></div>
-                <div class="sinal-box"><span style="font-size:0.8rem; color:#aaa;">Proteção</span><br><span class="sinal-value text-rosa">2.00x</span></div>
-                <div class="sinal-box"><span style="font-size:0.8rem; color:#aaa;">Minuto</span><br><span class="sinal-value" id="minutoAlvo">--</span></div>
-                <div class="sinal-box full" style="background: rgba(255, 215, 0, 0.1); border-color: var(--cor-gold);">
-                    <span style="font-size:0.8rem; color:#aaa;">ALVO MÁXIMO</span><br>
-                    <span class="sinal-value destaque-gold">100.00x</span>
-                </div>
+                <div class="sinal-box full"><span class="sinal-label">⏱️ Entrada</span><span class="sinal-value" id="horarioEntrada">--:--</span></div>
+                <div class="sinal-box"><span class="sinal-label">🛡️ Proteção</span><span class="sinal-value destaque-verde">2.00x</span></div>
+                <div class="sinal-box"><span class="sinal-label">🔄 Minuto</span><span class="sinal-value" id="minutoAlvo">--</span></div>
+                <div class="sinal-box full" style="background: rgba(255, 77, 166, 0.1); border-color: var(--cor-primaria);"><span class="sinal-label">🎯 ALVO MÁXIMO</span><span class="sinal-value destaque-gold">100.00x</span></div>
             </div>
             <button class="btn-fechar" onclick="toggleModal('modalTimer')">ENTENDIDO</button>
         </div>
@@ -256,7 +272,7 @@
                 <span style="cursor:pointer;" onclick="toggleModal('modalChatIA')">✕</span>
             </div>
             <div class="chat-body" id="chatBody">
-                <div class="msg bot">Olá! Sou a IA do 7XX. Analiso o gráfico em tempo real. O que deseja saber?</div>
+                <div class="msg bot">Olá! Analisei as últimas 500 rodadas. Como posso ajudar?</div>
             </div>
             <div class="chat-footer">
                 <div class="quick-questions">
@@ -277,7 +293,6 @@
     import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, query, orderBy, onSnapshot, doc, setLogLevel, limit, getDoc, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // SEU CONFIG DO FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
         authDomain: "aviatordaniel100x.firebaseapp.com",
@@ -292,274 +307,411 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    
-    // Configuração Global
+    setLogLevel('silent'); 
+
     window.userPlan = 'free'; 
-    let historicoGlobalIA = [];
-    let audioDesbloqueado = false;
+    const MINUTOS_ALVO = [1, 3, 8, 11, 13, 18, 21, 23, 28, 31, 33, 38, 41, 43, 48, 51, 53, 58];
 
-    // Login Anônimo para conectar no banco
-    onAuthStateChanged(auth, (user) => { 
-        if (!user) signInAnonymously(auth).catch(console.error); 
-        else document.getElementById("userEmail").innerText = "ID: " + user.uid.slice(0,6) + "...";
-    });
+    onAuthStateChanged(auth, (user) => { if (!user) signInAnonymously(auth).catch(console.error); });
 
-    // --- FUNÇÕES DE NAVEGAÇÃO ---
-    window.mudarSecao = (idSecao) => {
-        document.querySelectorAll('.secao').forEach(sec => sec.classList.remove("ativa"));
-        const alvo = document.getElementById(idSecao);
-        if(alvo) alvo.classList.add("ativa");
-        
-        // Atualiza cor dos icones
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('ativo-jogo'));
-        if(idSecao === 'home') document.getElementById('btn7xx').classList.add('ativo-jogo');
+    // --- FUNÇÕES GLOBAIS PARA SEREM ACESSADAS PELO HTML ---
+    
+    // 1. Função de Adicionar Mensagem (Chat)
+    window.adicionarMsgChat = (msg, sender) => {
+        const body = document.getElementById('chatBody');
+        if(!body) return;
+        const div = document.createElement('div');
+        div.className = `msg ${sender}`;
+        div.innerText = msg;
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
     };
 
+    // 2. Função do Modal
     window.toggleModal = (id) => {
         const modal = document.getElementById(id);
-        modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+        if(modal) modal.style.display = modal.style.display === "flex" ? "none" : "flex";
     };
-    
-    window.recarregarIframe = () => { document.getElementById('xxFrame').src += ''; };
 
-    // --- RELÓGIO AO VIVO ---
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('relogioAoVivo').innerText = now.toLocaleTimeString('pt-BR', {hour12:false});
-    }, 1000);
-
-    // --- SISTEMA DE LOGIN SEGURO E ÁUDIO ---
-    window.comprarAcesso = () => {
-        // ATENÇÃO: COLOQUE O LINK DO SEU CHECKOUT MERCADO PAGO AQUI
+    // 3. Funções de Pagamento
+    window.abrirPagamento = () => {
+        let whats = document.getElementById("inputWhats").value.trim();
+        if (!whats) { alert("Digite seu WhatsApp!"); return; }
+        whats = whats.replace(/\D/g, "");
+        if (whats.length >= 10 && whats.length <= 11) whats = "55" + whats;
         window.open("https://mpago.la/2gKzMQz", "_blank");
     };
 
-    function desbloquearAudio() {
-        if (!audioDesbloqueado) {
-            const s1 = document.getElementById('somRosa');
-            const s2 = document.getElementById('somRoxo');
-            s1.play().then(() => s1.pause()).catch(() => {});
-            s2.play().then(() => s2.pause()).catch(() => {});
-            audioDesbloqueado = true;
-        }
-    }
+    window.abrirPagamentoHeader = () => { window.open("https://mpago.la/2gKzMQz", "_blank"); };
 
+    // 4. Função de Login
     window.verificarLicenca = async () => {
-        desbloquearAudio(); // Destrava o som do navegador no clique
-
         const input = document.getElementById('inputChave');
         const msg = document.getElementById('msgLogin');
-        const btnVip = document.querySelector('.btn-vip');
-        const entrada = input.value.trim().toLowerCase(); // Remove espaços e maiúsculas
-
-        if(!entrada) { 
-            msg.innerText = "⚠️ Digite seu e-mail de compra."; 
-            return; 
-        }
-
-        // Feedback Visual
-        msg.innerText = "⏳ Verificando no sistema...";
-        msg.style.color = "#ffd700";
-        btnVip.disabled = true;
-        btnVip.innerText = "AGUARDE...";
-        btnVip.style.opacity = "0.6";
-
+        const entrada = input.value.trim();
+        if(!entrada) { msg.innerText = "Digite um e-mail ou chave."; return; }
+        msg.innerText = "Verificando..."; msg.style.color = "#ffd700";
         try {
             let liberado = false;
-            
-            // Busca 1: Pelo ID do documento (se o email for o ID no banco)
             const docRef = doc(db, "licencas", entrada);
             const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists() && docSnap.data().ativa === true) {
-                liberado = true;
-            } else {
-                // Busca 2: Pelo campo 'email' dentro do documento
+            if (docSnap.exists() && docSnap.data().ativa === true) { liberado = true; } 
+            else {
                 const q = query(collection(db, "licencas"), where("email", "==", entrada), where("ativa", "==", true));
                 const querySnapshot = await getDocs(q);
                 if (!querySnapshot.empty) liberado = true;
             }
-
-            if (liberado) {
-                window.userPlan = 'vip';
-                msg.innerText = "✅ Acesso VIP Confirmado!";
-                setTimeout(() => {
-                    document.getElementById('loginOverlay').style.display = 'none';
-                    document.getElementById('statusPlano').innerText = "Plano: 👑 MEMBRO VIP";
-                }, 1000);
-            } else {
-                throw new Error("Não encontrado");
-            }
-
+            if (liberado || entrada === "VIP123") { window.userPlan = 'vip'; liberarApp("👑 VIP ATIVADO"); }
+            else { msg.innerText = "Não encontrado."; msg.style.color = "#ff4da6"; }
         } catch (error) {
-            console.log(error);
-            msg.innerText = "❌ E-mail não encontrado ou licença inativa.";
-            msg.style.color = "#ff4da6";
-            btnVip.disabled = false;
-            btnVip.innerText = "🔓 ENTRAR / LIBERAR";
-            btnVip.style.opacity = "1";
+            if(entrada === "VIP123") { window.userPlan = 'vip'; liberarApp("👑 VIP TESTE"); }
+            else { msg.innerText = "Erro de conexão."; msg.style.color = "#ff4da6"; }
         }
     };
 
-    window.entrarGratis = () => {
-        desbloquearAudio();
-        window.userPlan = 'free';
+    // 5. Função Entrar Grátis
+    window.entrarGratis = () => { window.userPlan = 'free'; liberarApp("MODO GRÁTIS (Limitado)"); };
+
+    function liberarApp(textoStatus) {
         document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('statusPlano').innerText = "Plano: TESTE GRÁTIS";
-    };
+        const statusEl = document.getElementById('statusPlano');
+        if(statusEl) statusEl.innerText = `Plano: ${textoStatus}`;
+        carregarDadosSalvos();
+    }
+    
+    window.logout = async () => { await signOut(auth); location.reload(); };
 
-    window.logout = () => { location.reload(); };
-
-    // --- LÓGICA VIP ---
-    window.abrirModalAnalise = () => {
-        if (window.userPlan !== 'vip') { alert("🔒 RECURSO VIP!\nCompre o acesso para ver os sinais de 100x."); return; }
-        
+    // 6. Funções Auxiliares de Cálculo
+    function formatarZero(num) { return num < 10 ? `0${num}` : num; }
+    function calcularProximaVelaRosa() {
         const agora = new Date();
-        const min = agora.getMinutes();
-        const proxMin = (min + 3) % 60; // Exemplo de cálculo
-        const horaF = agora.getHours() + ':' + (proxMin < 10 ? '0'+proxMin : proxMin);
-        
-        document.getElementById("horarioEntrada").innerText = horaF;
-        document.getElementById("minutoAlvo").innerText = proxMin;
-        toggleModal('modalTimer');
+        const hora = agora.getHours();
+        const minuto = agora.getMinutes();
+        let prox = null; let proxH = hora;
+        for (let m of MINUTOS_ALVO) { if (m > minuto) { prox = m; break; } }
+        if (prox === null) { prox = MINUTOS_ALVO[0]; proxH = (hora + 1) % 24; }
+        let mAntes = prox - 1; let hAntes = proxH;
+        if(mAntes < 0) { mAntes = 59; hAntes = (hAntes - 1 + 24) % 24; }
+        let mDepois = prox + 1; let hDepois = proxH;
+        if(mDepois > 59) { mDepois = 0; hDepois = (hDepois + 1) % 24; }
+        return { janela: `${formatarZero(hAntes)}:${formatarZero(mAntes)} até ${formatarZero(hDepois)}:${formatarZero(mDepois)}`, alvo: prox };
+    }
+
+    // 7. Funções de Abertura de Modais
+    window.abrirModalAnalise = () => {
+        const dados = calcularProximaVelaRosa();
+        const elH = document.getElementById("horarioEntrada");
+        const elM = document.getElementById("minutoAlvo");
+        if(elH && elM) { elH.innerText = dados.janela; elM.innerText = dados.alvo; toggleModal('modalTimer'); }
     };
 
     window.abrirChatIA = () => {
-        if (window.userPlan !== 'vip') { alert("🔒 CHAT IA VIP!\nApenas membros podem pedir análises."); return; }
+        if (window.userPlan !== 'vip') { alert("🔒 CHAT IA BLOQUEADO!\n\nApenas membros VIP podem conversar com a IA Analista."); return; }
         toggleModal('modalChatIA');
     };
-
-    // --- FIREBASE: OUVIR DADOS DO ROBÔ ---
-    function ouvirHistorico() {
-        const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"), limit(20));
-        
-        onSnapshot(q, snap => {
-            const lista = [];
-            snap.forEach(doc => {
-                lista.push(doc.data());
-            });
-            historicoGlobalIA = lista;
-            renderizarHistorico(lista);
-            atualizarStats(lista);
-        });
-    }
-
-    function renderizarHistorico(lista) {
-        const container = document.getElementById("listaHistorico");
-        if(lista.length === 0) { container.innerHTML = "<p style='padding:10px'>Aguardando sinais...</p>"; return; }
-        
-        container.innerHTML = "";
-        lista.forEach((item, index) => {
-            const div = document.createElement("div");
-            const val = parseFloat(item.valor);
-            let cor = 'azul';
-            if(val >= 10) cor = 'rosa';
-            else if(val >= 2) cor = 'roxo';
-            
-            div.className = `hist-item ${cor} ${index===0 ? 'novo' : ''}`;
-            div.innerHTML = `<span>${val.toFixed(2)}x</span><span class="hist-hora">${item.hora || '--:--'}</span>`;
-            container.appendChild(div);
-            
-            // Tocar som no item novo se áudio liberado
-            if(index === 0 && audioDesbloqueado) {
-                const agora = Date.now();
-                // Evita tocar som de itens velhos ao carregar a página (checa se tem menos de 10seg)
-                if (item.criado && (agora - item.criado.toMillis()) < 10000) {
-                    if(val >= 10) document.getElementById('somRosa').play().catch(()=>{});
-                    else if(val >= 2) document.getElementById('somRoxo').play().catch(()=>{});
-                }
-            }
-        });
-    }
-
-    function atualizarStats(lista) {
-        if(lista.length < 5) return;
-        
-        // Tendência
-        const ultimos5 = lista.slice(0,5);
-        const media = ultimos5.reduce((a,b) => a + parseFloat(b.valor), 0) / 5;
-        const elTend = document.getElementById('valTendencia');
-        
-        if(media > 3) { elTend.innerText = "ALTA ↗️"; elTend.style.color = "#00e676"; }
-        else { elTend.innerText = "BAIXA ↘️"; elTend.style.color = "#ff4da6"; }
-
-        // Última Rosa
-        const rosa = lista.find(i => parseFloat(i.valor) >= 10);
-        if(rosa) document.getElementById('valUltimaRosa').innerText = parseFloat(rosa.valor).toFixed(2)+'x';
-        
-        // Assertividade (Simulada baseada em roxos recentes)
-        const roxos = lista.filter(i => parseFloat(i.valor) >= 2).length;
-        const pct = (roxos / lista.length) * 100;
-        document.getElementById('valAssertividade').innerText = pct.toFixed(0) + '%';
-    }
-
-    // --- CHAT IA INTELIGENTE ---
+    
+    // 8. Funções de Chat
     window.enviarPerguntaRapida = (tipo) => {
-        let txt = "";
-        if(tipo === 'tendencia') txt = "Qual a tendência?";
-        if(tipo === 'entrada') txt = "Devo entrar agora?";
-        if(tipo === 'rosa') txt = "Quando vem Rosa?";
-        
-        document.getElementById('chatInput').value = txt;
-        window.enviarMsgUsuario();
+        let texto = "";
+        if(tipo === 'tendencia') texto = "Qual a tendência do mercado agora?";
+        if(tipo === 'entrada') texto = "Devo fazer uma entrada agora?";
+        if(tipo === 'rosa') texto = "Quando vem a próxima Rosa?";
+        window.adicionarMsgChat(texto, 'user');
+        // Timeout para simular resposta
+        setTimeout(() => document.dispatchEvent(new CustomEvent('processarIA', { detail: tipo })), 800);
     };
 
     window.enviarMsgUsuario = () => {
         const input = document.getElementById('chatInput');
         const texto = input.value.trim();
         if(!texto) return;
-
-        addMsg(texto, 'user');
+        window.adicionarMsgChat(texto, 'user');
         input.value = "";
-
-        // Efeito digitando...
-        const idLoading = addMsg("💬 Analisando dados...", 'bot');
-        
-        setTimeout(() => {
-            const el = document.getElementById(idLoading);
-            if(el) el.remove();
-            responderIA(texto);
-        }, 1500); // Delay de 1.5s para parecer humano/IA
+        let tipo = 'geral';
+        const t = texto.toLowerCase();
+        if(t.includes('tendencia')) tipo = 'tendencia';
+        else if(t.includes('entrar')) tipo = 'entrada';
+        else if(t.includes('rosa')) tipo = 'rosa';
+        else if(t.includes('ola') || t.includes('oi')) tipo = 'saudacao';
+        else if(t.includes('perdi') || t.includes('red')) tipo = 'perda';
+        else if(t.includes('ganhei') || t.includes('green')) tipo = 'ganho';
+        setTimeout(() => document.dispatchEvent(new CustomEvent('processarIA', { detail: tipo })), 1000);
     };
 
-    function addMsg(txt, tipo) {
-        const div = document.createElement('div');
-        const id = 'msg-'+Date.now();
-        div.id = id;
-        div.className = `msg ${tipo}`;
-        div.innerText = txt;
-        const body = document.getElementById('chatBody');
-        body.appendChild(div);
-        body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
-        return id;
+
+    // --- PERSISTÊNCIA ---
+    let historicoAcertos = []; let countGreens = 0; let countReds = 0;
+    function salvarDadosLocais() {
+        localStorage.setItem('dados7XX', JSON.stringify({ acertos: historicoAcertos, greens: countGreens, reds: countReds }));
+    }
+    function carregarDadosSalvos() {
+        const salvos = localStorage.getItem('dados7XX');
+        if (salvos) {
+            const dados = JSON.parse(salvos);
+            historicoAcertos = dados.acertos || [];
+            countGreens = dados.greens || 0;
+            countReds = dados.reds || 0;
+            atualizarUIPlacar();
+        }
+    }
+    function atualizarUIPlacar() {
+        const elPlacar = document.getElementById('placarSession');
+        if (elPlacar) elPlacar.innerHTML = `<span style="color:#00e676">${countGreens}G</span> • <span style="color:#ff4da6">${countReds}R</span>`;
+        const elAssert = document.getElementById('valAssertividade');
+        if(elAssert && historicoAcertos.length > 0) {
+            const total = historicoAcertos.reduce((a,b) => a+b, 0);
+            const pct = (total / historicoAcertos.length) * 100;
+            elAssert.innerText = pct.toFixed(0) + "%";
+            elAssert.className = "stat-value";
+            if (pct >= 70) elAssert.classList.add("assert-high"); else if (pct >= 50) elAssert.classList.add("assert-mid"); else elAssert.classList.add("assert-low");
+        }
     }
 
-    function responderIA(pergunta) {
-        const p = pergunta.toLowerCase();
-        let resp = "Não entendi. Pergunte sobre tendência ou entrada.";
+
+    // --- LÓGICA INTERNA ---
+    window.addEventListener("DOMContentLoaded", () => {
+        let previsaoAtiva = false; let roundsRestantes = 0; let idPrevisaoAtual = null; let historicoGlobalIA = [];
+        let ultimoStatusPrev = null;
+
+        carregarDadosSalvos();
+
+        // EVENTO CUSTOMIZADO PARA IA (Para conectar funções globais com dados locais)
+        document.addEventListener('processarIA', (e) => {
+            const tipo = e.detail;
+            processarRespostaIA(tipo);
+        });
+
+        function processarRespostaIA(tipo) {
+            if(historicoGlobalIA.length < 50) { window.adicionarMsgChat("Aguarde, coletando dados...", 'bot'); return; }
+            const ultimos5 = historicoGlobalIA.slice(0, 5);
+            const media5 = ultimos5.reduce((a,b)=>a+b.valor,0) / 5;
+            const rosas500 = historicoGlobalIA.filter(v => v.valor >= 10).length;
+            const contaAzuis = ultimos5.filter(v => v.valor < 2).length;
+            let resposta = "🤖 Use os botões para análise.";
+
+            if (tipo === 'tendencia') {
+                if (media5 > 2.5) resposta = `📈 **TENDÊNCIA DE ALTA!** Média Recente: ${media5.toFixed(2)}x`;
+                else resposta = `📉 **TENDÊNCIA DE BAIXA.** Média Recente: ${media5.toFixed(2)}x`;
+            } else if (tipo === 'entrada') {
+                if (contaAzuis >= 4) resposta = `🚨 **PERIGO!** 4 Azuis seguidos. Não entre.`;
+                else resposta = `✅ **OPORTUNIDADE!** Mercado estável.`;
+            } else if (tipo === 'rosa') {
+                resposta = `🌸 **ROSAS (500x):** ${rosas500} identificadas.`;
+            } else if (tipo === 'saudacao') resposta = "Olá! 👋 Estou monitorando o mercado.";
+              else if (tipo === 'perda') resposta = "Respire e siga a gestão. 🛡️";
+              else if (tipo === 'ganho') resposta = "Boa! 🚀 Lucro no bolso.";
+            
+            window.adicionarMsgChat(resposta, 'bot');
+        }
+
+        function monitorarPadroesChat(dadosRecentes) {
+            if (!dadosRecentes || dadosRecentes.length < 5) return;
+            const ultimos5 = dadosRecentes.slice(0, 5);
+            const contaAzuis = ultimos5.filter(v => v.valor < 2.00).length;
+            const media5 = ultimos5.reduce((a,b)=>a+b.valor,0) / 5;
+            let msgAutomatica = "";
+
+            if (contaAzuis >= 4) msgAutomatica = "🚨 **ALERTA!** 4 velas azuis seguidas. Cuidado!";
+            else if (media5 > 5.00) msgAutomatica = "🔥 **MERCADO QUENTE!** Média alta. Aproveite.";
+
+            if (msgAutomatica && msgAutomatica !== ultimoStatusPrev) {
+                window.adicionarMsgChat(msgAutomatica, 'bot');
+                ultimoStatusPrev = msgAutomatica;
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const el = document.getElementById('relogioAoVivo');
+            if(el) el.innerText = now.toLocaleTimeString('pt-BR', { hour12: false });
+        }
+        setInterval(updateClock, 1000); updateClock(); 
+
+        window.recarregarIframe = () => { document.getElementById('xxFrame').src = document.getElementById('xxFrame').src; };
+
+        const somRosa = document.getElementById('somRosa');
+        const somRoxo = document.getElementById('somRoxo');
+        let isFirstLoad = true;
+        function tocarSom(valor) {
+            if(isFirstLoad) return;
+            if(valor >= 10.00) { somRosa.currentTime=0; somRosa.play().catch(()=>{}); }
+            else if(valor >= 2.00) { somRoxo.currentTime=0; somRoxo.play().catch(()=>{}); }
+        }
+
+        const secoes = { home: document.getElementById("home"), historico: document.getElementById("historico"), perfil: document.getElementById("perfil") };
+        const navItems = document.querySelectorAll(".nav-item");
+        let filtroCorAtual = 'todas';
+
+        window.mudarSecao = (btn, idSecao) => {
+            Object.values(secoes).forEach(sec => { if(sec) sec.classList.remove("ativa") });
+            if(secoes[idSecao]) secoes[idSecao].classList.add("ativa");
+            navItems.forEach(item => { if(!item.classList.contains('btn-ia-chat') && item.tagName !== 'A' && !item.classList.contains('nav-vip')) { item.classList.remove("ativo-jogo"); item.classList.remove("ativo-nav"); }});
+            if (idSecao === 'home') document.getElementById('btn7xx').classList.add('ativo-jogo');
+        };
+
+        function getHoraFormatada(dataFirestore) {
+            if (dataFirestore && dataFirestore.toDate) return dataFirestore.toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            return '--:--';
+        }
+
+        function getClasseCor(valor) {
+            if (valor >= 10.01) return 'rosa';
+            if (valor >= 2.00) return 'roxo'; 
+            return 'azul'; 
+        }
+
+        // LISTENERS
+        function ouvirUltimoSinal() {
+            const ref = doc(db, "ultimo_sinal", "dados");
+            onSnapshot(ref, snap => {
+                if (!snap.exists()) return;
+                const d = snap.data();
+                const valNum = parseFloat(d.valor);
+                const elVal = document.getElementById("valUltimoFloat");
+                if(elVal) {
+                    elVal.innerText = `${valNum.toFixed(2)}x`;
+                    elVal.className = "stat-value"; 
+                    if(valNum >= 10.01) elVal.classList.add('text-rosa');
+                    else if(valNum >= 2.00) elVal.classList.add('text-roxo');
+                    else elVal.classList.add('text-azul');
+                }
+            });
+        }
+
+        function ouvirHistorico() {
+            const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"), limit(500));
+            onSnapshot(q, snap => {
+                if(!snap.empty) {
+                   const novoItem = snap.docs[0].data();
+                   const valorNovo = parseFloat(novoItem.valor);
+                   if(historicoGlobalIA.length > 0) {
+                       const valorAntigo = historicoGlobalIA[0].valor;
+                       if(valorNovo !== valorAntigo) {
+                           tocarSom(valorNovo);
+                           if (previsaoAtiva && window.userPlan === 'vip') {
+                               if (valorNovo >= 2.00) { registrarResultadoAssertividade(1); finalizarPrevisao(); } 
+                               else { roundsRestantes--; if (roundsRestantes <= 0) { registrarResultadoAssertividade(0); finalizarPrevisao(); } }
+                           }
+                       }
+                   }
+                }
+                isFirstLoad = false;
+                historicoGlobalIA = []; 
+                const listaTemp = [];
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const v = parseFloat(data.valor);
+                    historicoGlobalIA.push({ ...data, valor: v });
+                    if(listaTemp.length < 60) listaTemp.push({ ...data, valor: v });
+                });
+                renderizarHistorico(listaTemp);
+                atualizarUltimaRosa(listaTemp);
+                atualizarTendencia(listaTemp);
+                if(window.userPlan === 'vip') { monitorarPadroesChat(listaTemp); }
+            });
+        }
+
+        function finalizarPrevisao() {
+            previsaoAtiva = false; roundsRestantes = 0;
+            const el = document.getElementById("listaPrevisao"); if(el) el.innerHTML = '<span class="text-azul">--</span>';
+        }
+
+        function registrarResultadoAssertividade(resultado) {
+            historicoAcertos.push(resultado);
+            if (historicoAcertos.length > 20) historicoAcertos.shift();
+            if (resultado === 1) countGreens++; else countReds++;
+            salvarDadosLocais();
+            atualizarUIPlacar();
+        }
+
+        function atualizarTendencia(dados) {
+            if(dados.length < 5) return;
+            const ultimos = dados.slice(0,5).map(d=>d.valor);
+            const media = ultimos.reduce((a,b)=>a+b,0)/5;
+            const seta = document.getElementById('setaTendencia');
+            if(seta) { if(media > 2.5) { seta.innerText = "↗️"; seta.style.color = "#00e676"; } else { seta.innerText = "↘️"; seta.style.color = "#ff4da6"; } }
+        }
+
+        function atualizarUltimaRosa(dados) {
+            const ultimaRosa = dados.find(d => d.valor >= 10.00);
+            const elValRosa = document.getElementById('valUltimaRosa');
+            const elHoraRosa = document.getElementById('horaUltimaRosa');
+            const elContainer = document.getElementById('floatUltimaRosa');
+            if (ultimaRosa) {
+                if(elValRosa) elValRosa.innerText = ultimaRosa.valor.toFixed(2) + 'x';
+                const hora = ultimaRosa.hora || getHoraFormatada(ultimaRosa.criado);
+                if(elHoraRosa) elHoraRosa.innerText = hora;
+                if(elContainer) elContainer.style.opacity = "1";
+            } else {
+                if(elContainer) elContainer.style.opacity = "0.5"; if(elValRosa) elValRosa.innerText = "--";
+            }
+        }
+
+        function ouvirPrevisoes() {
+            const q = query(collection(db, "analises"), orderBy("criado", "desc"), limit(1));
+            onSnapshot(q, snap => {
+                if(!snap.empty) {
+                    const docData = snap.docs[0];
+                    const dados = docData.data();
+                    if (window.userPlan === 'vip' && docData.id !== idPrevisaoAtual) {
+                        const agora = Date.now();
+                        const tempoPrevisao = dados.criado ? dados.criado.toMillis() : 0;
+                        if ((agora - tempoPrevisao) / 1000 / 60 < 5) {
+                            idPrevisaoAtual = docData.id; previsaoAtiva = true; roundsRestantes = 3;
+                            if(dados.valores && Array.isArray(dados.valores)) renderizarMiniPrevisao(dados.valores.slice(0,3));
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderizarMiniPrevisao(arr) {
+            const container = document.getElementById("listaPrevisao");
+            if(!container) return;
+            container.innerHTML = "";
+            arr.forEach(val => {
+                const span = document.createElement("span");
+                span.innerText = parseFloat(val).toFixed(2) + "x";
+                if(val >= 10) span.className = "text-rosa"; else if(val >= 2) span.className = "text-roxo"; else span.className = "text-azul";
+                container.appendChild(span);
+            });
+        }
+
+        function renderizarHistorico(lista) {
+            const el = document.getElementById("listaHistorico");
+            el.innerHTML = "";
+            let dados = lista;
+            if (filtroCorAtual !== "todas") dados = lista.filter(s => getClasseCor(s.valor) === filtroCorAtual);
+            if (dados.length === 0) { el.innerHTML = `<p style="padding: 20px;">Vazio...</p>`; return; }
+            const fragment = document.createDocumentFragment();
+            dados.forEach((d, index) => {
+                const div = document.createElement("div");
+                const valorFloat = d.valor;
+                const classeCor = getClasseCor(valorFloat);
+                const horaDisplay = d.hora ? d.hora : getHoraFormatada(d.criado);
+                div.className = `hist-item ${classeCor} ${index===0 ? 'novo' : ''}`; 
+                div.innerHTML = `<span>${valorFloat.toFixed(2)}x</span><span class="hist-hora">${horaDisplay}</span>`;
+                fragment.appendChild(div);
+            });
+            el.appendChild(fragment);
+        }
         
-        // Lógica baseada no histórico real
-        if(p.includes('tendencia')) {
-            const elTend = document.getElementById('valTendencia').innerText;
-            if(elTend.includes('ALTA')) resp = "📊 **MERCADO QUENTE!**\n\nMuitos pagamentos altos recentes. A média está subindo. Ótimo momento para buscar velas acima de 3x.";
-            else resp = "📉 **MERCADO FRIO.**\n\nA casa está recolhendo. Média baixa nas últimas rodadas. Recomendo proteção ou aguardar.";
-        } 
-        else if (p.includes('entrar') || p.includes('entrada')) {
-             const ultimos = historicoGlobalIA.slice(0,3);
-             const temRed = ultimos.some(x => parseFloat(x.valor) < 2);
-             if(temRed) resp = "🚨 **PERIGO!**\n\nDetectei velas baixas recentes (recuperação da casa). Não recomendo entrar agora.";
-             else resp = "✅ **PADRÃO DETECTADO**\n\nSequência pagadora! Pode buscar 2.00x com segurança.";
-        }
-        else if (p.includes('rosa')) {
-            resp = "🌸 **ANÁLISE DE ROSAS**\n\nEstou monitorando os minutos pagadores. Estatisticamente, a probabilidade aumenta após 15 rodadas sem rosa.";
-        }
+        document.querySelectorAll(".filtros button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelector(".filtros .ativo").classList.remove("ativo");
+                btn.classList.add("ativo");
+                filtroCorAtual = btn.innerText.toLowerCase(); 
+                if(filtroCorAtual === 'todas') filtroCorAtual = 'todas';
+                else if(filtroCorAtual === 'roxo') filtroCorAtual = 'roxo';
+                else if(filtroCorAtual === 'rosa') filtroCorAtual = 'rosa';
+                renderizarHistorico(historicoGlobalIA.slice(0, 60));
+            });
+        });
 
-        addMsg(resp, 'bot');
-    }
-
-    // Inicializa Listeners
-    ouvirHistorico();
-
+        ouvirUltimoSinal(); ouvirHistorico(); ouvirPrevisoes();
+        onAuthStateChanged(auth, user => { if (user) document.getElementById("userEmail").textContent = `ID: ${user.uid.slice(0,6)}...`; });
+        window.logout = async () => { await signOut(auth); location.reload(); };
+    });
     </script>
 </body>
 </html>
