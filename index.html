@@ -823,12 +823,28 @@ window.finalizarCadastroInicial = async () => {
 
     // Salva no Firebase
     try {
-        await setDoc(doc(db, "usuarios", numero), {
-            nome: nome,
-            numero: numero,
-            criado: new Date()
+            await setDoc(doc(db, "usuarios", numero), {
+        nome: nome,
+        numero: numero,
+        criado: new Date()
+    });
+
+    console.log("Usuário salvo no Firebase.");
+
+    // === ENVIAR BOAS VINDAS AUTOMÁTICA (RODA O SERVIDOR PYTHON) ===
+    try {
+        fetch("http://localhost:5000/boasvindas", {  // você pode trocar URL depois
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                numero: numero,
+                nome: nome
+            })
         });
-        console.log("Usuário salvo no Firebase.");
+    } catch(e) {
+        console.log("Falha enviar boas vindas:", e);
+    }
+
     } catch (e) {
         console.error("Erro ao salvar usuário:", e);
     }
