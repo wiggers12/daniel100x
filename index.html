@@ -432,6 +432,53 @@
     box-shadow: 0 0 20px rgba(0, 136, 204, 0.6);
 }
 
+/* CONTAINER DOS DOIS BOTÕES LADO A LADO */
+.dupla-botoes {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+/* TELEGRAM - APENAS ÍCONE */
+.btn-icon-telegram {
+    flex: 1;
+    height: 55px;
+    border: 0;
+    border-radius: 12px;
+    background: #1c9be9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 12px #1c9be9;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-icon-telegram img {
+    width: 28px;
+    height: 28px;
+}
+
+/* BOTÃO APP GRÁTIS */
+.btn-gratis-lado {
+    flex: 1;
+    height: 55px;
+    border: 0;
+    border-radius: 12px;
+    background: #ff9900;
+    color: #000;
+    font-weight: bold;
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 12px #ff9900;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
 
 /* ===== CELULARES MUITO PEQUENOS (iPhone SE, Android Mini) ===== */
 @media (max-width: 350px) {
@@ -479,10 +526,49 @@
     .btn-robo,
     .btn-liberar {
         font-size: 1rem;
+/* === CENTRALIZAR O CARD NO CELULAR E NO PC === */
+.single-card {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Corrige centralização do overlay também */
+#loginOverlay {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+}
 
     </style>
 </head>
 <body>
+
+<!-- TELA DE CADASTRO INICIAL -->
+<div id="telaCadastroInicial" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95); z-index: 10000; display: flex;
+    flex-direction: column; justify-content: center; align-items: center;
+    padding: 20px; text-align: center;
+">
+    <div style="background:#1d1d2a; padding:25px; border-radius:15px; width:90%; max-width:330px; border:1px solid #5e2cff;">
+        <h2 style="margin:0; color:white;">👤 Cadastro Inicial</h2>
+        <p style="color:#aaa; font-size:0.9rem;">Preencha para liberar o robô</p>
+
+        <input id="nomeUser" class="login-input" type="text" placeholder="Seu nome">
+        <input id="numeroUser" class="login-input" type="number" placeholder="WhatsApp com DDD">
+
+        <button onclick="finalizarCadastroInicial()" 
+            style="margin-top:10px; padding:10px; width:100%; border:0;
+            border-radius:10px; background:#00e676; font-weight:bold; cursor:pointer;">
+            ✔️ CONTINUAR
+        </button>
+    </div>
+</div>
+
 
     <div id="loginOverlay">
     <div class="single-card">
@@ -491,13 +577,20 @@
         <p class="sub">Inteligência artificial 24h analisando o Aviator</p>
 
         <div class="card-interno">
-<button class="btn-telegram" onclick="window.open('https://t.me/aviatorvip100x','_blank')">
-    📢 ENTRAR NO TELEGRAM
-</button>
-            <button class="btn-gratis" onclick="entrarGratis()">
-                🎁 ACESSO GRATUITO AO APP — CLIQUE AQUI
-            </button>
+<!-- BOTÕES LADO A LADO -->
+<div class="dupla-botoes">
 
+    <!-- Botão Telegram somente ícone -->
+    <button class="btn-icon-telegram" onclick="window.open('https://t.me/aviatorvip100x','_blank')">
+        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png">
+    </button>
+
+    <!-- Botão App Grátis -->
+    <button class="btn-gratis-lado" onclick="entrarGratis()">
+        🎁 APP GRÁTIS
+    </button>
+
+</div>
             <div class="linha"></div>
 
             <p class="vip-txt">🔥 Acesso VIP com análises IA 24h por dia</p>
@@ -661,6 +754,38 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     setLogLevel('silent'); 
+// === FUNÇÃO DE CADASTRO INICIAL (NOME + WHATSAPP) ===
+window.finalizarCadastroInicial = async () => {
+    const nome = document.getElementById("nomeUser").value.trim();
+    const numero = document.getElementById("numeroUser").value.trim();
+
+    if (!nome || !numero) {
+        alert("Preencha nome e número para continuar.");
+        return;
+    }
+
+    // Salva local para não aparecer novamente
+    localStorage.setItem("cadastroInicialFeito", "sim");
+    localStorage.setItem("userNome", nome);
+    localStorage.setItem("userNumero", numero);
+
+    // Salva no Firebase
+    try {
+        await setDoc(doc(db, "usuarios", numero), {
+            nome: nome,
+            numero: numero,
+            criado: new Date()
+        });
+        console.log("Usuário salvo no Firebase.");
+    } catch (e) {
+        console.error("Erro ao salvar usuário:", e);
+    }
+
+    // Esconde a tela
+    document.getElementById("telaCadastroInicial").style.display = "none";
+};
+
+
 
     window.userPlan = 'free'; 
     const MINUTOS_ALVO = [1, 3, 8, 11, 13, 18, 21, 23, 28, 31, 33, 38, 41, 43, 48, 51, 53, 58];
@@ -921,6 +1046,17 @@
 
     /* === MAIN LOGIC === */
     window.addEventListener("DOMContentLoaded", () => {
+
+    // === MOSTRAR OU NÃO A TELA DE CADASTRO INICIAL ===
+    const cadastroFeito = localStorage.getItem("cadastroInicialFeito");
+
+    if (cadastroFeito === "sim") {
+        document.getElementById("telaCadastroInicial").style.display = "none";
+    } else {
+        document.getElementById("telaCadastroInicial").style.display = "flex";
+    }
+
+
         let previsaoAtiva = false; let roundsRestantes = 0; let idPrevisaoAtual = null; let historicoGlobalIA = [];
 
         carregarDadosSalvos();
