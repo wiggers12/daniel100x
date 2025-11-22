@@ -547,28 +547,80 @@
 </head>
 <body>
 
-<!-- TELA DE CADASTRO INICIAL -->
+<!-- TELA DE CADASTRO INICIAL (PROFISSIONAL) -->
 <div id="telaCadastroInicial" style="
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95); z-index: 10000; display: flex;
-    flex-direction: column; justify-content: center; align-items: center;
-    padding: 20px; text-align: center;
-">
-    <div style="background:#1d1d2a; padding:25px; border-radius:15px; width:90%; max-width:330px; border:1px solid #5e2cff;">
-        <h2 style="margin:0; color:white;">👤 Cadastro Inicial</h2>
-        <p style="color:#aaa; font-size:0.9rem;">Preencha para liberar o robô</p>
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.90);
+    z-index: 10000;
 
-        <input id="nomeUser" class="login-input" type="text" placeholder="Seu nome">
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    backdrop-filter: blur(6px);
+    padding: 25px;
+    box-sizing: border-box;
+
+    animation: fadeIn 0.4s ease-out;
+">
+
+    <!-- CARD -->
+    <div style="
+        background: linear-gradient(160deg, #1d1d2a, #242434);
+        padding: 30px;
+        width: 100%;
+        max-width: 330px;
+
+        border-radius: 18px;
+        border: 1px solid #5e2cff55;
+
+        box-shadow: 0 0 30px rgba(94,44,255,0.25);
+        text-align: center;
+
+        animation: scaleIn 0.5s ease;
+    ">
+
+        <h2 style="margin:0; margin-bottom:5px; font-size: 1.45rem; color:white;">
+            👋 Bem-vindo ao 7XX
+        </h2>
+
+        <p style="color:#bbb; font-size:0.85rem; line-height: 1.3rem; margin-bottom: 18px;">
+            Antes de liberar o acesso ao robô, precisamos criar seu cadastro.
+            <br><b style="color:#00e676;">É rápido e gratuito!</b>
+        </p>
+
+        <input id="nomeUser" class="login-input" type="text" placeholder="Seu nome completo">
+
         <input id="numeroUser" class="login-input" type="number" placeholder="WhatsApp com DDD">
 
         <button onclick="finalizarCadastroInicial()" 
-            style="margin-top:10px; padding:10px; width:100%; border:0;
-            border-radius:10px; background:#00e676; font-weight:bold; cursor:pointer;">
+            style="margin-top:12px; padding:12px; width:100%; border:0;
+            border-radius:12px; background:#00e676;
+            font-weight:bold; cursor:pointer; font-size:1rem;">
             ✔️ CONTINUAR
         </button>
+
+        <p style="margin-top:15px; font-size:0.70rem; color:#888;">
+            🔒 Seus dados são protegidos e usados apenas para liberar o app.
+        </p>
     </div>
 </div>
 
+<!-- ANIMAÇÕES -->
+<style>
+@keyframes fadeIn {
+    from { opacity:0; }
+    to   { opacity:1; }
+}
+
+@keyframes scaleIn {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+</style>
 
     <div id="loginOverlay">
     <div class="single-card">
