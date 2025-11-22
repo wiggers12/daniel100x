@@ -263,6 +263,120 @@
     transform: scale(1.03);
     box-shadow: 0 0 20px rgba(0, 188, 212, 0.6);
 }
+.btn-vipzao {
+    background: linear-gradient(90deg, #ff4da6, #5e2cff, #ff4da6);
+    background-size: 300%;
+    color: #fff;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    box-shadow: 0 0 20px rgba(255, 77, 166, 0.6);
+    animation: vipPulse 1.8s infinite ease-in-out,
+               vipGradient 5s infinite linear;
+}
+
+/* PULSO SUAVE */
+@keyframes vipPulse {
+    0% { transform: scale(1); box-shadow: 0 0 12px rgba(255, 77, 166, 0.5); }
+    50% { transform: scale(1.07); box-shadow: 0 0 28px rgba(255, 77, 166, 1); }
+    100% { transform: scale(1); box-shadow: 0 0 12px rgba(255, 77, 166, 0.5); }
+}
+
+/* GRADIENTE EM MOVIMENTO */
+@keyframes vipGradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+.btn-gratis {
+    background: #ff8c00; /* Laranja forte */
+    color: #000;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    box-shadow: 0 0 12px rgba(255, 140, 0, 0.4);
+    transition: 0.2s ease-in-out;
+}
+
+.btn-gratis:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 18px rgba(255, 140, 0, 0.6);
+}
+/* ===== REDUÇÃO GERAL DO CARD ===== */
+.single-card {
+    max-width: 300px !important; /* antes 330–360 */
+    padding: 18px !important;    /* antes 25–30 */
+    border-radius: 14px !important;
+}
+
+/* Títulos menores */
+.titulo-robo {
+    font-size: 1.2rem !important;
+}
+
+.sub {
+    font-size: 0.7rem !important;
+    margin-bottom: 10px !important;
+}
+
+/* Botões menores */
+.btn-gratis,
+.btn-vipzao,
+.btn-robo,
+.btn-telegram,
+.btn-liberar {
+    padding: 10px !important; /* menor altura */
+    font-size: 0.85rem !important;
+    border-radius: 8px !important;
+}
+
+/* Espaçamentos internos reduzidos */
+.card-interno {
+    gap: 10px !important;
+}
+
+.linha {
+    margin: 5px 0 !important;
+}
+
+/* Input menor */
+.login-input {
+    padding: 9px !important;
+    font-size: 0.85rem !important;
+    border-radius: 8px !important;
+}
+
+/* Texto menor */
+.vip-txt,
+.txt-login {
+    font-size: 0.75rem !important;
+}
+
+.msg-erro {
+    font-size: 0.75rem !important;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+    .single-card {
+        max-width: 88% !important;
+        padding: 15px !important;
+    }
+
+    .btn-gratis,
+    .btn-vipzao,
+    .btn-robo,
+    .btn-telegram,
+    .btn-liberar {
+        font-size: 0.8rem !important;
+        padding: 9px !important;
+    }
+}
 
 /* ===== RESPONSIVIDADE GERAL ===== */
 @media (max-width: 480px) {
@@ -299,6 +413,25 @@
         font-size: 0.9rem;
     }
 }
+/* BOTÃO TELEGRAM */
+.btn-telegram {
+    background: #0088cc;
+    color: #fff;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    box-shadow: 0 0 15px rgba(0, 136, 204, 0.4);
+    transition: 0.2s;
+}
+
+.btn-telegram:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(0, 136, 204, 0.6);
+}
+
 
 /* ===== CELULARES MUITO PEQUENOS (iPhone SE, Android Mini) ===== */
 @media (max-width: 350px) {
@@ -358,9 +491,11 @@
         <p class="sub">Inteligência artificial 24h analisando o Aviator</p>
 
         <div class="card-interno">
-
+<button class="btn-telegram" onclick="window.open('https://t.me/aviatorvip100x','_blank')">
+    📢 ENTRAR NO TELEGRAM
+</button>
             <button class="btn-gratis" onclick="entrarGratis()">
-                🎁 ACESSO GRATUITO — CLIQUE AQUI
+                🎁 ACESSO GRATUITO AO APP — CLIQUE AQUI
             </button>
 
             <div class="linha"></div>
@@ -371,11 +506,6 @@
                 🛒 COMPRAR ACESSO VIP
             </button>
 
-<!-- NOVO BOTÃO COMPRE SEU ROBÔ -->
-<button class="btn-robo" onclick="window.open('https://wa.me/5551989378751','_blank')">
-    🤖 COMPRE SEU ROBÔ AQUI
-</button>
-
             <div class="linha"></div>
 
             <p class="txt-login">Já comprou? Digite seu e-mail ou chave</p>
@@ -385,6 +515,12 @@
             <button class="btn-liberar" onclick="verificarLicenca()">
                 🔓 ENTRAR / LIBERAR
             </button>
+<!-- NOVO BOTÃO COMPRE SEU ROBÔ -->
+<button class="btn-robo" onclick="window.open('https://wa.me/5551989378751','_blank')">
+    🤖 COMPRE SEU ROBÔ AQUI
+</button>
+
+
 
             <div id="msgLogin" class="msg-erro"></div>
 
