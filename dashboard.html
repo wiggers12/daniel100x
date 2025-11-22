@@ -161,29 +161,114 @@
         .chat-input { flex: 1; background: #0a0a0f; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; outline: none; }
         .chat-send { background: var(--cor-terciaria); border: none; width: 40px; border-radius: 8px; cursor: pointer; color: #000; font-weight: bold; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* CONTAINER GERAL – CONTROLA O TAMANHO NO CELULAR E NO PC */
+.login-cards-container {
+    width: 100%;
+    max-width: 420px;      /* 🔥 LIMITE REAL DO TAMANHO */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 10px;
+}
+
+/* CARD GRÁTIS e VIP */
+.login-box {
+    width: 100%;
+    max-width: 360px;      /* 🔥 DIMINUI O CARD */
+    margin: 0 auto;
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+    .login-cards-container {
+        max-width: 95%;
+    }
+    .login-box {
+        max-width: 100%;
+    }
+}
+
+/* DESKTOP */
+@media (min-width: 700px) {
+    .login-cards-container {
+        max-width: 420px;   /* 🔥 perfeito */
+    }
+    .login-box {
+        max-width: 360px;
+    }
+}
+
+/* TELAS GRANDES */
+@media (min-width: 1100px) {
+    .login-cards-container {
+        max-width: 380px;
+    }
+    .login-box {
+        max-width: 340px;   /* 🔥 diminui ainda mais */
+    }
+}
+
+
     </style>
 </head>
 <body>
 
     <!-- TELA DE LOGIN / LICENÇA -->
-    <div id="loginOverlay">
-        <div class="login-box">
-            <h2 style="color:#fff; margin-bottom:5px;">🚀 7XX PREMIUM</h2>
-            <p style="color:#aaa; font-size:0.8rem; margin-bottom:20px;">Acesso Vitalício - Pagamento Único</p>
-            
-            <button class="btn-login btn-buy" onclick="comprarAcesso()">🛒 COMPRAR ACESSO (R$ 29,00)</button>
+<div id="loginOverlay">
+    <div class="login-cards-container">
+        
+        <!-- CARD GRÁTIS -->
+        <div class="login-box login-box-free">
+            <h2 style="color:#fff;">🎁 ACESSO GRATUITO</h2>
+            <p style="color:#aaa; font-size:0.8rem; margin-bottom:20px;">Teste limitado — sem compromisso</p>
 
-            <div style="margin: 20px 0; border-top: 1px solid #333;"></div>
+            <ul style="text-align:left; color:#ccc; font-size:0.85rem; margin-bottom:20px; line-height:1.5;">
+                <li>✔ TipMiner (Limitado)</li>
+                <li>✔ Sinais por tempo (Limitado)</li>
+                <li>✔ Teste gratuito</li>
+                <li>✔ Prévia da assertividade</li>
+            </ul>
 
-            <p style="color:#aaa; font-size:0.8rem; margin-bottom:10px;">Já comprou? Digite seu E-mail ou Chave</p>
-            <input type="text" id="inputChave" class="login-input" placeholder="Ex: joao@email.com ou VIP-123">
-            
-            <button class="btn-login btn-vip" onclick="verificarLicenca()">🔓 ENTRAR / LIBERAR</button>
-            <button class="btn-login btn-free" onclick="entrarGratis()">TENTAR GRÁTIS (Limitado)</button>
-            
-            <div id="msgLogin" style="margin-top:10px; font-size:0.8rem; color:#ff4da6; height:20px;"></div>
+            <button class="btn-login btn-free" onclick="entrarGratis()">
+                TENTAR GRÁTIS (LIMITADO)
+            </button>
         </div>
+
+        <!-- CARD VIP -->
+        <div class="login-box login-box-vip">
+            <h2 style="color:#fff;">🚀 7XX PREMIUM</h2>
+            <p style="color:#aaa; font-size:0.8rem; margin-bottom:20px;">Acesso Vitalício — Pagamento Único</p>
+
+            <ul style="text-align:left; color:#fff; font-size:0.85rem; margin-bottom:20px; line-height:1.6;">
+                <li>✔ TipMiner COMPLETO</li>
+                <li>✔ Sinais por tempo ILIMITADOS</li>
+                <li>✔ Análises por Inteligência Artificial</li>
+                <li>✔ Taxa de acertos detalhada</li>
+                <li>✔ Chat com IA (exclusivo)</li>
+                <li>✔ Alerta rosa premium</li>
+            </ul>
+
+            <button class="btn-login btn-buy" onclick="comprarAcesso()">
+                🛒 COMPRAR ACESSO (R$ 29,00)
+            </button>
+
+            <div style="margin:20px 0; border-top:1px solid #333;"></div>
+
+            <p style="color:#aaa; font-size:0.8rem;">Já comprou? Digite sua chave</p>
+
+            <input type="text" id="inputChave" class="login-input"
+                placeholder="email@email.com ou VIP-123">
+
+            <button class="btn-login btn-vip" onclick="verificarLicenca()">
+                🔓 ENTRAR / LIBERAR
+            </button>
+
+            <div id="msgLogin" style="margin-top:10px; height:20px; font-size:0.8rem; color:#ff4da6;"></div>
+        </div>
+
     </div>
+</div>
 
     <!-- SONS -->
     <audio id="somRosa" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3"></audio>
