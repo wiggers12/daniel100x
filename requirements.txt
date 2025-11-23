@@ -1,0 +1,9 @@
+Flask
+flask-cors
+gunicorn
+firebase-admin
+requests
+pytesseract
+opencv-python
+numpy
+mss
