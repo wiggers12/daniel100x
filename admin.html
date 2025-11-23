@@ -137,10 +137,9 @@ window.selecionarUsuario = (numero, nome) => {
     const mensagensDiv = document.getElementById("mensagens");
     mensagensDiv.innerHTML = "";
 
-    // 🔥 Consulta SIMPLIFICADA — AGORA FUNCIONA!
+    // Agora consulta a subcoleção correta
     const q = query(
-        collection(db, "conversas"),
-        where("numero", "==", numero),
+        collection(db, `conversas/${numero}/mensagens`),
         orderBy("horario", "asc")
     );
 
@@ -159,11 +158,9 @@ window.selecionarUsuario = (numero, nome) => {
         });
 
         mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
-    }, (error) => {
-        console.error("Erro ao carregar conversas:", error);
-        alert("Erro ao carregar conversas. Verifique regras do Firebase.");
     });
 };
+
 
 /* ====================================================
         ENVIAR TEMPLATE
