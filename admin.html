@@ -57,9 +57,8 @@
 ==================================================== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { 
-    getFirestore, collection, 
-    query, where, orderBy, onSnapshot,
-    or, and
+    getFirestore, collection, query, where, 
+    orderBy, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -76,10 +75,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🚨 URL do seu servidor Render
-// CORREÇÃO: Removi o prefixo 'https://' para garantir que a variável seja apenas o domínio
+// URL do servidor Flask / Render API
 const API_URL = "https://daniel100x.onrender.com";
-
 
 /* ====================================================
         VARIÁVEIS
@@ -116,12 +113,10 @@ onSnapshot(qUsuarios, (snapshot) => {
     lista.innerHTML = "";
     snapshot.forEach((doc) => {
         const u = doc.data();
-        const nomeCliente = u.nome || "Sem Nome"; 
-
         lista.innerHTML += `
-            <div onclick="selecionarUsuario('${u.numero}', '${nomeCliente}')" 
+            <div onclick="selecionarUsuario('${u.numero}', '${u.nome || "Sem Nome"}')" 
                 class="p-3 border-b border-gray-800 cursor-pointer hover:bg-gray-800">
-                <div class="font-bold">${nomeCliente}</div>
+                <div class="font-bold">${u.nome || "Sem Nome"}</div>
                 <div class="text-gray-400 text-sm">${u.numero}</div>
             </div>
         `;
@@ -132,9 +127,7 @@ onSnapshot(qUsuarios, (snapshot) => {
         ABRIR CHAT DO USUÁRIO
 ==================================================== */
 window.selecionarUsuario = (numero, nome) => {
-    if (unsubscribeConversas) {
-        unsubscribeConversas();
-    }
+    if (unsubscribeConversas) unsubscribeConversas();
 
     usuarioSelecionado = { numero, nome };
 
@@ -142,46 +135,38 @@ window.selecionarUsuario = (numero, nome) => {
     document.getElementById("btnReenviarIndividual").classList.remove("hidden");
 
     const mensagensDiv = document.getElementById("mensagens");
-    mensagensDiv.innerHTML = ""; 
+    mensagensDiv.innerHTML = "";
 
-
-const q = query(
-    collection(db, "conversas"),
-    or(
-        and(where("numero", "==", numero), where("tipo", "==", "recebida")),  // cliente
-        and(where("numero", "==", numero), where("tipo", "==", "enviada"))    // admin
-    ),
-    orderBy("horario", "asc")
-);
-
-
+    // 🔥 Consulta SIMPLIFICADA — AGORA FUNCIONA!
+    const q = query(
+        collection(db, "conversas"),
+        where("numero", "==", numero),
+        orderBy("horario", "asc")
+    );
 
     unsubscribeConversas = onSnapshot(q, (snapshot) => {
         mensagensDiv.innerHTML = "";
 
         snapshot.forEach((doc) => {
             const m = doc.data();
-
             mensagensDiv.innerHTML += `
                 <div class="flex ${m.tipo === "enviada" ? "justify-end" : "justify-start"}">
-    <div class="message ${m.tipo === "enviada" ? "sent" : "received"}">
-        ${m.texto}
-    </div>
-</div>
-
-
+                    <div class="message ${m.tipo === "enviada" ? "sent" : "received"}">
+                        ${m.texto}
+                    </div>
+                </div>
             `;
         });
 
         mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
     }, (error) => {
-        console.error("Erro no onSnapshot das conversas:", error);
-        alert("Erro ao carregar conversas: Verifique as regras do Firebase.");
+        console.error("Erro ao carregar conversas:", error);
+        alert("Erro ao carregar conversas. Verifique regras do Firebase.");
     });
 };
 
 /* ====================================================
-        ENVIAR BOAS-VINDAS INDIVIDUAL (Template)
+        ENVIAR TEMPLATE
 ==================================================== */
 window.reenviarParaUsuario = () => {
     if (!usuarioSelecionado) return;
@@ -199,68 +184,31 @@ window.reenviarParaUsuario = () => {
     })
     .then(r => r.json())
     .then(d => {
-        if (d.ok) {
-            alert(`Template 'Boas-vindas' enviado para ${usuarioSelecionado.nome}!`);
-        } else {
-            // CORREÇÃO: Garantir que o erro da API seja extraído corretamente
-            alert(`Erro no envio (API): ${d.whatsapp_error ? d.whatsapp_error.error.message : (d.erro || JSON.stringify(d))}`);
-        }
+        alert(d.ok ? "Template enviado com sucesso!" : "Erro ao enviar template.");
     })
-    .catch((error) => alert(`Erro de conexão ao enviar template: ${error.message}`));
+    .catch((error) => alert(`Erro: ${error.message}`));
 };
 
 /* ====================================================
-        ENVIAR MENSAGEM NORMAL (Com Debug)
+        ENVIAR MENSAGEM NORMAL
 ==================================================== */
 window.enviarMensagem = () => {
     const input = document.getElementById("inputMensagem");
     const texto = input.value.trim();
 
-    // 1. CHECAGEM CRÍTICA
-    if (!usuarioSelecionado) {
-        alert("Selecione um usuário primeiro.");
-        return;
-    }
-    if (!texto) {
-        alert("Digite um texto para enviar.");
-        return;
-    }
-    
-    // 2. MONTAGEM do Payload
-    const payload = {
-        numero: usuarioSelecionado.numero,
-        texto: texto
-    };
+    if (!usuarioSelecionado) return alert("Selecione um usuário primeiro.");
+    if (!texto) return alert("Digite uma mensagem.");
 
-    console.log("Payload de Envio:", payload);
-    console.log("URL da API:", `${API_URL}/enviar`);
+    const payload = { numero: usuarioSelecionado.numero, texto: texto };
 
-    // 3. CHAMADA da API
     fetch(`${API_URL}/enviar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
     })
-    .then(r => {
-        // Checagem de status HTTP 
-        if (!r.ok) {
-            return r.json().then(err => { 
-                console.error("Erro na resposta do servidor:", err);
-                throw new Error(err.message || JSON.stringify(err)); 
-            });
-        }
-        return r.json();
-    })
-    .then(d => {
-        // Sucesso
-        input.value = ""; // Limpa o input
-        console.log("Mensagem enviada com sucesso!", d);
-    })
-    .catch((error) => {
-        // Falha de rede ou erro no backend
-        alert(`Falha ao enviar mensagem. Causa provável: Problema de rede, CORS ou erro da API. Detalhes: ${error.message}`);
-        console.error("Erro FATAL no Fetch:", error);
-    });
+    .then(r => r.json())
+    .then(() => input.value = "")
+    .catch((error) => alert(`Erro ao enviar mensagem: ${error.message}`));
 };
 </script>
 
@@ -273,7 +221,6 @@ window.enviarMensagem = () => {
     <div class="sidebar">
         <div class="header font-bold text-xl">Usuários</div>
 
-        <!-- 🔥 BOTÃO: REENVIAR PARA TODOS -->
         <button onclick="reenviarBoasVindas()" 
                 class="w-full bg-green-600 py-2 mb-2 hover:bg-green-700 rounded">
             🔄 Reenviar Boas-Vindas (Todos)
@@ -282,26 +229,23 @@ window.enviarMensagem = () => {
         <div id="listaUsuarios"></div>
     </div>
 
-    <!-- ÁREA DO CHAT -->
+    <!-- CHAT -->
     <div class="chat-area">
 
         <div class="header" id="chatTitulo">Selecione um usuário</div>
 
-        <!-- 🔥 BOTÃO: REENVIAR INDIVIDUAL -->
         <button id="btnReenviarIndividual"
                 onclick="reenviarParaUsuario()"
                 class="bg-yellow-500 text-black px-4 py-1 m-2 rounded hover:bg-yellow-600 hidden">
             🔁 Reenviar boas-vindas para este usuário (Template)
         </button>
 
-        <!-- MENSAGENS -->
         <div id="mensagens" class="flex-1 p-4 overflow-y-auto"></div>
 
-        <!-- INPUT -->
         <div class="p-4 border-t border-gray-800 flex">
             <input id="inputMensagem" type="text" placeholder="Digite uma mensagem..."
                 class="flex-1 bg-gray-800 p-3 rounded-lg outline-none"
-                onkeydown="if(event.key === 'Enter') enviarMensagem()"> <!-- Para enviar com Enter -->
+                onkeydown="if(event.key === 'Enter') enviarMensagem()">
             <button onclick="enviarMensagem()" 
                 class="ml-3 bg-blue-600 px-5 rounded-lg hover:bg-blue-700">
                 Enviar
