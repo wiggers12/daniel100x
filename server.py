@@ -235,6 +235,17 @@ def webhook():
 
                 print(f"💬 Recebida de {nome}: {texto}")
 
+                # 🔥 Criar usuário automaticamente se não existir
+                userRef = db.collection("usuarios").document(numero)
+                if not userRef.get().exists:
+                    userRef.set({
+                        "nome": nome,
+                        "numero": numero,
+                        "criado": firestore.SERVER_TIMESTAMP,
+                        "boas_vindas_enviada": False
+                    })
+
+                # 🔥 Salvar mensagem no chat
                 db.collection("conversas").add({
                     "numero": numero,
                     "nome": nome,
@@ -242,11 +253,6 @@ def webhook():
                     "tipo": "recebida",
                     "horario": firestore.SERVER_TIMESTAMP
                 })
-
-                enviar_mensagem_whatsapp(
-                    numero,
-                    "Mensagem recebida! Em breve entraremos em contato."
-                )
 
         except Exception as e:
             print("❌ Erro no webhook:", e)
