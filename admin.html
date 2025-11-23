@@ -1,101 +1,188 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
 <meta charset="UTF-8">
-<title>Painel Admin - 7XX WhatsApp</title>
-
-<!-- Firebase SDK (modular) -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot } 
-        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    /* ==========================
-       FIREBASE CONFIG CORRETO
-    ========================== */
-    const firebaseConfig = {
-      apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
-      authDomain: "aviatordaniel100x.firebaseapp.com",
-      databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com",
-      projectId: "aviatordaniel100x",
-      storageBucket: "aviatordaniel100x.firebasestorage.app",
-      messagingSenderId: "169015417803",
-      appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
-      measurementId: "G-EES9SVSV72"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    /* ==========================
-       LISTAR USUÁRIOS
-    ========================== */
-    function carregarUsuarios() {
-        const lista = document.getElementById("listaUsuarios");
-
-        const q = query(collection(db, "usuarios"), orderBy("criado", "desc"));
-
-        onSnapshot(q, (snapshot) => {
-            lista.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const u = doc.data();
-
-                lista.innerHTML += `
-                    <tr class="border-b border-gray-700">
-                        <td class="p-3">${u.nome || "-"}</td>
-                        <td class="p-3">${u.numero}</td>
-                        <td class="p-3">${u.criado ? new Date(u.criado.seconds * 1000).toLocaleString() : "-"}</td>
-                        <td class="p-3">
-                            ${u.boas_vindas_enviada ? "✅ Enviada" : "❌ Não enviada"}
-                        </td>
-                    </tr>
-                `;
-            });
-        });
-    }
-
-    carregarUsuarios();
-
-    /* ==========================
-       REENVIAR BOAS-VINDAS
-    ========================== */
-    window.reenviarBoasVindas = () => {
-        fetch("https://daniel100x.onrender.com/reenviar_boasvindas", {
-            method: "POST"
-        })
-        .then(r => r.json())
-        .then(d => alert("Reenviados: " + JSON.stringify(d.reenviados)))
-        .catch(() => alert("Erro ao reenviar mensagens"));
-    };
-</script>
-
-<!-- Tailwind -->
+<title>Admin 7XX – Painel Completo</title>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+<style>
+    body {
+        background: #0d0f12;
+        color: #fff;
+        font-family: Arial, sans-serif;
+    }
+    .sidebar {
+        width: 320px;
+        background: #111418;
+        border-right: 1px solid #2a2f36;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    .chat-area {
+        flex: 1;
+        background: #0f1217;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    .message {
+        max-width: 75%;
+        padding: 8px 12px;
+        border-radius: 10px;
+        margin-bottom: 6px;
+        font-size: 15px;
+        line-height: 1.4;
+        white-space: pre-wrap;
+    }
+    .sent {
+        background: #0b7dda;
+        margin-left: auto;
+    }
+    .received {
+        background: #1f242b;
+        margin-right: auto;
+    }
+    .header {
+        background: #14181d;
+        padding: 16px;
+        font-size: 18px;
+        border-bottom: 1px solid #2a2f36;
+    }
+</style>
+
+<script type="module">
+/* ====================================================
+        FIREBASE CONFIG
+==================================================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { 
+    getFirestore, collection, doc,
+    query, where, orderBy, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
+    authDomain: "aviatordaniel100x.firebaseapp.com",
+    databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com",
+    projectId: "aviatordaniel100x",
+    storageBucket: "aviatordaniel100x.firebasestorage.app",
+    messagingSenderId: "169015417803",
+    appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
+    measurementId: "G-EES9SVSV72"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ====================================================
+        VARIÁVEIS
+==================================================== */
+let usuarioSelecionado = null;
+
+/* ====================================================
+        LISTAR USUÁRIOS
+==================================================== */
+const lista = document.getElementById("listaUsuarios");
+
+const qUsuarios = query(collection(db, "usuarios"), orderBy("criado", "desc"));
+
+onSnapshot(qUsuarios, (snapshot) => {
+    lista.innerHTML = "";
+    snapshot.forEach((doc) => {
+        const u = doc.data();
+        lista.innerHTML += `
+            <div onclick="selecionarUsuario('${u.numero}', '${u.nome || "Sem Nome"}')" 
+                class="p-3 border-b border-gray-800 cursor-pointer hover:bg-gray-800">
+                <div class="font-bold">${u.nome || "Sem nome"}</div>
+                <div class="text-gray-400 text-sm">${u.numero}</div>
+            </div>
+        `;
+    });
+});
+
+/* ====================================================
+        ABRIR CHAT DO USUÁRIO
+==================================================== */
+window.selecionarUsuario = (numero, nome) => {
+    usuarioSelecionado = { numero, nome };
+
+    document.getElementById("chatTitulo").innerText = nome + " (" + numero + ")";
+
+    const mensagensDiv = document.getElementById("mensagens");
+    mensagensDiv.innerHTML = "";
+
+    const q = query(
+        collection(db, "conversas"),
+        where("numero", "==", numero),
+        orderBy("horario", "asc")
+    );
+
+    onSnapshot(q, (snapshot) => {
+        mensagensDiv.innerHTML = "";
+
+        snapshot.forEach((doc) => {
+            const m = doc.data();
+
+            mensagensDiv.innerHTML += `
+                <div class="message ${m.tipo === "enviada" ? "sent" : "received"}">
+                    ${m.texto}
+                </div>
+            `;
+        });
+
+        mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
+    });
+};
+
+/* ====================================================
+        ENVIAR MENSAGEM
+==================================================== */
+window.enviarMensagem = () => {
+    const input = document.getElementById("inputMensagem");
+    const texto = input.value.trim();
+
+    if (!texto || !usuarioSelecionado) return;
+
+    fetch("https://daniel100x.onrender.com/enviar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            numero: usuarioSelecionado.numero,
+            texto: texto
+        })
+    });
+
+    input.value = "";
+};
+</script>
 
 </head>
 
-<body class="bg-gray-900 text-white p-8">
+<body>
 
-<h1 class="text-4xl font-bold mb-6">📊 Painel Admin – 7XX</h1>
+<div class="flex">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="header font-bold text-xl">Usuários</div>
+        <div id="listaUsuarios"></div>
+    </div>
 
-<div class="bg-gray-800 p-4 rounded-lg mb-6">
-    <button onclick="reenviarBoasVindas()" class="bg-green-500 px-4 py-2 rounded hover:bg-green-600">
-        🔄 Reenviar Boas-Vindas para Quem Não Recebeu
-    </button>
+    <!-- ÁREA DO CHAT -->
+    <div class="chat-area">
+        <div class="header" id="chatTitulo">Selecione um usuário</div>
+
+        <div id="mensagens" class="flex-1 p-4 overflow-y-auto"></div>
+
+        <div class="p-4 border-t border-gray-800 flex">
+            <input id="inputMensagem" type="text" placeholder="Digite uma mensagem..."
+                class="flex-1 bg-gray-800 p-3 rounded-lg outline-none">
+            <button onclick="enviarMensagem()" 
+                class="ml-3 bg-blue-600 px-5 rounded-lg hover:bg-blue-700">
+                Enviar
+            </button>
+        </div>
+    </div>
 </div>
-
-<table class="table-auto w-full bg-gray-800 rounded-lg overflow-hidden">
-    <thead>
-        <tr class="bg-gray-700">
-            <th class="p-3">Nome</th>
-            <th class="p-3">Número</th>
-            <th class="p-3">Criado</th>
-            <th class="p-3">Boas-Vindas</th>
-        </tr>
-    </thead>
-    <tbody id="listaUsuarios"></tbody>
-</table>
 
 </body>
 </html>
