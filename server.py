@@ -85,6 +85,63 @@ def boasvindas():
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
 
+# ============================================================
+# REENVIAR BOAS-VINDAS PARA QUEM NÃO RECEBEU
+# ============================================================
+@app.route("/reenviar_boasvindas", methods=["POST"])
+def reenviar_boasvindas():
+    try:
+        usuarios = db.collection("usuarios").stream()
+        reenviados = []
+
+        for u in usuarios:
+            dados = u.to_dict()
+            numero = dados.get("numero")
+            nome = dados.get("nome")
+
+            # Pular se já enviou
+            if dados.get("boas_vindas_enviada") == True:
+                continue
+
+            print(f"🔁 Reenviando para {numero}")
+
+            payload = {
+                "messaging_product": "whatsapp",
+                "to": numero,
+                "type": "template",
+                "template": {
+                    "name": "boas_vindas_7xx",
+                    "language": {"code": "pt_BR"},
+                    "components": [
+                        {
+                            "type": "body",
+                            "parameters": [
+                                {"type": "text", "text": nome}
+                            ]
+                        }
+                    ]
+                }
+            }
+
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            }
+
+            url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
+            r = requests.post(url, json=payload, headers=headers)
+
+            db.collection("usuarios").document(numero).update({
+                "boas_vindas_enviada": True,
+                "boas_vindas_data": firestore.SERVER_TIMESTAMP
+            })
+
+            reenviados.append(numero)
+
+        return jsonify({"status": "ok", "reenviados": reenviados})
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
 
 
 # ============================================================
