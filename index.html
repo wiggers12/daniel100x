@@ -816,39 +816,45 @@ window.finalizarCadastroInicial = async () => {
         return;
     }
 
-    // Salva local para não aparecer novamente
+    // Salva local
     localStorage.setItem("cadastroInicialFeito", "sim");
     localStorage.setItem("userNome", nome);
     localStorage.setItem("userNumero", numero);
 
-    // Salva no Firebase
     try {
-            await setDoc(doc(db, "usuarios", numero), {
-        nome: nome,
-        numero: numero,
-        criado: new Date()
-    });
-
-    console.log("Usuário salvo no Firebase.");
-
-// === ENVIAR BOAS VINDAS AUTOMÁTICA (RODA O SERVIDOR PYTHON) ===
-try {
-    fetch("https://daniel100x.onrender.com/boasvindas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        // Salva no Firestore
+        await setDoc(doc(db, "usuarios", numero), {
+            nome: nome,
             numero: numero,
-            nome: nome
-        })
-    });
-} catch (e) {
-    console.log("Falha enviar boas vindas:", e);
-}
+            criado: new Date()
+        });
+
+        console.log("Usuário salvo no Firebase.");
+
+        // === BOAS-VINDAS (SERVIDOR RENDER) ===
+        try {
+            const resp = await fetch("https://daniel100x.onrender.com/boasvindas", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    numero: numero
+                })
+            });
+
+            const data = await resp.json();
+            console.log("Retorno boas-vindas:", data);
+
+        } catch (e) {
+            console.error("Erro enviar boas-vindas:", e);
+        }
+
     } catch (e) {
         console.error("Erro ao salvar usuário:", e);
     }
 
-    // Esconde a tela
     document.getElementById("telaCadastroInicial").style.display = "none";
 };
 
