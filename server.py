@@ -6,6 +6,8 @@ import requests
 import json
 import os
 from datetime import datetime
+import threading
+import time
 
 # ============================================================
 # CONFIGURAÇÕES WHATSAPP
@@ -71,11 +73,11 @@ def boasvindas():
 
         r = requests.post(url, json=payload, headers=headers)
 
-        # grava NO HISTÓRICO (tipo enviada)
+        # grava histórico
         db.collection("conversas").add({
             "numero": numero,
             "nome": nome,
-            "texto": f"(TEMPLATE) Boas-vindas enviada",
+            "texto": "(TEMPLATE) Boas-vindas enviada",
             "tipo": "enviada",
             "horario": firestore.SERVER_TIMESTAMP
         })
@@ -99,7 +101,6 @@ def reenviar_boasvindas():
             numero = dados.get("numero")
             nome = dados.get("nome")
 
-            # Pular se já enviou
             if dados.get("boas_vindas_enviada") == True:
                 continue
 
@@ -145,7 +146,7 @@ def reenviar_boasvindas():
 
 
 # ============================================================
-# 2) ENVIAR MENSAGEM NORMAL (PAINEL → WHATSAPP)
+# 2) ENVIAR MENSAGEM NORMAL (PAINEL)
 # ============================================================
 @app.route("/enviar", methods=["POST"])
 def enviar():
@@ -170,7 +171,6 @@ def enviar():
 
         r = requests.post(url, json=payload, headers=headers)
 
-        # salvar no Firestore
         db.collection("conversas").add({
             "numero": numero,
             "nome": "",
@@ -185,19 +185,14 @@ def enviar():
         return jsonify({"erro": str(e)}), 500
 
 
-
 # ============================================================
-# 3) WEBHOOK → RECEBE MENSAGENS DO WHATSAPP
+# 3) WEBHOOK → RECEBER MENSAGENS DO WHATSAPP
 # ============================================================
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
     if request.method == "GET":
-        token_enviado = request.args.get("hub.verify_token")
-        desafio = request.args.get("hub.challenge")
-
-        if token_enviado == "7xxsuperseguro":
-            return desafio, 200
-        
+        if request.args.get("hub.verify_token") == "7xxsuperseguro":
+            return request.args.get("hub.challenge"), 200
         return "Token inválido", 403
 
     elif request.method == "POST":
@@ -215,9 +210,8 @@ def webhook():
                 texto = m["text"]["body"]
                 nome = change["contacts"][0]["profile"]["name"]
 
-                print(f"💬 Msg recebida de {nome}: {texto}")
+                print(f"💬 Recebida de {nome}: {texto}")
 
-                # salva no Firestore
                 db.collection("conversas").add({
                     "numero": numero,
                     "nome": nome,
@@ -227,13 +221,31 @@ def webhook():
                 })
 
         except Exception as e:
-            print("❌ Erro ao tratar mensagem:", e)
+            print("❌ Erro no webhook:", e)
 
         return "EVENT_RECEIVED", 200
 
+# ============================================================
+# 4) KEEPALIVE – Render 24h Online
+# ============================================================
+@app.route("/keepalive")
+def keepalive():
+    return "alive", 200
 
-# ===============================================================
-# RODAR NO RENDER
-# ===============================================================
+def manter_servidor_online():
+    while True:
+        try:
+            requests.get("https://daniel100x.onrender.com/keepalive")
+            print("🔄 Mantendo servidor ativo...")
+        except:
+            print("⚠ Erro ao manter servidor acordado")
+
+        time.sleep(300)  # 5 minutos
+
+threading.Thread(target=manter_servidor_online, daemon=True).start()
+
+# ============================================================
+# EXECUTAR
+# ============================================================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
