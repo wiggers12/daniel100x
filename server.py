@@ -208,26 +208,34 @@ def webhook():
         return "Token inválido", 403
 
     elif request.method == "POST":
-        data = request.json
-        print("📥 WEBHOOK RECEBIDO:", json.dumps(data, indent=2))
+        data = request.json
+        print("📥 WEBHOOK RECEBIDO:", json.dumps(data, indent=2))
 
-        try:
-            # AQUI ESTÁ O PERIGO: SE A ESTRUTURA MUDAR, FALHA AQUI
-            entry = data["entry"][0]
-            change = entry["changes"][0]["value"]
-            messages = change.get("messages")
+        try:
+            entry = data["entry"][0]
+            change = entry["changes"][0]["value"]
+            messages = change.get("messages")
 
-            if messages:
-                m = messages[0]
-                # ... Processa a mensagem e salva no Firestore ...
-                db.collection("conversas").add({
-                    # ...
-                })
+            if messages:
+                m = messages[0]
+                numero = m["from"]
+                texto = m["text"]["body"]
+                nome = change["contacts"][0]["profile"]["name"]
 
-        except Exception as e:
-            print("❌ Erro no webhook:", e)
+                print(f"💬 Recebida de {nome}: {texto}")
 
-        return "EVENT_RECEIVED", 200 # <--- O Meta precisa deste 200 OK!
+                db.collection("conversas").add({
+                    "numero": numero,
+                    "nome": nome,
+                    "texto": texto,
+                    "tipo": "recebida",
+                    "horario": firestore.SERVER_TIMESTAMP
+                })
+
+        except Exception as e:
+            print("❌ Erro no webhook:", e)
+
+        return "EVENT_RECEIVED", 200
 
 
 # ============================================================
