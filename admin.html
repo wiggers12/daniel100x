@@ -148,8 +148,8 @@ window.selecionarUsuario = (numero, nome) => {
 const q = query(
     collection(db, "conversas"),
     or(
-        and(where("numero", "==", numero), where("remetente", "==", "cliente")),
-        and(where("numero_cliente", "==", numero), where("remetente", "==", "admin"))
+        and(where("numero", "==", numero), where("tipo", "==", "recebida")),  // cliente
+        and(where("numero", "==", numero), where("tipo", "==", "enviada"))    // admin
     ),
     orderBy("horario", "asc")
 );
@@ -163,11 +163,12 @@ const q = query(
             const m = doc.data();
 
             mensagensDiv.innerHTML += `
-                <div class="flex ${m.remetente === "admin" ? "justify-end" : "justify-start"}">
-    <div class="message ${m.remetente === "admin" ? "sent" : "received"}">
+                <div class="flex ${m.tipo === "enviada" ? "justify-end" : "justify-start"}">
+    <div class="message ${m.tipo === "enviada" ? "sent" : "received"}">
         ${m.texto}
     </div>
 </div>
+
 
             `;
         });
