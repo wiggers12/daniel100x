@@ -80,6 +80,18 @@ const db = getFirestore(app);
 let usuarioSelecionado = null;
 
 /* ====================================================
+        REENVIAR PARA TODOS
+==================================================== */
+window.reenviarBoasVindas = () => {
+    fetch("https://daniel100x.onrender.com/reenviar_boasvindas", {
+        method: "POST"
+    })
+    .then(r => r.json())
+    .then(d => alert("Reenviado para: " + d.reenviados.join(", ")))
+    .catch(() => alert("Erro ao reenviar mensagens"));
+};
+
+/* ====================================================
         LISTAR USUÁRIOS
 ==================================================== */
 const lista = document.getElementById("listaUsuarios");
@@ -107,6 +119,7 @@ window.selecionarUsuario = (numero, nome) => {
     usuarioSelecionado = { numero, nome };
 
     document.getElementById("chatTitulo").innerText = nome + " (" + numero + ")";
+    document.getElementById("btnReenviarIndividual").classList.remove("hidden");
 
     const mensagensDiv = document.getElementById("mensagens");
     mensagensDiv.innerHTML = "";
@@ -135,7 +148,25 @@ window.selecionarUsuario = (numero, nome) => {
 };
 
 /* ====================================================
-        ENVIAR MENSAGEM
+        ENVIAR BOAS-VINDAS INDIVIDUAL
+==================================================== */
+window.reenviarParaUsuario = () => {
+    if (!usuarioSelecionado) return;
+
+    fetch("https://daniel100x.onrender.com/boasvindas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            nome: usuarioSelecionado.nome,
+            numero: usuarioSelecionado.numero
+        })
+    })
+    .then(() => alert("Boas-vindas enviada novamente!"))
+    .catch(() => alert("Erro ao enviar!"));
+};
+
+/* ====================================================
+        ENVIAR MENSAGEM NORMAL
 ==================================================== */
 window.enviarMensagem = () => {
     const input = document.getElementById("inputMensagem");
@@ -164,15 +195,32 @@ window.enviarMensagem = () => {
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="header font-bold text-xl">Usuários</div>
+
+        <!-- 🔥 BOTÃO: REENVIAR PARA TODOS -->
+        <button onclick="reenviarBoasVindas()" 
+                class="w-full bg-green-600 py-2 mb-2 hover:bg-green-700 rounded">
+            🔄 Reenviar Boas-Vindas (Todos)
+        </button>
+
         <div id="listaUsuarios"></div>
     </div>
 
     <!-- ÁREA DO CHAT -->
     <div class="chat-area">
+
         <div class="header" id="chatTitulo">Selecione um usuário</div>
 
+        <!-- 🔥 BOTÃO: REENVIAR INDIVIDUAL -->
+        <button id="btnReenviarIndividual"
+                onclick="reenviarParaUsuario()"
+                class="bg-yellow-500 text-black px-4 py-1 m-2 rounded hover:bg-yellow-600 hidden">
+            🔁 Reenviar boas-vindas para este usuário
+        </button>
+
+        <!-- MENSAGENS -->
         <div id="mensagens" class="flex-1 p-4 overflow-y-auto"></div>
 
+        <!-- INPUT -->
         <div class="p-4 border-t border-gray-800 flex">
             <input id="inputMensagem" type="text" placeholder="Digite uma mensagem..."
                 class="flex-1 bg-gray-800 p-3 rounded-lg outline-none">
@@ -181,6 +229,7 @@ window.enviarMensagem = () => {
                 Enviar
             </button>
         </div>
+
     </div>
 </div>
 
