@@ -263,5 +263,7 @@ threading.Thread(target=manter_servidor_online, daemon=True).start()
 # ============================================================
 # EXECUTAR
 # ============================================================
+# Correção do Código Flask para usar a porta do ambiente
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get('PORT', 5000)) # Pega a variável de ambiente PORT
+    app.run(host="0.0.0.0", port=port)
