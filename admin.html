@@ -148,11 +148,12 @@ window.selecionarUsuario = (numero, nome) => {
 const q = query(
     collection(db, "conversas"),
     or(
-        where("numero", "==", numero),          // mensagens enviadas pelo admin
-        where("numero_cliente", "==", numero)   // mensagens enviadas pelo cliente
+        and(where("numero", "==", numero), where("remetente", "==", "cliente")),
+        and(where("numero_cliente", "==", numero), where("remetente", "==", "admin"))
     ),
     orderBy("horario", "asc")
 );
+
 
 
     unsubscribeConversas = onSnapshot(q, (snapshot) => {
@@ -162,11 +163,12 @@ const q = query(
             const m = doc.data();
 
             mensagensDiv.innerHTML += `
-                <div class="flex ${m.tipo === "enviada" ? "justify-end" : "justify-start"}">
-                    <div class="message ${m.tipo === "enviada" ? "sent" : "received"}">
-                        ${m.texto}
-                    </div>
-                </div>
+                <div class="flex ${m.remetente === "admin" ? "justify-end" : "justify-start"}">
+    <div class="message ${m.remetente === "admin" ? "sent" : "received"}">
+        ${m.texto}
+    </div>
+</div>
+
             `;
         });
 
