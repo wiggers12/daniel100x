@@ -156,6 +156,83 @@ def reenviar_boasvindas():
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
 
+# --------------------------------
+# FUNÇÃO AUTOMÁTICA (deixar no topo)
+# --------------------------------
+def enviar_mensagem_whatsapp(numero, texto):
+    url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "messaging_product": "whatsapp",
+        "to": numero,
+        "type": "text",
+        "text": {"body": texto}
+    }
+    requests.post(url, json=data, headers=headers)
+
+
+# --------------------------------
+# WEBHOOK
+# --------------------------------
+@app.route("/webhook", methods=["GET", "POST"])
+def webhook():
+    ...
+    ...
+    return "OK", 200
+
+
+# ============================================================
+# 2) ENVIAR MENSAGEM NORMAL (PAINEL)
+# ============================================================
+@app.route("/enviar", methods=["POST", "OPTIONS"])
+def enviar():
+    # Requisição OPTIONS
+    if request.method == "OPTIONS":
+        response = jsonify({"allow": True})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        return response, 200
+
+    # Requisição POST normal
+    try:
+        data = request.json
+        numero = data.get("numero")
+        texto = data.get("texto")
+
+        url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
+
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": numero,
+            "type": "text",
+            "text": {"body": texto}
+        }
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+
+        requests.post(url, json=payload, headers=headers)
+
+        db.collection("conversas").add({
+            "numero": numero,
+            "nome": "",
+            "texto": texto,
+            "tipo": "enviada",
+            "horario": firestore.SERVER_TIMESTAMP
+        })
+
+        return jsonify({"ok": True})
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+
 
 # ============================================================
 # 2) ENVIAR MENSAGEM NORMAL (PAINEL)
@@ -204,6 +281,8 @@ def enviar():
 
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
+
+
 
 
 # ============================================================
