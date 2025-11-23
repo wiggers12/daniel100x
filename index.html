@@ -833,7 +833,7 @@ window.finalizarCadastroInicial = async () => {
 
     // === ENVIAR BOAS VINDAS AUTOMÁTICA (RODA O SERVIDOR PYTHON) ===
     try {
-       fetch("https://daniel100x.onrender.com/boasvindas", {  // você pode trocar URL depois
+       fetch("fetch("https://daniel100x.onrender.com:10000/boasvindas", {", {  // você pode trocar URL depois
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
