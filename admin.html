@@ -143,11 +143,17 @@ window.selecionarUsuario = (numero, nome) => {
     const mensagensDiv = document.getElementById("mensagens");
     mensagensDiv.innerHTML = ""; 
 
-    const q = query(
-        collection(db, "conversas"),
-        where("numero", "==", numero),
-        orderBy("horario", "asc")
-    );
+    import { or, and } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const q = query(
+    collection(db, "conversas"),
+    or(
+        where("numero", "==", numero),          // mensagens enviadas pelo admin
+        where("numero_cliente", "==", numero)   // mensagens enviadas pelo cliente
+    ),
+    orderBy("horario", "asc")
+);
+
 
     unsubscribeConversas = onSnapshot(q, (snapshot) => {
         mensagensDiv.innerHTML = "";
