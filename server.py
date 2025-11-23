@@ -19,7 +19,17 @@ phone_id = "848088375057819"
 # FLASK APP
 # ============================================================
 app = Flask(__name__)
-CORS(app)
+
+# CORS no modo máximo — compatível com GitHub Pages
+CORS(app, resources={r"*": {"origins": "*"}})
+
+# Força headers CORS em TODAS as respostas
+@app.after_request
+def after_request(response):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+    return response
 
 # ============================================================
 # FIREBASE
@@ -30,9 +40,11 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
+
 @app.route("/")
 def home():
     return "🔥 Servidor WhatsApp 7XX + Firestore Conversas ATIVO!"
+
 
 # ============================================================
 # 1) ENVIO DE BOAS-VINDAS
@@ -73,7 +85,6 @@ def boasvindas():
 
         r = requests.post(url, json=payload, headers=headers)
 
-        # grava histórico
         db.collection("conversas").add({
             "numero": numero,
             "nome": nome,
@@ -86,6 +97,7 @@ def boasvindas():
 
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
+
 
 # ============================================================
 # REENVIAR BOAS-VINDAS PARA QUEM NÃO RECEBEU
@@ -130,7 +142,7 @@ def reenviar_boasvindas():
             }
 
             url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
-            r = requests.post(url, json=payload, headers=headers)
+            requests.post(url, json=payload, headers=headers)
 
             db.collection("usuarios").document(numero).update({
                 "boas_vindas_enviada": True,
@@ -169,7 +181,7 @@ def enviar():
             "Content-Type": "application/json"
         }
 
-        r = requests.post(url, json=payload, headers=headers)
+        requests.post(url, json=payload, headers=headers)
 
         db.collection("conversas").add({
             "numero": numero,
@@ -225,12 +237,14 @@ def webhook():
 
         return "EVENT_RECEIVED", 200
 
+
 # ============================================================
 # 4) KEEPALIVE – Render 24h Online
 # ============================================================
 @app.route("/keepalive")
 def keepalive():
     return "alive", 200
+
 
 def manter_servidor_online():
     while True:
@@ -240,9 +254,11 @@ def manter_servidor_online():
         except:
             print("⚠ Erro ao manter servidor acordado")
 
-        time.sleep(300)  # 5 minutos
+        time.sleep(300)
+
 
 threading.Thread(target=manter_servidor_online, daemon=True).start()
+
 
 # ============================================================
 # EXECUTAR
