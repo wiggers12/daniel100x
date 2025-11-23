@@ -1,9 +1,4 @@
-Flask
-flask-cors
-gunicorn
-firebase-admin
-requests
-pytesseract
-opencv-python
-numpy
-mss
+Flask==3.0.2
+firebase-admin==6.3.0
+requests==2.31.0
+gunicorn==21.2.0
