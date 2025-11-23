@@ -230,8 +230,13 @@ def webhook():
             if messages:
                 m = messages[0]
                 numero = m["from"]
-                texto = m["text"]["body"]
                 nome = change["contacts"][0]["profile"]["name"]
+
+                # 🔥 LÊ TEXTO DE FORMA SEGURA
+                if "text" in m:
+                    texto = m["text"]["body"]
+                else:
+                    texto = "(mensagem sem texto)"
 
                 print(f"💬 Recebida de {nome}: {texto}")
 
@@ -258,6 +263,7 @@ def webhook():
             print("❌ Erro no webhook:", e)
 
         return "EVENT_RECEIVED", 200
+
 
 
 # ============================================================
