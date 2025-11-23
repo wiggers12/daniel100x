@@ -160,8 +160,17 @@ def reenviar_boasvindas():
 # ============================================================
 # 2) ENVIAR MENSAGEM NORMAL (PAINEL)
 # ============================================================
-@app.route("/enviar", methods=["POST"])
+@app.route("/enviar", methods=["POST", "OPTIONS"])
 def enviar():
+    # Requisição OPTIONS → pré-flight CORS
+    if request.method == "OPTIONS":
+        response = jsonify({"allow": True})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        return response, 200
+
+    # Requisição POST normal
     try:
         data = request.json
         numero = data.get("numero")
