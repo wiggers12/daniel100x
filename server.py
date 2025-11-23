@@ -277,27 +277,6 @@ threading.Thread(target=manter_servidor_online, daemon=True).start()
 
 
 
-# ============================================================
-# 4) KEEPALIVE – Render 24h Online
-# ============================================================
-@app.route("/keepalive")
-def keepalive():
-    return "alive", 200
-
-
-def manter_servidor_online():
-    while True:
-        try:
-            requests.get("https://daniel100x.onrender.com/keepalive")
-            print("🔄 Mantendo servidor ativo...")
-        except:
-            print("⚠ Erro ao manter servidor acordado")
-
-        time.sleep(300)
-
-
-threading.Thread(target=manter_servidor_online, daemon=True).start()
-
 
 # ============================================================
 # EXECUTAR
