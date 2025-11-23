@@ -266,7 +266,59 @@ def enviar():
 
 
 # ============================================================
-# 3) WEBHOOK – RECEBER MENSAGENS WHATSAPP
+# FUNÇÃO PARA PROCESSAR TUDO EM BACKGROUND
+# (Precisa ser definida fora da rota /webhook)
+# ============================================================
+def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_completa_webhook):
+    # ⚠️ Esta função é executada por um thread.
+    try:
+        if not db:
+            print("❌ Firebase não inicializado no thread de processamento.")
+            return
+
+        # 1. Criar/Atualizar Usuário e Última Interação
+        userRef = db.collection("usuarios").document(numero)
+        if not userRef.get().exists:
+            userRef.set({
+                "nome": nome,
+                "numero": numero,
+                "criado": firestore.SERVER_TIMESTAMP,
+                "boas_vindas_enviada": False,
+                "ultima_interacao": firestore.SERVER_TIMESTAMP
+            })
+        else:
+            userRef.update({"ultima_interacao": firestore.SERVER_TIMESTAMP})
+
+        # 2. Salvar mensagem recebida
+        db.collection("conversas").add({
+            "numero": numero,
+            "nome": nome,
+            "texto": texto,
+            "tipo": "recebida",
+            "horario": firestore.SERVER_TIMESTAMP
+        })
+
+        # 3. Enviar a Mensagem Automática de Confirmação (I/O)
+        resposta = "Mensagem recebida! 👍\nSua dúvida será respondida em breve."
+        enviar_mensagem_whatsapp(numero, resposta)
+
+        # 4. Salvar o log da mensagem enviada
+        db.collection("conversas").add({
+            "numero": numero,
+            "nome": nome,
+            "texto": resposta,
+            "tipo": "enviada",
+            "horario": firestore.SERVER_TIMESTAMP
+        })
+        
+        print(f"✅ Processamento de {numero} concluído em background.")
+
+    except Exception as e:
+        print(f"❌ Erro CRÍTICO no thread de processamento: {e}")
+
+
+# ============================================================
+# 3) WEBHOOK – RECEBER MENSAGENS WHATSAPP - OTIMIZADO
 # ============================================================
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
@@ -278,6 +330,11 @@ def webhook():
     elif request.method == "POST":
         data = request.json
         print("📥 WEBHOOK RECEBIDO:", json.dumps(data, indent=2))
+        
+        if not db:
+            print("❌ Firebase não inicializado no webhook. Retornando 200 OK.")
+            # Sempre retorna 200 OK para o Meta para evitar desativação.
+            return "EVENT_RECEIVED", 200
 
         try:
             entry = data["entry"][0]
@@ -288,52 +345,37 @@ def webhook():
                 m = messages[0]
                 numero = m["from"]
                 nome = change["contacts"][0]["profile"]["name"]
-
-                # Garante que texto existe
-                if "text" in m:
+                tipo_mensagem = m.get("type")
+                
+                # --- LÓGICA DE EXTRAÇÃO DE TEXTO/LEGENDA ---
+                if tipo_mensagem == "text":
                     texto = m["text"]["body"]
+                elif tipo_mensagem in ["image", "video", "document", "audio"]:
+                    media_data = m.get(tipo_mensagem, {})
+                    texto = media_data.get("caption") or f"({tipo_mensagem.capitalize()} recebida sem legenda)"
+                elif tipo_mensagem == "sticker":
+                    texto = f"(Sticker recebido. ID: {m.get('sticker', {}).get('id', 'N/A')})"
+                elif tipo_mensagem == "location":
+                    texto = f"(Localização recebida. Nome: {m.get('location', {}).get('name', 'N/A')})"
+                elif tipo_mensagem == "unsupported":
+                    texto = "(Mensagem não suportada)"
                 else:
-                    texto = "(mensagem sem texto)"
+                    texto = f'(Tipo de mensagem não processado: {tipo_mensagem})'
 
-                print(f"💬 Recebida de {nome}: {texto}")
-
-                # 🔥 Criar usuário automaticamente se não existir
-                userRef = db.collection("usuarios").document(numero)
-                if not userRef.get().exists:
-                    userRef.set({
-                        "nome": nome,
-                        "numero": numero,
-                        "criado": firestore.SERVER_TIMESTAMP,
-                        "boas_vindas_enviada": False
-                    })
-
-                # 🔥 Salvar mensagem recebida
-                db.collection("conversas").add({
-                    "numero": numero,
-                    "nome": nome,
-                    "texto": texto,
-                    "tipo": "recebida",
-                    "horario": firestore.SERVER_TIMESTAMP
-                })
-
-                # =================================================
-                # 🔥 ENVIA A MENSAGEM AUTOMÁTICA DE CONFIRMAÇÃO
-                # =================================================
-                resposta = "Mensagem recebida! 👍\nSua dúvida será respondida em breve."
-                enviar_mensagem_whatsapp(numero, resposta)
-
-                # Salvar no Firestore a mensagem enviada
-                db.collection("conversas").add({
-                    "numero": numero,
-                    "nome": nome,
-                    "texto": resposta,
-                    "tipo": "enviada",
-                    "horario": firestore.SERVER_TIMESTAMP
-                })
-
+                print(f"💬 Recebida de {nome} ({tipo_mensagem}): {texto}")
+                
+                # ⭐️ Inicia o processamento pesado em um novo thread (assíncrono)
+                # O thread faz o I/O demorado (Firebase e chamadas de API)
+                threading.Thread(
+                    target=processar_mensagem_recebida, 
+                    args=(numero, nome, tipo_mensagem, texto, data)
+                ).start()
+                
         except Exception as e:
-            print("❌ Erro no webhook:", e)
+            # Captura erros de parsing ou estrutura do webhook
+            print("❌ Erro de Parsing/Estrutura no webhook (antes do thread):", e)
 
+        # ⭐️ Retorno rápido 200 OK. ISSO É A CHAVE para manter o webhook ativo.
         return "EVENT_RECEIVED", 200
 
 
