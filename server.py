@@ -44,10 +44,13 @@ def home():
 
 
 # ============================================================
-# 1) ENVIO DE BOAS-VINDAS
+# 1) ENVIO DE BOAS-VINDAS (Mantido, mas o /enviar é a prioridade)
 # ============================================================
 @app.route("/boasvindas", methods=["POST"])
 def boasvindas():
+    if not db:
+        return jsonify({"erro": "Firebase não inicializado."}), 500
+        
     try:
         dados = request.get_json()
         nome = dados.get("nome")
@@ -57,6 +60,7 @@ def boasvindas():
 
         url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
 
+        # Payload para TEMPLATE: 'boas_vindas_7xx' com 1 variável
         payload = {
             "messaging_product": "whatsapp",
             "to": numero,
@@ -76,7 +80,12 @@ def boasvindas():
         }
 
         r = requests.post(url, json=payload, headers=headers)
+        
+        if r.status_code != 200:
+             print(f"ERRO API WHATSAPP em /boasvindas: {r.text}")
+             return jsonify({"status": "error", "whatsapp_error": r.json()}), 500
 
+        # Log no Firestore
         db.collection("conversas").add({
             "numero": numero,
             "nome": nome,
@@ -89,7 +98,6 @@ def boasvindas():
 
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
-
 
 # ============================================================
 # REENVIAR BOAS-VINDAS
@@ -147,6 +155,7 @@ def reenviar_boasvindas():
 # ============================================================
 # FUNÇÃO AUTOMÁTICA PARA ENVIAR TEXTO
 # ============================================================
+# Nota: Esta função só é usada DENTRO DO WEBHOOK (onde a janela de 24h está aberta)
 def enviar_mensagem_whatsapp(numero, texto):
     url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
@@ -158,7 +167,11 @@ def enviar_mensagem_whatsapp(numero, texto):
         "text": {"body": texto}
     }
 
-    requests.post(url, json=data, headers=headers)
+    r = requests.post(url, json=data, headers=headers)
+    
+    if r.status_code != 200:
+        # Se houver falha na resposta automática, logue (mas não interrompa o webhook)
+        print(f"AVISO: Falha na resposta automática no webhook. Status: {r.status_code}. Detalhes: {r.text}")
 
 
 # ============================================================
@@ -167,44 +180,88 @@ def enviar_mensagem_whatsapp(numero, texto):
 @app.route("/enviar", methods=["POST", "OPTIONS"])
 def enviar():
     if request.method == "OPTIONS":
+        # Esta parte é importante para o CORS do painel.
         response = jsonify({"allow": True})
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
         response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         return response, 200
+
+    if not db:
+        return jsonify({"erro": "Firebase não inicializado."}), 500
 
     try:
         data = request.json
         numero = data.get("numero")
-        texto = data.get("texto")
+        texto = data.get("texto", "") # Conteúdo da mensagem simples
+        
+        # 🆕 NOVOS PARÂMETROS PARA SUPORTE A TEMPLATE:
+        template_solicitado = data.get("template_name") 
+        nome_usuario = data.get("nome_usuario", "")    # O valor para o {{1}}
 
         url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
-
-        payload = {
-            "messaging_product": "whatsapp",
-            "to": numero,
-            "type": "text",
-            "text": {"body": texto}
-        }
-
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
+        
+        # --- Lógica Condicional: Template VS Texto Simples ---
+        
+        if template_solicitado == "boas_vindas_7xx":
+            # Payload TEMPLATE: Usado para reengajamento (fora da janela de 24h)
+            if not nome_usuario:
+                 return jsonify({"status": "error", "message": "O campo 'nome_usuario' é obrigatório para o template 'boas_vindas_7xx'."}), 400
 
-        requests.post(url, json=payload, headers=headers)
+            payload = {
+                "messaging_product": "whatsapp",
+                "to": numero,
+                "type": "template",
+                "template": {
+                    "name": "boas_vindas_7xx",
+                    "language": {"code": "pt_BR"},
+                    "components": [
+                        {"type": "body", "parameters": [{"type": "text", "text": nome_usuario}]}
+                    ]
+                }
+            }
+            texto_para_db = f"[TEMPLATE: {template_solicitado}] Enviado para {nome_usuario}"
+            
+        else:
+            # Payload TEXTO SIMPLES: Usado dentro da janela de 24h
+            if not texto:
+                return jsonify({"status": "error", "message": "O campo 'texto' é obrigatório para mensagens simples."}), 400
+            
+            payload = {
+                "messaging_product": "whatsapp",
+                "to": numero,
+                "type": "text",
+                "text": {"body": texto}
+            }
+            texto_para_db = texto
+            nome_usuario = "" # Não logamos nome_usuario se for texto simples
 
+        # --- ENVIO ---
+        r = requests.post(url, json=payload, headers=headers)
+        
+        # Tratamento de erro da API do WhatsApp
+        if r.status_code != 200:
+             # O erro 131047 virá aqui se você tentar enviar 'texto' fora da janela
+             print(f"ERRO FATAL API WHATSAPP (Rota /enviar): Status {r.status_code}. Detalhes: {r.text}")
+             return jsonify({"status": "error", "whatsapp_error": r.json()}), 500
+
+        # Log no Firestore
         db.collection("conversas").add({
             "numero": numero,
-            "nome": "",
-            "texto": texto,
+            "nome": nome_usuario,
+            "texto": texto_para_db,
             "tipo": "enviada",
             "horario": firestore.SERVER_TIMESTAMP
         })
 
-        return jsonify({"ok": True})
+        return jsonify({"ok": True}), 200
 
     except Exception as e:
+        print(f"Erro interno na rota /enviar: {e}")
         return jsonify({"erro": str(e)}), 500
 
 
