@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Painel Admin - 7XX WhatsApp</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-900 text-white p-8">
+    <h1 class="text-4xl font-bold mb-6">📊 Painel Admin – 7XX</h1>
+
+    <div class="bg-gray-800 p-4 rounded-lg mb-6">
+        <button id="btnReenviar" class="bg-green-500 px-4 py-2 rounded hover:bg-green-600">
+            🔄 Reenviar Boas-Vindas para Quem Falhou
+        </button>
+    </div>
+
+    <table class="table-auto w-full bg-gray-800 rounded-lg overflow-hidden">
+        <thead>
+            <tr class="bg-gray-700">
+                <th class="p-3">Nome</th>
+                <th class="p-3">Número</th>
+                <th class="p-3">Criado</th>
+                <th class="p-3">Boas-vindas</th>
+            </tr>
+        </thead>
+        <tbody id="listaUsuarios"></tbody>
+    </table>
+
+<script>
+/* ==========================
+   CONFIG FIREBASE
+========================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBKlVI23YoxRb1fntQKy-ZfkzaDM-MWsSQ",
+  authDomain: "doce-sabor-caseiro.firebaseapp.com",
+  projectId: "doce-sabor-caseiro",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ==========================
+   LISTAR USUÁRIOS
+========================== */
+function carregarUsuarios() {
+    db.collection("usuarios").orderBy("criado", "desc").onSnapshot(snapshot => {
+        const lista = document.getElementById("listaUsuarios");
+        lista.innerHTML = "";
+
+        snapshot.forEach(doc => {
+            const u = doc.data();
+            lista.innerHTML += `
+                <tr class="border-b border-gray-700">
+                    <td class="p-3">${u.nome || "-"}</td>
+                    <td class="p-3">${u.numero}</td>
+                    <td class="p-3">${u.criado ? new Date(u.criado.seconds * 1000).toLocaleString() : "-"}</td>
+                    <td class="p-3">
+                        ${u.boas_vindas_enviada ? "✅ Enviada" : "❌ Não enviada"}
+                    </td>
+                </tr>
+            `;
+        });
+    });
+}
+carregarUsuarios();
+
+/* ==========================
+   REENVIAR BOAS VINDAS
+========================== */
+document.getElementById("btnReenviar").onclick = () => {
+    fetch("https://daniel100x.onrender.com/reenviar_boasvindas", {
+        method: "POST"
+    })
+    .then(r => r.json())
+    .then(d => alert("Reenviados: " + JSON.stringify(d.reenviados)))
+    .catch(() => alert("Erro ao reenviar"));
+};
+</script>
+
+</body>
+</html>
