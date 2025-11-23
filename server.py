@@ -232,7 +232,7 @@ def webhook():
                 numero = m["from"]
                 nome = change["contacts"][0]["profile"]["name"]
 
-                # 🔥 LÊ TEXTO DE FORMA SEGURA
+                # Garante que texto existe
                 if "text" in m:
                     texto = m["text"]["body"]
                 else:
@@ -250,7 +250,7 @@ def webhook():
                         "boas_vindas_enviada": False
                     })
 
-                # 🔥 Salvar mensagem no chat
+                # 🔥 Salvar mensagem recebida
                 db.collection("conversas").add({
                     "numero": numero,
                     "nome": nome,
@@ -259,33 +259,25 @@ def webhook():
                     "horario": firestore.SERVER_TIMESTAMP
                 })
 
+                # =================================================
+                # 🔥 ENVIA A MENSAGEM AUTOMÁTICA DE CONFIRMAÇÃO
+                # =================================================
+                resposta = "Mensagem recebida! 👍\nSua dúvida será respondida em breve."
+                enviar_mensagem_whatsapp(numero, resposta)
+
+                # Salvar no Firestore a mensagem enviada
+                db.collection("conversas").add({
+                    "numero": numero,
+                    "nome": nome,
+                    "texto": resposta,
+                    "tipo": "enviada",
+                    "horario": firestore.SERVER_TIMESTAMP
+                })
+
         except Exception as e:
             print("❌ Erro no webhook:", e)
 
         return "EVENT_RECEIVED", 200
-
-
-
-# ============================================================
-# 4) KEEPALIVE – Render 24h
-# ============================================================
-@app.route("/keepalive")
-def keepalive():
-    return "alive", 200
-
-
-def manter_servidor_online():
-    while True:
-        try:
-            requests.get("https://daniel100x.onrender.com/keepalive")
-            print("🔄 Mantendo servidor ativo...")
-        except:
-            print("⚠ Erro ao manter servidor acordado")
-
-        time.sleep(300)
-
-
-threading.Thread(target=manter_servidor_online, daemon=True).start()
 
 
 
