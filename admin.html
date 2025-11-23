@@ -48,6 +48,48 @@
         font-size: 18px;
         border-bottom: 1px solid #2a2f36;
     }
+
+    .sidebar {
+    width: 100%;
+    max-width: 320px;
+    background: #111418;
+    border-right: 1px solid #2a2f36;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        max-width: 200px;
+        font-size: 12px;
+    }
+
+    .chat-area {
+        font-size: 14px;
+    }
+
+    #inputMensagem {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .flex {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+
+    .chat-area {
+        height: calc(100vh - 300px);
+    }
+}
+
 </style>
 
 <script type="module">
