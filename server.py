@@ -38,60 +38,7 @@ def home():
 
 
 # ============================================================
-# 1) ENVIO DE BOAS-VINDAS (Mantido, mas o /enviar é a prioridade)
-# ============================================================
-@app.route("/boasvindas", methods=["POST"])
-def boasvindas():
-    if not db:
-        return jsonify({"erro": "Firebase não inicializado."}), 500
-        
-    try:
-        dados = request.get_json()
-        nome = dados.get("nome")
-        numero = dados.get("numero")
-
-        print(f"📨 ENVIANDO TEMPLATE DE BOAS-VINDAS para {numero}")
-
-        url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
-
-        # Payload para TEMPLATE: 'boas_vindas_7xx' com 1 variável
-        payload = {
-            "messaging_product": "whatsapp",
-            "to": numero,
-            "type": "template",
-            "template": {
-                "name": "boas_vindas_7xx",
-                "language": {"code": "pt_BR"},
-                "components": [
-                    {"type": "body", "parameters": [{"type": "text", "text": nome}]}
-                ]
-            }
-        }
-
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-
-        r = requests.post(url, json=payload, headers=headers)
-        
-        if r.status_code != 200:
-             print(f"ERRO API WHATSAPP em /boasvindas: {r.text}")
-             return jsonify({"status": "error", "whatsapp_error": r.json()}), 500
-
-        # Log no Firestore
-        db.collection("conversas").add({
-            "numero": numero,
-            "nome": nome,
-            "texto": "(TEMPLATE) Boas-vindas enviada",
-            "tipo": "enviada",
-            "horario": firestore.SERVER_TIMESTAMP
-        })
-
-        return jsonify({"status": "ok", "resposta": r.json()})
-
-    except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+c
 
 # ============================================================
 # REENVIAR BOAS-VINDAS
@@ -292,11 +239,41 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
             "horario": firestore.SERVER_TIMESTAMP
         })
 
-        # 3. Enviar a Mensagem Automática de Confirmação (I/O)
+        # -----------------------------------------
+        # 🔥 RESPOSTA AUTOMÁTICA PARA "sucesso"
+        # -----------------------------------------
+        texto_lower = texto.lower().strip()
+
+        if "sucesso" in texto_lower:
+            mensagem = (
+                "🔥 *PARABÉNS!* Você acabou de concluir seu cadastro! 🚀\n\n"
+                "🎮 *Acesse agora o Painel GRATUITO:*\n"
+                "👉 https://wiggers12.github.io/daniel100x/index.html\n\n"
+                "📲 *Entre no nosso Telegram Oficial:*\n"
+                "👉 https://t.me/aviatorvip100x\n\n"
+                "🤖 *Quer receber SINAIS de IA com taxa de acerto absurdamente alta?*\n"
+                "👉 Acesse o *APP VIP por apenas R$ 29,90* 🔥\n\n"
+                "Bem-vindo ao time que mais cresce no Aviator! ✈️💸"
+            )
+
+            enviar_mensagem_whatsapp(numero, mensagem)
+
+            db.collection("conversas").add({
+                "numero": numero,
+                "nome": nome,
+                "texto": mensagem,
+                "tipo": "enviada",
+                "horario": firestore.SERVER_TIMESTAMP
+            })
+
+            print(f"📤 AUTO-RESPOSTA enviada (gatilho: sucesso) → {numero}")
+            return  # impede cair na resposta padrão
+
+        # 3. RESPOSTA PADRÃO (só se não for 'sucesso')
         resposta = "Mensagem recebida! 👍\nSua dúvida será respondida em breve."
         enviar_mensagem_whatsapp(numero, resposta)
 
-        # 4. Salvar o log da mensagem enviada
+        # 4. SALVAR RESPOSTA PADRÃO
         db.collection("conversas").add({
             "numero": numero,
             "nome": nome,
