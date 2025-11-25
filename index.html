@@ -1403,30 +1403,44 @@ window.finalizarCadastroInicial = async () => {
 
     onSnapshot(q, snap => {
 
-        if (!snap.empty) {
-            const docData = snap.docs[0].data();
-            const valores = docData.valores || [];
+        // 🔥 QUANDO O ROBÔ APAGAR O DOCUMENTO, A PREVISÃO DEVERÁ SUMIR
+        if (snap.empty) {
+            renderizarMiniPrevisao([]); 
+            return;
+        }
 
-            // Só exibe para VIP
-            if (window.userPlan === 'vip') {
-                renderizarMiniPrevisao(valores.slice(0,3));
-            }
+        const dados = snap.docs[0].data();
+        const valores = dados.valores || [];
+
+        // Exibe somente para VIP
+        if (window.userPlan === 'vip') {
+            renderizarMiniPrevisao(valores.slice(0,3));
         }
     });
 }
 
 
+
         function renderizarMiniPrevisao(arr) {
-            const container = document.getElementById("listaPrevisao");
-            if(!container) return;
-            container.innerHTML = "";
-            arr.forEach(val => {
-                const span = document.createElement("span");
-                span.innerText = parseFloat(val).toFixed(2) + "x";
-                if(val >= 10) span.className = "text-rosa"; else if(val >= 2) span.className = "text-roxo"; else span.className = "text-azul";
-                container.appendChild(span);
-            });
-        }
+    const container = document.getElementById("listaPrevisao");
+
+    // Quando arr está vazio = limpa o painel totalmente
+    if (!arr || arr.length === 0) {
+        container.innerHTML = '<span class="text-azul">--</span>';
+        return;
+    }
+
+    container.innerHTML = "";
+    arr.forEach(val => {
+        const span = document.createElement("span");
+        span.innerText = parseFloat(val).toFixed(2) + "x";
+        if(val >= 10) span.className = "text-rosa";
+        else if(val >= 2) span.className = "text-roxo";
+        else span.className = "text-azul";
+        container.appendChild(span);
+    });
+}
+
 
         function renderizarHistorico(lista) {
             const el = document.getElementById("listaHistorico");
