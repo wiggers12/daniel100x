@@ -78,7 +78,7 @@
         .stats-footer {
             position: fixed; bottom: 0; left: 0; width: 100%; height: var(--altura-footer);
             background: rgba(10, 10, 15, 0.98); border-top: 2px solid var(--cor-primaria);
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; align-items: center; z-index: 100;
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; align-items: center; z-index: 100;
         }
         .stat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; border-right: 1px solid rgba(255,255,255,0.05); position: relative; padding: 0 5px; }
         .stat-item:last-child { border-right: none; }
@@ -479,6 +479,24 @@
     transition: 0.2s;
 }
 
+/* === FIXAR LARGURA DO KPI "Sinal de Risco" === */
+#btnRisco {
+    min-width: 90px !important;
+    max-width: 90px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#textoRisco {
+    font-size: 0.8rem !important;
+    white-space: nowrap;      /* impede quebrar linha */
+    overflow: hidden;
+    text-overflow: ellipsis;  /* caso o texto fique grande */
+}
+
+
 
 /* ===== CELULARES MUITO PEQUENOS (iPhone SE, Android Mini) ===== */
 @media (max-width: 350px) {
@@ -685,6 +703,8 @@
         <div class="nav-item btn-ia-chat" onclick="abrirChatIA()">🤖 <span>Chat IA</span></div>
         <div class="nav-item" data-secao="historico" onclick="mudarSecao(this, 'historico')">📜 <span>Histórico</span></div>
         <div class="nav-item" data-secao="perfil" onclick="mudarSecao(this, 'perfil')">👤 <span>Perfil</span></div>
+        <div class="nav-item" onclick="abrirSorteio()">🎉 <span>Sorteio</span></div>
+
         
         <!-- NOVOS ÍCONES (TELEGRAM E ASSINATURA) -->
         <a href="https://t.me/aviatorvip100x" target="_blank" class="nav-item">📢 <span>Telegram</span></a>
@@ -737,17 +757,43 @@
             <span class="stat-label">🔮 PREVISÃO IA</span>
             <div id="listaPrevisao"><span class="text-azul">--</span></div>
         </div>
-        <div class="stat-item">
+
+                          <!-- 🔥 NOVO KPI: SINAL DE RISCO -->
+                    <div class="stat-item" id="btnRisco" style="cursor:pointer;">
+                    <span class="stat-label">⚠️ SINAL DE RISCO</span>
+                   <div class="stat-value" id="textoRisco">--</div>
+                    </div>
+
+<!-- PADRÕES IA -->
+<div class="stat-item">
+    <span class="stat-label">📘 PADRÕES IA</span>
+    <div class="stat-value" id="btnPadroesIA">Ver</div>
+</div>
+
+<!-- ESTRATÉGIA IA -->
+<div class="stat-item">
+    <span class="stat-label">🎯 ESTRATÉGIA IA</span>
+    <div class="stat-value" id="btnEstrategiaIA">Ver</div>
+</div>
+
+<!-- DICAS IA -->
+<div class="stat-item">
+    <span class="stat-label">💡 DICAS IA</span>
+    <div class="stat-value" id="btnDicasIA">Ver</div>
+</div>
+
+        
+<div class="stat-item">
             <span class="stat-label">🌸 ÚLTIMA ROSA</span>
             <div class="stat-value" id="valUltimaRosa">--</div>
             <div class="stat-sub" id="horaUltimaRosa">--:--</div>
         </div>
-        <div class="stat-item">
-            <span class="stat-label">🔥 ÚLTIMO <span id="setaTendencia"></span></span>
-            <div class="stat-value" id="valUltimoFloat">--</div>
-        </div>
+        <div class="stat-item" id="btnMentoria" style="cursor:pointer;">
+    <span class="stat-label">🎓 MENTORIA</span>
+    <div class="stat-value" style="font-size:0.9rem;">Acessar</div>
+</div>
     </footer>
-
+09:23 25/11/2025
     <!-- MODAL SINAL -->
     <div id="modalTimer" class="modal" onclick="if(event.target.id === 'modalTimer') toggleModal('modalTimer')">
         <div class="modal-content">
@@ -1267,11 +1313,13 @@ window.finalizarCadastroInicial = async () => {
                            // STOP WIN/LOSS
                            if (previsaoAtiva && window.userPlan === 'vip') {
                                if (valorNovo >= 2.00) { registrarResultadoAssertividade(1); finalizarPrevisao(); } 
-                               else { roundsRestantes--; if (roundsRestantes <= 0) { registrarResultadoAssertividade(0); finalizarPrevisao(); } }
+                               else { roundsRestantes--; if (roundsRestantes <= 0) { registrarResultadoAssertividade(0);                finalizarPrevisao(); } }
                            }
                        }
                    }
                 }
+
+
                 isFirstLoad = false;
                 historicoGlobalIA = []; 
                 const listaTemp = [];
@@ -1395,6 +1443,95 @@ window.finalizarCadastroInicial = async () => {
         onAuthStateChanged(auth, user => { if (user) document.getElementById("userEmail").textContent = `ID: ${user.uid.slice(0,6)}...`; });
         window.logout = async () => { await signOut(auth); location.reload(); };
     });
+
+// === LISTENER OFICIAL DO SINAL DE RISCO ===
+// Lê documentos da coleção "analises" onde padrao == "padrao_baixa_1.40"
+function ouvirSinalDeRisco() {
+    const q = query(
+        collection(db, "analises"),
+        where("padrao", "==", "padrao_baixa_1.40"),
+        orderBy("criado", "desc"),
+        limit(1)
+    );
+
+    onSnapshot(q, snap => {
+        if (snap.empty) return;
+
+        const dados = snap.docs[0].data();
+        const valores = dados.valores || [];
+
+        // --- REGRAS DO SINAL DE RISCO ---
+        // Se vier valor abaixo de 1.20 = ALERTA
+        const alertaDetectado = valores.some(v => parseFloat(v) < 1.20);
+
+        if (alertaDetectado) {
+            window.atualizarSinalRisco("alerta", "Risco Detectado");
+            return;
+        }
+
+        // Se vier ROXO (2.00–9.99) ou ROSA (10+)
+        const temGreen = valores.some(v => parseFloat(v) >= 2.00);
+
+        if (temGreen) {
+            window.atualizarSinalRisco("green", "");
+            return;
+        }
+
+        // Se não veio roxo nem rosa → RED
+        window.atualizarSinalRisco("red", "");
+    });
+}
+
+// Ativar listener
+ouvirSinalDeRisco();
+
+
+// === KPI: SINAL DE RISCO ===
+window.atualizarSinalRisco = (status, mensagem = "") => {
+    const btn = document.getElementById("btnRisco");
+    const txt = document.getElementById("textoRisco");
+
+    if (!btn || !txt) return;
+
+    // ALERTA
+    if (status === "alerta") {
+        txt.innerText = mensagem.slice(0, 12);   // segura, não quebra layout
+        btn.style.color = "#ffd700";
+        btn.style.textShadow = "0 0 6px rgba(255, 215, 0, 0.7)";
+        return;
+    }
+
+    // GREEN
+    if (status === "green") {
+        txt.innerText = "🟩 GREEN";
+        btn.style.color = "#00e676";
+        btn.style.textShadow = "0 0 6px rgba(0, 230, 118, 0.7)";
+        setTimeout(() => resetarRisco(), 5000);
+        return;
+    }
+
+    // RED
+    if (status === "red") {
+        txt.innerText = "🟥 RED";
+        btn.style.color = "#ff4d6a";
+        btn.style.textShadow = "0 0 6px rgba(255, 77, 106, 0.7)";
+        setTimeout(() => resetarRisco(), 5000);
+        return;
+    }
+};
+
+// Reset visual do KPI
+function resetarRisco() {
+    const btn = document.getElementById("btnRisco");
+    const txt = document.getElementById("textoRisco");
+
+    if (!txt || !btn) return;
+
+    txt.innerText = "Sinal de Risco";
+    btn.style.color = "#aaa";
+    btn.style.textShadow = "none";
+}
+
     </script>
 </body>
 </html>
