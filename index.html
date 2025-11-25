@@ -481,8 +481,8 @@
 
 /* === FIXAR LARGURA DO KPI "Sinal de Risco" === */
 #btnRisco {
-    min-width: 90px !important;
-    max-width: 90px !important;
+    min-width: 70px !important;
+    max-width: 50px !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -494,6 +494,20 @@
     white-space: nowrap;      /* impede quebrar linha */
     overflow: hidden;
     text-overflow: ellipsis;  /* caso o texto fique grande */
+}
+
+/* === AJUSTE PARA NÚMEROS LADO A LADO === */
+#listaPrevisaoRisco {
+    display: flex;
+    flex-direction: row;    /* Força a linha horizontal */
+    flex-wrap: wrap;        /* Permite quebrar linha se o número for muito grande */
+    justify-content: center; /* Centraliza */
+    gap: 4px;               /* Espacinho entre os números */
+    line-height: 1.1;
+    font-size: 0.7rem;      /* Fonte reduzida para caberem os 3 no espaço de 90px */
+    font-weight: bold;
+    margin-top: 3px;
+    width: 100%;            /* Usa toda largura disponível */
 }
 
 
@@ -1449,7 +1463,7 @@ window.finalizarCadastroInicial = async () => {
         window.logout = async () => { await signOut(auth); location.reload(); };
     });
 
-// === LISTENER OFICIAL DO SINAL DE RISCO (SEM TEXTO) ===
+// === LISTENER OFICIAL DO SINAL DE RISCO (COM BLOQUEIO VIP) ===
 function ouvirSinalDeRisco() {
     const q = query(
         collection(db, "sinais_risco"),
@@ -1459,17 +1473,28 @@ function ouvirSinalDeRisco() {
 
     onSnapshot(q, snap => {
         const container = document.getElementById("listaPrevisaoRisco");
+        const btn = document.getElementById("btnRisco");
 
-        // 👉 NÃO TEM SINAL ATIVO
+        // --- BLOQUEIO PARA USUÁRIOS GRÁTIS ---
+        if (window.userPlan !== 'vip') {
+            btn.style.color = "#aaa";
+            btn.style.textShadow = "none";
+            // Mostra um cadeado ou mensagem de VIP
+            container.innerHTML = '<span style="font-size: 1.2rem;">🔒 VIP</span>';
+            return; // Para a função aqui se não for VIP
+        }
+
+        // 👉 NÃO EXISTE SINAL (GREEN/RED saiu)
         if (snap.empty) {
             aplicarResetRisco();
             return;
         }
 
-        // 👉 SINAL ATIVO
+        // 👉 EXISTE SINAL ATIVO
         const dados = snap.docs[0].data();
         const valores = dados.valores || [];
 
+        // Limpa e aplica novas previsões
         container.innerHTML = "";
         valores.forEach(v => {
             const span = document.createElement("span");
@@ -1482,27 +1507,25 @@ function ouvirSinalDeRisco() {
             container.appendChild(span);
         });
 
-        // Ícone amarelo = ativo
-        const btn = document.getElementById("btnRisco");
+        // Estilo AMARELO = ativo
         btn.style.color = "#ffd700";
         btn.style.textShadow = "0 0 6px rgba(255,215,0,0.7)";
     });
 }
 
-
 // === RESET para área quando não existir sinal ===
 function aplicarResetRisco() {
     const btn = document.getElementById("btnRisco");
+    const container = document.getElementById("listaPrevisaoRisco");
+
     btn.style.color = "#aaa";
     btn.style.textShadow = "none";
 
-    const container = document.getElementById("listaPrevisaoRisco");
     container.innerHTML = `
         <span class="text-azul">--</span>
         <span class="text-azul">--</span>
     `;
 }
-
  
     </script>
 </body>
