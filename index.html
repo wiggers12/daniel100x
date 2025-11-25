@@ -1306,8 +1306,31 @@ window.finalizarCadastroInicial = async () => {
         }
 
         // LISTENERS
-        function ouvirUltimoSinal() {
-            const ref = doc(db, "ultimo_sinal", "dados");
+        
+function ouvirAssertividade() {
+    const ref = doc(db, "assertividade", "dado");
+
+    onSnapshot(ref, (snap) => {
+        if (!snap.exists()) return;
+
+        const dados = snap.data();
+        const greens = dado.greens || 0;
+        const reds = dado.reds || 0;
+        const total = dado.total || 1;
+
+        const pct = ((greens / total) * 100).toFixed(0);
+
+        document.getElementById("valAssertividade").innerText = pct + "%";
+        document.getElementById("placarSession").innerHTML =
+            `<span style="color:#00e676">${greens}G</span> • 
+             <span style="color:#ff4da6">${reds}R</span>`;
+    });
+}
+
+
+
+function ouvirUltimoSinal() {
+            const ref = doc(db, "ultimo_sinal", "dado");
             onSnapshot(ref, snap => {
                 if (!snap.exists()) return;
                 const d = snap.data();
@@ -1476,7 +1499,8 @@ window.finalizarCadastroInicial = async () => {
             });
         });
 
-        ouvirUltimoSinal(); ouvirHistorico(); ouvirPrevisoes();ouvirSinalDeRisco();        onAuthStateChanged(auth, user => { if (user) document.getElementById("userEmail").textContent = `ID: ${user.uid.slice(0,6)}...`; });
+        ouvirUltimoSinal(); ouvirHistorico(); ouvirPrevisoes();ouvirSinalDeRisco();ouvirAssertividade();
+       onAuthStateChanged(auth, user => { if (user) document.getElementById("userEmail").textContent = `ID: ${user.uid.slice(0,6)}...`; });
         window.logout = async () => { await signOut(auth); location.reload(); };
     });
 
