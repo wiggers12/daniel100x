@@ -1313,7 +1313,7 @@ function ouvirAssertividade() {
     onSnapshot(ref, (snap) => {
         if (!snap.exists()) return;
 
-        const dados = snap.data();
+        const dado = snap.data();
         const greens = dado.greens || 0;
         const reds = dado.reds || 0;
         const total = dado.total || 1;
