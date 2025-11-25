@@ -759,10 +759,16 @@
         </div>
 
                           <!-- 🔥 NOVO KPI: SINAL DE RISCO -->
-                    <div class="stat-item" id="btnRisco" style="cursor:pointer;">
-                    <span class="stat-label">⚠️ SINAL DE RISCO</span>
-                   <div class="stat-value" id="textoRisco">--</div>
-                    </div>
+                    <div class="stat-item" id="btnRisco">
+    <span class="stat-label">⚠️ SINAL DE RISCO</span>
+
+    <!-- AQUI ENTRA O ELEMENTO CORRETO -->
+    <div class="stat-value" id="listaPrevisaoRisco">
+        <span class="text-azul">--</span>
+        <span class="text-azul">--</span>
+    </div>
+</div>
+
 
 <!-- PADRÕES IA -->
 <div class="stat-item">
@@ -1439,99 +1445,65 @@ window.finalizarCadastroInicial = async () => {
             });
         });
 
-        ouvirUltimoSinal(); ouvirHistorico(); ouvirPrevisoes();
-        onAuthStateChanged(auth, user => { if (user) document.getElementById("userEmail").textContent = `ID: ${user.uid.slice(0,6)}...`; });
+        ouvirUltimoSinal(); ouvirHistorico(); ouvirPrevisoes();ouvirSinalDeRisco();        onAuthStateChanged(auth, user => { if (user) document.getElementById("userEmail").textContent = `ID: ${user.uid.slice(0,6)}...`; });
         window.logout = async () => { await signOut(auth); location.reload(); };
     });
 
-// === LISTENER OFICIAL DO SINAL DE RISCO ===
-// Lê documentos da coleção "analises" onde padrao == "padrao_baixa_1.40"
+// === LISTENER OFICIAL DO SINAL DE RISCO (SEM TEXTO) ===
 function ouvirSinalDeRisco() {
     const q = query(
-        collection(db, "analises"),
-        where("padrao", "==", "padrao_baixa_1.40"),
+        collection(db, "sinais_risco"),
         orderBy("criado", "desc"),
         limit(1)
     );
 
     onSnapshot(q, snap => {
-        if (snap.empty) return;
+        const container = document.getElementById("listaPrevisaoRisco");
 
+        // 👉 NÃO TEM SINAL ATIVO
+        if (snap.empty) {
+            aplicarResetRisco();
+            return;
+        }
+
+        // 👉 SINAL ATIVO
         const dados = snap.docs[0].data();
         const valores = dados.valores || [];
 
-        // --- REGRAS DO SINAL DE RISCO ---
-        // Se vier valor abaixo de 1.20 = ALERTA
-        const alertaDetectado = valores.some(v => parseFloat(v) < 1.20);
+        container.innerHTML = "";
+        valores.forEach(v => {
+            const span = document.createElement("span");
+            span.innerText = parseFloat(v).toFixed(2) + "x";
 
-        if (alertaDetectado) {
-            window.atualizarSinalRisco("alerta", "Risco Detectado");
-            return;
-        }
+            if (v >= 10) span.className = "text-rosa";
+            else if (v >= 2) span.className = "text-roxo";
+            else span.className = "text-azul";
 
-        // Se vier ROXO (2.00–9.99) ou ROSA (10+)
-        const temGreen = valores.some(v => parseFloat(v) >= 2.00);
+            container.appendChild(span);
+        });
 
-        if (temGreen) {
-            window.atualizarSinalRisco("green", "");
-            return;
-        }
-
-        // Se não veio roxo nem rosa → RED
-        window.atualizarSinalRisco("red", "");
+        // Ícone amarelo = ativo
+        const btn = document.getElementById("btnRisco");
+        btn.style.color = "#ffd700";
+        btn.style.textShadow = "0 0 6px rgba(255,215,0,0.7)";
     });
 }
 
-// Ativar listener
-ouvirSinalDeRisco();
 
-
-// === KPI: SINAL DE RISCO ===
-window.atualizarSinalRisco = (status, mensagem = "") => {
+// === RESET para área quando não existir sinal ===
+function aplicarResetRisco() {
     const btn = document.getElementById("btnRisco");
-    const txt = document.getElementById("textoRisco");
-
-    if (!btn || !txt) return;
-
-    // ALERTA
-    if (status === "alerta") {
-        txt.innerText = mensagem.slice(0, 12);   // segura, não quebra layout
-        btn.style.color = "#ffd700";
-        btn.style.textShadow = "0 0 6px rgba(255, 215, 0, 0.7)";
-        return;
-    }
-
-    // GREEN
-    if (status === "green") {
-        txt.innerText = "🟩 GREEN";
-        btn.style.color = "#00e676";
-        btn.style.textShadow = "0 0 6px rgba(0, 230, 118, 0.7)";
-        setTimeout(() => resetarRisco(), 5000);
-        return;
-    }
-
-    // RED
-    if (status === "red") {
-        txt.innerText = "🟥 RED";
-        btn.style.color = "#ff4d6a";
-        btn.style.textShadow = "0 0 6px rgba(255, 77, 106, 0.7)";
-        setTimeout(() => resetarRisco(), 5000);
-        return;
-    }
-};
-
-// Reset visual do KPI
-function resetarRisco() {
-    const btn = document.getElementById("btnRisco");
-    const txt = document.getElementById("textoRisco");
-
-    if (!txt || !btn) return;
-
-    txt.innerText = "Sinal de Risco";
     btn.style.color = "#aaa";
     btn.style.textShadow = "none";
+
+    const container = document.getElementById("listaPrevisaoRisco");
+    container.innerHTML = `
+        <span class="text-azul">--</span>
+        <span class="text-azul">--</span>
+    `;
 }
 
+ 
     </script>
 </body>
 </html>
