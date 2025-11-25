@@ -1384,23 +1384,23 @@ window.finalizarCadastroInicial = async () => {
         }
 
         function ouvirPrevisoes() {
-            const q = query(collection(db, "analises"), orderBy("criado", "desc"), limit(1));
-            onSnapshot(q, snap => {
-                if(!snap.empty) {
-                    const docData = snap.docs[0];
-                    const dados = docData.data();
-                    // SÓ EXIBE PREVISÃO SE FOR VIP
-                    if (window.userPlan === 'vip' && docData.id !== idPrevisaoAtual) {
-                        const agora = Date.now();
-                        const tempoPrevisao = dados.criado ? dados.criado.toMillis() : 0;
-                        if ((agora - tempoPrevisao) / 1000 / 60 < 5) {
-                            idPrevisaoAtual = docData.id; previsaoAtiva = true; roundsRestantes = 3;
-                            if(dados.valores && Array.isArray(dados.valores)) renderizarMiniPrevisao(dados.valores.slice(0,3));
-                        }
-                    }
-                }
-            });
+    const ref = collection(db, "analises", "sequencia_3_azuis", "sinais");
+    const q = query(ref, orderBy("criado", "desc"), limit(1));
+
+    onSnapshot(q, snap => {
+
+        if (!snap.empty) {
+            const docData = snap.docs[0].data();
+            const valores = docData.valores || [];
+
+            // Só exibe para VIP
+            if (window.userPlan === 'vip') {
+                renderizarMiniPrevisao(valores.slice(0,3));
+            }
         }
+    });
+}
+
 
         function renderizarMiniPrevisao(arr) {
             const container = document.getElementById("listaPrevisao");
