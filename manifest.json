@@ -1,6 +1,6 @@
 {
   "name": "Painel 100X",
-  "short_name": "100X",
+  "short_name": "Robo_aviator",
   "start_url": "/daniel100x/index.html",
   "scope": "/daniel100x/",
   "display": "standalone",
