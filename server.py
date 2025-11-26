@@ -236,21 +236,21 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
         })
 
         # ====================================================
-        # 🚀 SEGUNDA (E ÚNICA) MENSAGEM — CHAMAR SUPORTE DIRETO
+        # 🚀 SEGUNDA MENSAGEM – MOTIVAÇÃO
         # ====================================================
         time.sleep(2)
 
         mensagem_extra = (
-            "📞 *PRECISA DE AJUDA AGORA?*\n\n"
-            "Fale diretamente com nosso suporte no WhatsApp:\n"
-            "👉 wa.me/5551989378751\n\n"
-            "Dúvidas sobre cadastro, IA, sinais, VIP ou plataforma?\n"
-            "Estou online para te ajudar agora mesmo! 🔥"
+            "🔥 *Perfeito! Ótima decisão.*\n\n"
+            "Preparado para sair do ciclo de RED infinito e finalmente começar a ver GREEN de verdade?\n\n"
+            "👉 Acesse o APP agora:\nhttps://wiggers12.github.io/daniel100x/index.html\n\n"
+            "👉 Entre no Telegram e acompanhe os melhores sinais:\nhttps://t.me/aviatorvip100x\n\n"
+            "📞 Se preferir, me chama no WhatsApp que te dou todo suporte:\nwa.me/5551989378751\n\n"
+            "Vamos pra cima! 🚀🔥"
         )
 
         enviar_mensagem_whatsapp(numero, mensagem_extra)
 
-        # Registrar envio no banco
         db.collection("conversas").add({
             "numero": numero,
             "nome": nome,
@@ -260,26 +260,50 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
         })
 
         print(f"📤 MENSAGEM (SUPORTE DIRETO) enviada → {numero}")
+
+
+        # ====================================================
+        # 🚀 TERCEIRA MENSAGEM – ÚLTIMA CHAMADA
+        # ====================================================
+        time.sleep(2)
+
+        terceira_mensagem = (
+            "⚠️ Se nenhuma das opções te chamou atenção, fala comigo.\n\n"
+            "Vou te ajudar a sair do RED de forma definitiva.\n\n"
+            "👉 Me chama no WhatsApp:\nwa.me/5551989378751\n\n"
+            "Estou te esperando pra virar esse jogo! 🚀🔥"
+        )
+
+        enviar_mensagem_whatsapp(numero, terceira_mensagem)
+
+        db.collection("conversas").add({
+            "numero": numero,
+            "nome": nome,
+            "texto": terceira_mensagem,
+            "tipo": "enviada",
+            "horario": firestore.SERVER_TIMESTAMP
+        })
+
+        print(f"📤 TERCEIRA MENSAGEM enviada → {numero}")
         return
 
     except Exception as e:
         print(f"❌ Erro CRÍTICO no thread de processamento: {e}")
 
         # ----------------------------------------------------
-        # 3. RESPOSTA PADRÃO → ENVIAR LINK DO APP + TELEGRAM
+        # 3. RESPOSTA PADRÃO (FALHA NO PROCESSAMENTO)
         # ----------------------------------------------------
         resposta = (
             f"Olá {nome}! 👋\n\n"
-            "Aqui está o link do nosso *APP oficial*:\n"
-            "👉 https://wiggers12.github.io/daniel100x/index.html\n\n"
-            "E aqui está o *Telegram Oficial* com avisos importantes:\n"
-            "👉 https://t.me/aviatorvip100x\n\n"
-            "Qualquer dúvida, só me chamar! 🚀🔥"
+            "😩 Cansado de perder dinheiro no Aviator?\n"
+            "A vela rosa só aparece depois que tu perde tudo?\n\n"
+            "🔥 Eu tenho a estratégia certa pra te ajudar a recuperar\n"
+            "e finalmente começar a ganhar de verdade.\n\n"
+            "Digite *vamos* para começar. 🚀"
         )
 
         enviar_mensagem_whatsapp(numero, resposta)
 
-        # 4. SALVAR RESPOSTA PADRÃO NO FIRESTORE
         db.collection("conversas").add({
             "numero": numero,
             "nome": nome,
@@ -288,7 +312,7 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
             "horario": firestore.SERVER_TIMESTAMP
         })
 
-        print(f"📤 AUTO-RESPOSTA PADRÃO (APP + TELEGRAM) enviada → {numero}")
+        print(f"📤 AUTO-RESPOSTA PADRÃO enviada → {numero}")
         return
 
 
