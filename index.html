@@ -575,9 +575,122 @@
     text-align: center !important;
 }
 
+
+/* =========== MOBILE ULTRA PREMIUM =========== */
+
+/* Mostrar/ocultar automaticamente */
+.mobile-only { display: none; }
+.desktop-only { display: block; }
+
+body.mobile .desktop-only { display: none !important; }
+body.mobile .mobile-only { display: block !important; }
+
+/* Cards Mobile */
+.card-mobile {
+    background: linear-gradient(145deg, #1c1c28, #101018);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 0 0 18px rgba(0,0,0,0.35);
+    animation: cardEnter .35s ease;
+}
+
+@keyframes cardEnter {
+    0% { opacity:0; transform: translateY(20px); }
+    100% { opacity:1; transform: translateY(0); }
+}
+
+.card-icon {
+    font-size: 2.1rem;
+    margin-bottom: 4px;
+}
+
+.card-title {
+    font-size: 0.9rem;
+    color: #aaa;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.card-value {
+    font-size: 1.4rem;
+    color: #fff;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+/* Navbar mobile estilizada */
+body.mobile .navbar-top {
+    height: 65px !important;
+    font-size: 1.3rem !important;
+}
+
+body.mobile .navbar-top .nav-item {
+    font-size: 1rem !important;
+}
+
+/* Footer mobile reorganizado */
+body.mobile .stats-footer {
+    grid-template-columns: repeat(3, 1fr) !important;
+    height: auto !important;
+    padding: 5px 0 !important;
+}
+
     </style>
 </head>
 <body>
+
+<!-- DASHBOARD MOBILE PREMIUM -->
+<div id="dashboardMobile" class="mobile-only" style="display:none; padding:18px;">
+    
+    <!-- CARD 1 – ASSERTIVIDADE -->
+    <div class="card-mobile" onclick="mudarSecao(null, 'historico')">
+        <div class="card-icon">🎯</div>
+        <div class="card-title">Assertividade</div>
+        <div class="card-value" id="dashAssert">--%</div>
+    </div>
+
+    <!-- CARD 2 – PREVISÃO IA -->
+    <div class="card-mobile" onclick="abrirChatIA()">
+        <div class="card-icon">🔮</div>
+        <div class="card-title">Previsão IA</div>
+        <div class="card-value" id="dashPrevisao">--</div>
+    </div>
+
+    <!-- CARD 3 – SINAL DE RISCO -->
+    <div class="card-mobile" onclick="scrollToFooterRisco()">
+        <div class="card-icon">⚠️</div>
+        <div class="card-title">Sinal de Risco</div>
+        <div class="card-value" id="dashRisco">--</div>
+    </div>
+
+    <!-- CARD 4 – ÚLTIMA ROSA -->
+    <div class="card-mobile" onclick="scrollToFooterRosa()">
+        <div class="card-icon">🌸</div>
+        <div class="card-title">Última Rosa</div>
+        <div class="card-value" id="dashUltRosa">--</div>
+    </div>
+
+    <!-- CARD 5 – PADRÕES IA -->
+    <div class="card-mobile" onclick="scrollToFooterPadroes()">
+        <div class="card-icon">📘</div>
+        <div class="card-title">Padrões IA</div>
+        <div class="card-value" id="dashPadroes">Ver</div>
+    </div>
+
+    <!-- CARD 6 – CHAT IA -->
+    <div class="card-mobile" onclick="abrirChatIA()">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">Chat Inteligente</div>
+        <div class="card-value">Abrir</div>
+    </div>
+
+</div>
+
 
 <!-- TELA DE CADASTRO INICIAL (PROFISSIONAL) -->
 <div id="telaCadastroInicial" style="
@@ -1610,6 +1723,54 @@ function aplicarResetRisco() {
         <span class="text-azul">--</span>
     `;
 }
+
+/* ======== DETECÇÃO AUTOMÁTICA ======== */
+function detectarDevice() {
+    const mobile = window.innerWidth <= 900;
+    if (mobile) {
+        document.body.classList.add("mobile");
+        document.body.classList.remove("desktop");
+    } else {
+        document.body.classList.add("desktop");
+        document.body.classList.remove("mobile");
+    }
+}
+window.addEventListener("resize", detectarDevice);
+window.addEventListener("load", detectarDevice);
+
+/* ======== ATUALIZAR CARDS MOBILE ======== */
+function atualizarDashboardMobile() {
+    document.getElementById("dashAssert").innerText =
+        document.getElementById("valAssertividade").innerText;
+
+    const prev = document.getElementById("listaPrevisao");
+    if (prev) document.getElementById("dashPrevisao").innerHTML = prev.innerHTML;
+
+    const risco = document.getElementById("listaPrevisaoRisco");
+    if (risco) document.getElementById("dashRisco").innerHTML = risco.innerHTML;
+
+    document.getElementById("dashUltRosa").innerText =
+        document.getElementById("valUltimaRosa").innerText;
+
+    document.getElementById("dashPadroes").innerText = "Ver";
+}
+
+/* Atualiza a cada 3 segundos */
+setInterval(atualizarDashboardMobile, 3000);
+
+/* ===== Scrolls ===== */
+window.scrollToFooterRisco = () => {
+    document.getElementById("btnRisco").scrollIntoView({ behavior: "smooth" });
+};
+
+window.scrollToFooterRosa = () => {
+    document.getElementById("valUltimaRosa").scrollIntoView({ behavior: "smooth" });
+};
+
+window.scrollToFooterPadroes = () => {
+    document.getElementById("btnPadroesIA").scrollIntoView({ behavior: "smooth" });
+};
+
  
     </script>
 </body>
