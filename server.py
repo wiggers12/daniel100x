@@ -267,11 +267,21 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
             print(f"📤 AUTO-RESPOSTA enviada (gatilho: sucesso) → {numero}")
             return  # impede cair na resposta padrão
 
-        # 3. RESPOSTA PADRÃO (só se não for 'sucesso')
-        resposta = "Mensagem recebida! 👍\nSua dúvida será respondida em breve."
+                # -----------------------------------------
+        # 3. RESPOSTA PADRÃO → ENVIAR LINK DO APP + TELEGRAM
+        # -----------------------------------------
+        resposta = (
+            f"Olá {nome}! 👋\n\n"
+            "Aqui está o link do nosso *APP oficial*:\n"
+            "👉 https://wiggers12.github.io/daniel100x/index.html\n\n"
+            "E aqui está o *Telegram Oficial* com avisos importantes:\n"
+            "👉 https://t.me/aviatorvip100x\n\n"
+            "Qualquer dúvida, só me chamar! 🚀🔥"
+        )
+
         enviar_mensagem_whatsapp(numero, resposta)
 
-        # 4. SALVAR RESPOSTA PADRÃO
+        # 4. SALVAR RESPOSTA PADRÃO NO FIRESTORE
         db.collection("conversas").add({
             "numero": numero,
             "nome": nome,
@@ -279,6 +289,13 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
             "tipo": "enviada",
             "horario": firestore.SERVER_TIMESTAMP
         })
+
+        print(f"📤 AUTO-RESPOSTA PADRÃO (APP + TELEGRAM) enviada → {numero}")
+        return
+
+
+        print(f"📤 AUTO-RESPOSTA PADRÃO (APP) enviada → {numero}")
+        return
         
         print(f"✅ Processamento de {numero} concluído em background.")
 
