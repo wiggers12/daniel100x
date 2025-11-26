@@ -1,19 +1,12 @@
-self.addEventListener("install", event => {
-    event.waitUntil(
-        caches.open("app-cache").then(cache => {
-            return cache.addAll([
-                "/",
-                "/index.html",
-                "/manifest.json"
-            ]);
-        })
-    );
+self.addEventListener("install", (e) => {
+  self.skipWaiting();
 });
 
-self.addEventListener("fetch", event => {
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-        })
-    );
+self.addEventListener("activate", (e) => {
+  clients.claim();
+});
+
+// Não usar cache antigo — sempre buscar a versão nova
+self.addEventListener("fetch", (event) => {
+  event.respondWith(fetch(event.request));
 });
