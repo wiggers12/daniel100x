@@ -759,6 +759,51 @@ body {
     overflow: hidden !important;
     height: 100vh !important;
 }
+/* === DESKTOP — permanece 1 linha normal === */
+.stats-footer {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    height: var(--altura-footer);
+}
+
+
+/* === MOBILE — transforma em 2 linhas (3 + 3) === */
+@media (max-width: 600px) {
+
+    .stats-footer {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: 1fr 1fr !important;
+
+        height: 110px !important; /* espaço para 2 linhas */
+        padding: 4px 0 !important;
+    }
+
+    /* Cada KPI */
+    .stat-item {
+        padding: 3px 2px !important;
+        border-right: none !important; /* remover linha que ficaria cortando */
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Última linha sem borda inferior */
+    .stat-item:nth-child(n+4) {
+        border-bottom: none !important;
+    }
+
+    /* Textos menores e adaptáveis */
+    .stat-label {
+        font-size: 0.55rem !important;
+    }
+
+    .stat-value {
+        font-size: 0.85rem !important;
+    }
+
+    .stat-sub {
+        font-size: 0.60rem !important;
+    }
+}
 
     </style>
 </head>
