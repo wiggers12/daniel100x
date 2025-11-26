@@ -1,22 +1,22 @@
 {
-  "name": "Seu App Premium",
-  "short_name": "RoboAviator",
-  "start_url": "/",
+  "name": "Painel 100X",
+  "short_name": "100X",
+  "start_url": "/daniel100x/index.html",
+  "scope": "/daniel100x/",
   "display": "standalone",
-  "background_color": "#0a0a0f",
+  "background_color": "#000000",
   "theme_color": "#ff4da6",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/daniel100x/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "/daniel100x/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
-
