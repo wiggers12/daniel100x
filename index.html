@@ -74,22 +74,61 @@
         /* Ícone VIP no cabeçalho */
         .nav-vip { color: var(--cor-gold); animation: pulse vip 2s infinite; cursor: pointer; }
 
-        /* RODAPÉ STATS */
-        .stats-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: var(--altura-footer);
-            background: rgba(10, 10, 15, 0.98); border-top: 2px solid var(--cor-primaria);
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; align-items: center; z-index: 100;
-        }
-        .stat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; border-right: 1px solid rgba(255,255,255,0.05); position: relative; padding: 0 5px; }
-        .stat-item:last-child { border-right: none; }
-        .stat-label { font-size: 0.55rem; color: #aaa; text-transform: uppercase; margin-bottom: 2px; text-align: center; }
-        .stat-value { font-size: 1.0rem; font-weight: 800; color: #fff; text-align: center; }
-        .stat-sub { font-size: 0.9rem; font-weight:bold; margin-top:2px; }
+        /* === RODAPÉ ORGANIZADO DEFINITIVO === */
+.stats-footer {
+    /* Posição e Fundo */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--altura-footer); /* Variável de altura definida no seu código global */
+    background: rgba(10, 10, 15, 0.98);
+    border-top: 2px solid var(--cor-primaria); /* Variável de cor primária */
+    display: grid;
 
-        #listaPrevisao { display: flex; gap: 3px; font-size: 0.75rem; font-weight: bold; }
-        .text-azul { color: var(--cor-terciaria); } .text-roxo { color: var(--cor-secundaria); } .text-rosa { color: var(--cor-primaria); text-shadow: 0 0 8px rgba(255, 77, 166, 0.4); }
-        .assert-high { color: #00e676; text-shadow: 0 0 8px rgba(0, 230, 118, 0.4); }
-        .assert-mid { color: #ffd700; } .assert-low { color: #ff4da6; }
+    /* Configuração Flexível das Colunas (Ajuste para Alinhamento) */
+    /* Recomendado: Flexível e Otimizado */
+grid-template-columns: 
+    1.1fr    /* Mais espaço para ASSERTIVIDADE */
+    1fr      
+    1.1fr    /* Mais espaço para SINAL DE RISCO */
+    1fr      
+    0.8fr    /* Menos espaço para ESTRATÉGIA e MENTORIA */
+    0.8fr;
+
+    /* Alinhamento Geral */
+    align-items: center; /* Alinha os itens verticalmente (ao centro) */
+    text-align: center; /* Alinha o texto globalmente na horizontal (ao centro) */
+    z-index: 100;
+}
+
+/* === Estilo de Cada Item (Coluna) === */
+.stat-item {
+    display: flex;
+    flex-direction: column; /* Coloca Label, Valor e Sub um abaixo do outro */
+    justify-content: center; /* Alinha o conteúdo interno na vertical (centro) */
+    align-items: center; /* **CRUCIAL**: Alinha o conteúdo interno na horizontal (centro) */
+    padding: 0 2px; /* Diminui o padding horizontal para otimizar espaço */
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    /* Garante que o item ocupe a altura total para o alinhamento central */
+    height: 100%; 
+}
+
+.stat-item:last-child {
+    border-right: none;
+}
+
+/* === Estilo do Texto para Evitar Quebras e Transbordamento === */
+.stat-label,
+.stat-value,
+.stat-sub {
+    white-space: nowrap; /* Impede a quebra de linha do texto */
+    text-overflow: ellipsis; /* Adiciona "..." se o texto for muito longo */
+    overflow: hidden; /* Esconde o texto que ultrapassa a largura */
+    max-width: 100%; /* Garante que o elemento não exceda a largura da coluna */
+}
+
+
 
         /* GAME CONTAINER */
         .game-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
@@ -639,57 +678,27 @@ body.mobile .stats-footer {
     height: auto !important;
     padding: 5px 0 !important;
 }
+#floatUltimaRosaValor {
+    color: #ff4da6 !important;
+}
+#valUltimaRosa {
+    color: #ff4da6 !important;
+}
+#valUltimaRosa {
+    color: #ff4da6 !important;
+    font-weight: bold;
+    text-shadow: 0 0 8px #ff4da6;
+}
+#valUltimaRosa {
+    color: #ff4da6 !important;  /* rosa */
+    font-weight: bold !important;
+}
+
+
 
     </style>
 </head>
 <body>
-
-<!-- DASHBOARD MOBILE PREMIUM -->
-<div id="dashboardMobile" class="mobile-only" style="display:none; padding:18px;">
-    
-    <!-- CARD 1 – ASSERTIVIDADE -->
-    <div class="card-mobile" onclick="mudarSecao(null, 'historico')">
-        <div class="card-icon">🎯</div>
-        <div class="card-title">Assertividade</div>
-        <div class="card-value" id="dashAssert">--%</div>
-    </div>
-
-    <!-- CARD 2 – PREVISÃO IA -->
-    <div class="card-mobile" onclick="abrirChatIA()">
-        <div class="card-icon">🔮</div>
-        <div class="card-title">Previsão IA</div>
-        <div class="card-value" id="dashPrevisao">--</div>
-    </div>
-
-    <!-- CARD 3 – SINAL DE RISCO -->
-    <div class="card-mobile" onclick="scrollToFooterRisco()">
-        <div class="card-icon">⚠️</div>
-        <div class="card-title">Sinal de Risco</div>
-        <div class="card-value" id="dashRisco">--</div>
-    </div>
-
-    <!-- CARD 4 – ÚLTIMA ROSA -->
-    <div class="card-mobile" onclick="scrollToFooterRosa()">
-        <div class="card-icon">🌸</div>
-        <div class="card-title">Última Rosa</div>
-        <div class="card-value" id="dashUltRosa">--</div>
-    </div>
-
-    <!-- CARD 5 – PADRÕES IA -->
-    <div class="card-mobile" onclick="scrollToFooterPadroes()">
-        <div class="card-icon">📘</div>
-        <div class="card-title">Padrões IA</div>
-        <div class="card-value" id="dashPadroes">Ver</div>
-    </div>
-
-    <!-- CARD 6 – CHAT IA -->
-    <div class="card-mobile" onclick="abrirChatIA()">
-        <div class="card-icon">🤖</div>
-        <div class="card-title">Chat Inteligente</div>
-        <div class="card-value">Abrir</div>
-    </div>
-
-</div>
 
 
 <!-- TELA DE CADASTRO INICIAL (PROFISSIONAL) -->
@@ -875,11 +884,38 @@ body.mobile .stats-footer {
         </div>
     </section>
 
-    <!-- BOTÃO FLUTUANTE -->
-    <button id="timerBtn" class="timer-float" onclick="abrirModalAnalise()">
-        <span id="relogioAoVivo">--:--:--</span>
-        <small>VER SINAL</small>
-    </button>
+    <div id="timerBtn" class="timer-float" onclick="toggleFloatPanel()">
+
+    <!-- Sempre visível -->
+    <span id="relogioAoVivo">--:--:--</span>
+    <small>Informaçoes</small>
+
+    <!-- PAINEL OCULTO (abre ao clicar) -->
+    <div id="floatPanel" style="display:none; margin-top:10px; text-align:center;">
+
+        <!-- Última Rosa -->
+<div style="margin-bottom:10px;">
+    <span style="font-size:0.75rem; color:#ffd1f4;">🌸 Última Rosa:</span>
+
+    <div id="valUltimaRosa" style="font-size:1.1rem; font-weight:bold;">--</div>
+    <div id="horaUltimaRosa" style="font-size:0.7rem; color:#bbb;">--:--</div>
+</div>
+
+
+        <div style="height:1px; background:#444; margin:5px 0;"></div>
+
+        <!-- Dicas IA -->
+        <div
+            id="floatDicasIA"
+            style="margin-top:8px; font-size:0.8rem; color:#00e676; padding:0 5px;">
+            💡 Carregando dicas...
+        </div>
+
+    </div>
+
+</div>
+
+
 
     <!-- RODAPÉ -->
     <footer class="stats-footer">
@@ -894,7 +930,8 @@ body.mobile .stats-footer {
         </div>
 
                           <!-- 🔥 NOVO KPI: SINAL DE RISCO -->
-                    <div class="stat-item" id="btnRisco">
+                    <div class="stat-item" id="itemRisco">
+
     <span class="stat-label">⚠️ SINAL DE RISCO</span>
 
     <!-- AQUI ENTRA O ELEMENTO CORRETO -->
@@ -908,32 +945,20 @@ body.mobile .stats-footer {
 <!-- PADRÕES IA -->
 <div class="stat-item">
     <span class="stat-label">📘 PADRÕES IA</span>
-    <div class="stat-value" id="btnPadroesIA">Ver</div>
+    <div class="stat-value" id="btnPadroesIA">--</div>
 </div>
 
 <!-- ESTRATÉGIA IA -->
 <div class="stat-item">
     <span class="stat-label">🎯 ESTRATÉGIA IA</span>
-    <div class="stat-value" id="btnEstrategiaIA">Ver</div>
+    <div class="stat-value" id="btnEstrategiaIA">Aperte</div>
 </div>
 
-<!-- DICAS IA -->
-<div class="stat-item">
-    <span class="stat-label">💡 DICAS IA</span>
-    <div class="stat-value" id="btnDicasIA">Ver</div>
-</div>
-
-        
-<div class="stat-item">
-            <span class="stat-label">🌸 ÚLTIMA ROSA</span>
-            <div class="stat-value" id="valUltimaRosa">--</div>
-            <div class="stat-sub" id="horaUltimaRosa">--:--</div>
-        </div>
         <div class="stat-item" id="btnMentoria"
      style="cursor:pointer;"
      onclick="window.open('https://wa.me/5551989378751','_blank')">
     <span class="stat-label">🎓 MENTORIA</span>
-    <div class="stat-value" style="font-size:0.9rem;">Acessar</div>
+    <div class="stat-value" style="font-size:0.9rem;">Aperte</div>
 </div>
 
     </footer>
@@ -1477,6 +1502,26 @@ function ouvirUltimoSinal() {
                        const valorAntigo = historicoGlobalIA[0].valor;
                        if(valorNovo !== valorAntigo) {
                            tocarSom(valorNovo);
+// === ABRIR MODAL ROSA AUTOMATICAMENTE ===
+if (valorNovo >= 10) {
+
+    const dados = calcularProximaVelaRosa();
+
+    if (dados) {
+        document.getElementById("horarioEntrada").innerText = dados.janela;
+        document.getElementById("minutoAlvo").innerText = dados.alvo;
+    } else {
+        document.getElementById("horarioEntrada").innerText = "--";
+        document.getElementById("minutoAlvo").innerText = "--";
+    }
+
+    // Restaurar Proteção e Alvo Máximo
+    document.getElementById("rosaProtecao").innerText = "2.00x";
+    document.getElementById("rosaAlvo").innerText = "100.00x";
+
+    toggleModal('modalTimer');
+}
+
                            // STOP WIN/LOSS
                            if (previsaoAtiva && window.userPlan === 'vip') {
                                if (valorNovo >= 2.00) { registrarResultadoAssertividade(1); finalizarPrevisao(); } 
@@ -1735,6 +1780,39 @@ window.scrollToFooterRosa = () => {
 window.scrollToFooterPadroes = () => {
     document.getElementById("btnPadroesIA").scrollIntoView({ behavior: "smooth" });
 };
+
+/* ======== ATUALIZAÇÃO DA ÁREA EXPANSIVA DO BOTÃO ======== */
+function atualizarFloatInfo() {
+
+    // Atualiza Última Rosa
+const vRosa = document.getElementById("valUltimaRosa");
+const hRosa = document.getElementById("horaUltimaRosa");
+
+if (vRosa && hRosa) {
+    const valor = vRosa.innerText;
+
+    // deixa rosa automaticamente quando for >= 10
+    if (!isNaN(parseFloat(valor)) && parseFloat(valor) >= 10) {
+        vRosa.classList.add("text-rosa");
+    } else {
+        vRosa.classList.remove("text-rosa");
+    }
+}
+
+    // Atualiza Dicas IA (última mensagem automática do robô)
+    if (window.ultimoStatusPrev) {
+        document.getElementById("floatDicasIA").innerText = "💡 " + window.ultimoStatusPrev;
+    }
+}
+
+setInterval(atualizarFloatInfo, 3000);
+
+/* === PAINEL EXPANSIVO DO BOTÃO FLUTUANTE === */
+window.toggleFloatPanel = () => {
+    const panel = document.getElementById("floatPanel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+};
+
 
  
     </script>
