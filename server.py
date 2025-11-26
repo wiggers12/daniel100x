@@ -205,14 +205,12 @@ def enviar():
 
 
 # ============================================================
-# FUNÇÃO PARA PROCESSAR TUDO EM BACKGROUND
-# (Precisa ser definida fora da rota /webhook)
+# FUNÇÃO PARA PROCESSAR TUDO EM BACKGROUND (VERSÃO FINAL)
 # ============================================================
 def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_completa_webhook):
-    # ⚠️ Esta função é executada por um thread.
     try:
         if not db:
-            print("❌ Firebase não inicializado no thread de processamento.")
+            print("❌ Firebase não inicializado no thread.")
             return
 
         # 1. Criar/Atualizar Usuário e Última Interação
@@ -228,7 +226,7 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
         else:
             userRef.update({"ultima_interacao": firestore.SERVER_TIMESTAMP})
 
-        # 2. Salvar mensagem recebida
+        # 2. Registrar mensagem recebida
         db.collection("conversas").add({
             "numero": numero,
             "nome": nome,
@@ -237,39 +235,39 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
             "horario": firestore.SERVER_TIMESTAMP
         })
 
-        # -----------------------------------------
-        # 🔥 RESPOSTA AUTOMÁTICA PARA "sucesso"
-        # -----------------------------------------
-        texto_lower = texto.lower().strip()
+        # ====================================================
+        # 🚀 SEGUNDA (E ÚNICA) MENSAGEM — CHAMAR SUPORTE DIRETO
+        # ====================================================
+        time.sleep(2)
 
-        if "sucesso" in texto_lower:
-            mensagem = (
-                "🔥 *PARABÉNS!* Você acabou de concluir seu cadastro! 🚀\n\n"
-                "🎮 *Acesse agora o Painel GRATUITO:*\n"
-                "👉 https://wiggers12.github.io/daniel100x/index.html\n\n"
-                "📲 *Entre no nosso Telegram Oficial:*\n"
-                "👉 https://t.me/aviatorvip100x\n\n"
-                "🤖 *Quer receber SINAIS de IA com taxa de acerto absurdamente alta?*\n"
-                "👉 Acesse o *APP VIP por apenas R$ 29,90* 🔥\n\n"
-                "Bem-vindo ao time que mais cresce no Aviator! ✈️💸"
-            )
+        mensagem_extra = (
+            "📞 *PRECISA DE AJUDA AGORA?*\n\n"
+            "Fale diretamente com nosso suporte no WhatsApp:\n"
+            "👉 wa.me/5551989378751\n\n"
+            "Dúvidas sobre cadastro, IA, sinais, VIP ou plataforma?\n"
+            "Estou online para te ajudar agora mesmo! 🔥"
+        )
 
-            enviar_mensagem_whatsapp(numero, mensagem)
+        enviar_mensagem_whatsapp(numero, mensagem_extra)
 
-            db.collection("conversas").add({
-                "numero": numero,
-                "nome": nome,
-                "texto": mensagem,
-                "tipo": "enviada",
-                "horario": firestore.SERVER_TIMESTAMP
-            })
+        # Registrar envio no banco
+        db.collection("conversas").add({
+            "numero": numero,
+            "nome": nome,
+            "texto": mensagem_extra,
+            "tipo": "enviada",
+            "horario": firestore.SERVER_TIMESTAMP
+        })
 
-            print(f"📤 AUTO-RESPOSTA enviada (gatilho: sucesso) → {numero}")
-            return  # impede cair na resposta padrão
+        print(f"📤 MENSAGEM (SUPORTE DIRETO) enviada → {numero}")
+        return
 
-                # -----------------------------------------
+    except Exception as e:
+        print(f"❌ Erro CRÍTICO no thread de processamento: {e}")
+
+        # ----------------------------------------------------
         # 3. RESPOSTA PADRÃO → ENVIAR LINK DO APP + TELEGRAM
-        # -----------------------------------------
+        # ----------------------------------------------------
         resposta = (
             f"Olá {nome}! 👋\n\n"
             "Aqui está o link do nosso *APP oficial*:\n"
@@ -292,15 +290,6 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
 
         print(f"📤 AUTO-RESPOSTA PADRÃO (APP + TELEGRAM) enviada → {numero}")
         return
-
-
-        print(f"📤 AUTO-RESPOSTA PADRÃO (APP) enviada → {numero}")
-        return
-        
-        print(f"✅ Processamento de {numero} concluído em background.")
-
-    except Exception as e:
-        print(f"❌ Erro CRÍTICO no thread de processamento: {e}")
 
 
 # ============================================================
