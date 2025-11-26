@@ -839,56 +839,21 @@ body.mobile .stats-footer {
     </header>
 
     <section id="home" class="secao ativa">
-        <div class="game-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 400px; background: #0e0e0e; color: white; text-align: center; padding: 20px;">
-            
-            <div style="font-size: 50px; margin-bottom: 20px;">🔒</div>
-
-            <h3 style="margin: 0 0 10px 0; color: #ff0055;">Acesso Externo Necessário</h3>
-            
-            <p style="font-size: 14px; color: #cccccc; margin-bottom: 25px; max-width: 300px;">
-                Para garantir a segurança da sua conta e evitar bloqueios, o jogo deve ser aberto em uma janela segura.
-            </p>
-
-            <button onclick="abrirJogoSeguro()" 
-                style="
-                    background: linear-gradient(90deg, #00C853, #64DD17);
-                    color: #000;
-                    font-weight: bold;
-                    font-size: 18px;
-                    padding: 15px 40px;
-                    border: none;
-                    border-radius: 50px;
-                    cursor: pointer;
-                    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.4);
-                    transition: transform 0.2s;
-                    text-transform: uppercase;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                "
-                onmouseover="this.style.transform='scale(1.05)'"
-                onmouseout="this.style.transform='scale(1)'">
-                <span>🚀</span> ABRIR JOGO
-            </button>
-
-            <p style="font-size: 12px; color: #666; margin-top: 20px;">
-                Após jogar, volte aqui para ver os sinais.
-            </p>
-        </div>
-
-        <script>
-            function abrirJogoSeguro() {
-                // Abre uma janela estilo "Pop-up" para facilitar a volta ao app
-                // Usa o link DIRETO (sem proxy) pois é o único que funciona 100%
-                window.open(
-                    'https://rn72q.com/subscribeReward?pid=575973404', 
-                    'JanelaJogo', 
-                    'width=400,height=750,resizable=yes,scrollbars=yes,status=yes'
-                );
-            }
-        </script>
-    </section>
-
+    <iframe 
+        src="https://rn72q.com/subscribeReward?pid=575973404" 
+        style="
+            border: none;
+            width: 100%;
+            height: 100vh; /* Usa 100% da altura da viewport para preencher a tela */
+            display: block;
+            margin: 0;
+            padding: 0;
+            overflow: auto; /* Permite scroll se o conteúdo for maior que a tela */
+        "
+        allow="fullscreen"
+        frameborder="0">
+    </iframe>
+</section>
     <!-- HISTÓRICO -->
     <section id="historico" class="secao">
         <h2 style="text-align:center; margin-top:20px;">📜 Histórico Completo</h2>
