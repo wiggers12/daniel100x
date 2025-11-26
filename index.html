@@ -74,59 +74,57 @@
         /* Ícone VIP no cabeçalho */
         .nav-vip { color: var(--cor-gold); animation: pulse vip 2s infinite; cursor: pointer; }
 
-        /* === RODAPÉ ORGANIZADO DEFINITIVO === */
+        /* === RODAPÉ FINAL — 6 KPIs FLEXÍVEIS === */
 .stats-footer {
-    /* Posição e Fundo */
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: var(--altura-footer); /* Variável de altura definida no seu código global */
+    height: var(--altura-footer);
+
     background: rgba(10, 10, 15, 0.98);
-    border-top: 2px solid var(--cor-primaria); /* Variável de cor primária */
-    display: grid;
+    border-top: 2px solid var(--cor-primaria);
 
-    /* Configuração Flexível das Colunas (Ajuste para Alinhamento) */
-    /* Recomendado: Flexível e Otimizado */
-grid-template-columns: 
-    1.1fr    /* Mais espaço para ASSERTIVIDADE */
-    1fr      
-    1.1fr    /* Mais espaço para SINAL DE RISCO */
-    1fr      
-    0.8fr    /* Menos espaço para ESTRATÉGIA e MENTORIA */
-    0.8fr;
+    /* AGORA IGUAL À NAVBAR */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    /* Alinhamento Geral */
-    align-items: center; /* Alinha os itens verticalmente (ao centro) */
-    text-align: center; /* Alinha o texto globalmente na horizontal (ao centro) */
+    padding: 0 5px;
     z-index: 100;
+    box-sizing: border-box;
 }
 
-/* === Estilo de Cada Item (Coluna) === */
+/* Cada KPI é uma coluna flexível */
 .stat-item {
+    flex: 1; /* 6 colunas sempre, nunca quebra */
+    min-width: 0; /* permite encolher sem estourar */
+    
     display: flex;
-    flex-direction: column; /* Coloca Label, Valor e Sub um abaixo do outro */
-    justify-content: center; /* Alinha o conteúdo interno na vertical (centro) */
-    align-items: center; /* **CRUCIAL**: Alinha o conteúdo interno na horizontal (centro) */
-    padding: 0 2px; /* Diminui o padding horizontal para otimizar espaço */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0 2px;
     border-right: 1px solid rgba(255, 255, 255, 0.06);
-    /* Garante que o item ocupe a altura total para o alinhamento central */
-    height: 100%; 
+    height: 100%;
 }
 
 .stat-item:last-child {
     border-right: none;
 }
 
-/* === Estilo do Texto para Evitar Quebras e Transbordamento === */
+/* Textos que se ajustam automaticamente */
 .stat-label,
 .stat-value,
 .stat-sub {
-    white-space: nowrap; /* Impede a quebra de linha do texto */
-    text-overflow: ellipsis; /* Adiciona "..." se o texto for muito longo */
-    overflow: hidden; /* Esconde o texto que ultrapassa a largura */
-    max-width: 100%; /* Garante que o elemento não exceda a largura da coluna */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 100%;
+    text-align: center;
 }
+
 
 
 
@@ -614,6 +612,67 @@ grid-template-columns:
     text-align: center !important;
 }
 
+/* Textos internos */
+.stat-label {
+    font-size: 0.60rem;
+    white-space: nowrap;
+}
+
+.stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* Cada item do rodapé agora é flexível */
+.stat-item {
+    flex: 1;                           /* ocupa espaço igual */
+    min-width: 0;                      /* PERMITE encolher sem quebrar */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0 3px;
+
+    border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.stat-item:last-child {
+    border-right: none;
+}
+
+/* Textos agora se ajustam e nunca cortam nada */
+.stat-label,
+.stat-value,
+.stat-sub {
+    font-size: 0.70rem;
+    text-align: center;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    width: 100%;
+}
+
+/* Ajuste automático no mobile */
+@media (max-width: 450px) {
+    .stats-footer {
+        height: 65px;
+    }
+
+    .stat-label {
+        font-size: 0.55rem;
+    }
+
+    .stat-value {
+        font-size: 0.85rem;
+    }
+
+    .stat-sub {
+        font-size: 0.60rem;
+    }
+}
 
 /* =========== MOBILE ULTRA PREMIUM =========== */
 
@@ -672,12 +731,7 @@ body.mobile .navbar-top .nav-item {
     font-size: 1rem !important;
 }
 
-/* Footer mobile reorganizado */
-body.mobile .stats-footer {
-    grid-template-columns: repeat(3, 1fr) !important;
-    height: auto !important;
-    padding: 5px 0 !important;
-}
+}}
 #floatUltimaRosaValor {
     color: #ff4da6 !important;
 }
@@ -694,7 +748,17 @@ body.mobile .stats-footer {
     font-weight: bold !important;
 }
 
+.game-container,
+iframe {
+    height: calc(100vh - var(--altura-header) - var(--altura-footer)) !important;
+    max-height: calc(100vh - var(--altura-header) - var(--altura-footer)) !important;
+    overflow: hidden !important;
+}
 
+body {
+    overflow: hidden !important;
+    height: 100vh !important;
+}
 
     </style>
 </head>
@@ -944,20 +1008,20 @@ body.mobile .stats-footer {
 
 <!-- PADRÕES IA -->
 <div class="stat-item">
-    <span class="stat-label">📘 PADRÕES IA</span>
+    <span class="stat-label">📘IA</span>
     <div class="stat-value" id="btnPadroesIA">--</div>
 </div>
 
 <!-- ESTRATÉGIA IA -->
 <div class="stat-item">
-    <span class="stat-label">🎯 ESTRATÉGIA IA</span>
+    <span class="stat-label">🎯 IA</span>
     <div class="stat-value" id="btnEstrategiaIA">Aperte</div>
 </div>
 
         <div class="stat-item" id="btnMentoria"
      style="cursor:pointer;"
      onclick="window.open('https://wa.me/5551989378751','_blank')">
-    <span class="stat-label">🎓 MENTORIA</span>
+    <span class="stat-label">🎓 </span>
     <div class="stat-value" style="font-size:0.9rem;">Aperte</div>
 </div>
 
