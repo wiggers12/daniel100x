@@ -1073,7 +1073,7 @@ body {
         </div>
 
                           <!-- 🔥 NOVO KPI: SINAL DE RISCO -->
-                    <div class="stat-item" id="itemRisco">
+                    <div class="stat-item" id="btnRisco">
 
     <span class="stat-label">⚠️ SINAL DE RISCO</span>
 
@@ -1695,10 +1695,7 @@ if (valorNovo >= 10) {
             });
         }
 
-        function finalizarPrevisao() {
-            previsaoAtiva = false; roundsRestantes = 0;
-            const el = document.getElementById("listaPrevisao"); if(el) el.innerHTML = '<span class="text-azul">--</span>';
-        }
+      
 
         function registrarResultadoAssertividade(resultado) {
             historicoAcertos.push(resultado);
@@ -1732,49 +1729,45 @@ if (valorNovo >= 10) {
             }
         }
 
-        function ouvirPrevisoes() {
+       function ouvirSinais3Azuis() {
+
     const ref = collection(db, "analises", "sequencia_3_azuis", "sinais");
     const q = query(ref, orderBy("criado", "desc"), limit(1));
 
-    onSnapshot(q, snap => {
+    onSnapshot(q, (snap) => {
 
-        // 🔥 QUANDO O ROBÔ APAGAR O DOCUMENTO, A PREVISÃO DEVERÁ SUMIR
+        const container = document.getElementById("listaPrevisao");
+
+        // 👉 Quando NÃO houver sinal = limpa completamente
         if (snap.empty) {
-            renderizarMiniPrevisao([]); 
+            container.innerHTML = '<span class="text-azul">--</span>';
             return;
         }
 
+        // 👉 Quando houver sinal no Firebase
         const dados = snap.docs[0].data();
-        const valores = dados.valores || [];
+        const arr = dados.valores || [];
 
-        // Exibe somente para VIP
-        if (window.userPlan === 'vip') {
-            renderizarMiniPrevisao(valores.slice(0,3));
-        }
+        container.innerHTML = "";
+
+        arr.forEach(v => {
+            const span = document.createElement("span");
+            span.innerText = parseFloat(v).toFixed(2) + "x";
+
+            if (v >= 10) span.className = "text-rosa";
+            else if (v >= 2) span.className = "text-roxo";
+            else span.className = "text-azul";
+
+            container.appendChild(span);
+        });
     });
 }
 
 
 
-        function renderizarMiniPrevisao(arr) {
-    const container = document.getElementById("listaPrevisao");
 
-    // Quando arr está vazio = limpa o painel totalmente
-    if (!arr || arr.length === 0) {
-        container.innerHTML = '<span class="text-azul">--</span>';
-        return;
-    }
 
-    container.innerHTML = "";
-    arr.forEach(val => {
-        const span = document.createElement("span");
-        span.innerText = parseFloat(val).toFixed(2) + "x";
-        if(val >= 10) span.className = "text-rosa";
-        else if(val >= 2) span.className = "text-roxo";
-        else span.className = "text-azul";
-        container.appendChild(span);
-    });
-}
+        
 
 
         function renderizarHistorico(lista) {
@@ -1808,7 +1801,7 @@ if (valorNovo >= 10) {
             });
         });
 
-        ouvirUltimoSinal(); ouvirHistorico(); ouvirPrevisoes();ouvirSinalDeRisco();ouvirAssertividade();
+        ouvirUltimoSinal(); ouvirHistorico(); ouvirSinais3Azuis();;ouvirSinalDeRisco();ouvirAssertividade();
        onAuthStateChanged(auth, user => { if (user) document.getElementById("userEmail").textContent = `ID: ${user.uid.slice(0,6)}...`; });
         window.logout = async () => { await signOut(auth); location.reload(); };
     });
@@ -1817,35 +1810,54 @@ if (valorNovo >= 10) {
 function ouvirSinalDeRisco() {
     const q = query(
         collection(db, "sinais_risco"),
-        orderBy("criado", "desc"),
-        limit(1)
+        orderBy("criado", "desc")
     );
 
     onSnapshot(q, snap => {
         const container = document.getElementById("listaPrevisaoRisco");
         const btn = document.getElementById("btnRisco");
 
-        // --- BLOQUEIO PARA USUÁRIOS GRÁTIS ---
+        if (!container || !btn) return;
+
+        // ⛔ FREE = trava tudo
         if (window.userPlan !== 'vip') {
             btn.style.color = "#aaa";
-            btn.style.textShadow = "none";
-            // Mostra um cadeado ou mensagem de VIP
-            container.innerHTML = '<span style="font-size: 1.2rem;">🔒 VIP</span>';
-            return; // Para a função aqui se não for VIP
+            container.innerHTML = '<span style="font-size: 1.1rem;">🔒</span>';
+            return;
         }
 
-        // 👉 NÃO EXISTE SINAL (GREEN/RED saiu)
+        // 👉 SE NÃO EXISTE NENHUM DOCUMENTO = RESET
         if (snap.empty) {
             aplicarResetRisco();
             return;
         }
 
-        // 👉 EXISTE SINAL ATIVO
-        const dados = snap.docs[0].data();
+        // 👉 CAPTURAR PRIMEIRO DOC (mais recente)
+        let doc = null;
+
+        snap.docChanges().forEach(change => {
+            if (change.type === "removed") {
+                aplicarResetRisco();
+                doc = null;
+            }
+
+            if (change.type === "added") {
+                doc = change.doc;
+            }
+        });
+
+        // 👉 Se após tudo não existe doc válido → reset
+        if (!doc) {
+            aplicarResetRisco();
+            return;
+        }
+
+        // ======== MOSTRAR SINAL ==========
+        const dados = doc.data();
         const valores = dados.valores || [];
 
-        // Limpa e aplica novas previsões
         container.innerHTML = "";
+        
         valores.forEach(v => {
             const span = document.createElement("span");
             span.innerText = parseFloat(v).toFixed(2) + "x";
@@ -1857,9 +1869,8 @@ function ouvirSinalDeRisco() {
             container.appendChild(span);
         });
 
-        // Estilo AMARELO = ativo
         btn.style.color = "#ffd700";
-        btn.style.textShadow = "0 0 6px rgba(255,215,0,0.7)";
+        btn.style.textShadow = "0 0 8px rgba(255,215,0,0.8)";
     });
 }
 
@@ -1893,23 +1904,35 @@ window.addEventListener("load", detectarDevice);
 
 /* ======== ATUALIZAR CARDS MOBILE ======== */
 function atualizarDashboardMobile() {
-    document.getElementById("dashAssert").innerText =
-        document.getElementById("valAssertividade").innerText;
 
-    const prev = document.getElementById("listaPrevisao");
-    if (prev) document.getElementById("dashPrevisao").innerHTML = prev.innerHTML;
+    // === ASSERTIVIDADE ===
+    const dashAssert = document.getElementById("dashAssert");
+    const valAssert = document.getElementById("valAssertividade");
 
-    const risco = document.getElementById("listaPrevisaoRisco");
-    if (risco) document.getElementById("dashRisco").innerHTML = risco.innerHTML;
+    if (dashAssert && valAssert) {
+        dashAssert.innerText = valAssert.innerText;
+    }
 
-    document.getElementById("dashUltRosa").innerText =
-        document.getElementById("valUltimaRosa").innerText;
+    // === SINAL DE RISCO ===
+    const riscoSrc = document.getElementById("listaPrevisaoRisco");
+    const riscoDst = document.getElementById("dashRisco");
 
-    document.getElementById("dashPadroes").innerText = "Ver";
+    if (riscoSrc && riscoDst) {
+
+        // Se está resetado
+        if (riscoSrc.innerText.includes("--")) {
+            riscoDst.innerHTML = `
+                <span class="text-azul">--</span>
+                <span class="text-azul">--</span>
+            `;
+        }
+        // Se existe sinal real
+        else {
+            riscoDst.innerHTML = riscoSrc.innerHTML;
+        }
+    }
 }
 
-/* Atualiza a cada 3 segundos */
-setInterval(atualizarDashboardMobile, 3000);
 
 /* ===== Scrolls ===== */
 window.scrollToFooterRisco = () => {
