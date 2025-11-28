@@ -109,57 +109,47 @@
         .nav-vip { color: var(--cor-gold); animation: pulse vip 2s infinite; cursor: pointer; }
 
         /* === RODAPÉ FINAL — 6 KPIs FLEXÍVEIS === */
-.stats-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: var(--altura-footer);
+<footer class="stats-footer">
 
-    background: rgba(10, 10, 15, 0.98);
-    border-top: 2px solid var(--cor-primaria);
+    <a href="javascript:void(0)" onclick="abrirDetalhesAcertos()" class="stat-item">
+        <span class="stat-label">Acertos 24h</span>
+        <span class="stat-value" id="valAcertos">85%</span>
+        <span class="stat-sub" id="subAcertos">🔥 Forte</span>
+    </a>
 
-    /* AGORA IGUAL À NAVBAR */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    <a href="https://t.me/seu-grupo" target="_blank" class="stat-item">
+        <span class="stat-label">Última Rosa</span>
+        <span class="stat-value" id="valUltimaRosa">18.5x</span>
+        <span class="stat-sub">1 min atrás</span>
+    </a>
 
-    padding: 0 5px;
-    z-index: 100;
-    box-sizing: border-box;
-}
-
-/* Cada KPI é uma coluna flexível */
-.stat-item {
-    flex: 1; /* 6 colunas sempre, nunca quebra */
-    min-width: 0; /* permite encolher sem estourar */
+    <div class="stat-item">
+        <span class="stat-label" id="textoRisco">Sinal de Risco</span>
+        <div id="listaPrevisaoRisco">
+            <span>2.1x</span> <span>3.5x</span> <span>5.0x</span>
+        </div>
+        <span class="stat-sub">3x entradas</span>
+    </div>
     
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    padding: 0 2px;
-    border-right: 1px solid rgba(255, 255, 255, 0.06);
-    height: 100%;
+    <div class="stat-item">...</div>
+    <div class="stat-item">...</div>
+    <div class="stat-item">...</div>
+</footer>
+/* --- ADICIONADO: ESTILOS PARA ITENS CLICÁVEIS NO RODAPÉ --- */
+.stats-footer a.stat-item {
+    text-decoration: none; /* Remove sublinhado padrão do link */
+    color: inherit; /* Mantém a cor do texto do body */
+    cursor: pointer; /* Garante que pareça clicável */
 }
 
-.stat-item:last-child {
-    border-right: none;
+/* Efeito de clique/hover (feedback visual) para A ou DIV clicável */
+.stats-footer .stat-item:active,
+.stats-footer a.stat-item:active {
+    background-color: rgba(255, 255, 255, 0.08); /* Fundo sutil ao tocar */
+    transform: scale(0.98); /* Encolhe levemente ao tocar */
+    transition: 0.1s;
 }
-
-/* Textos que se ajustam automaticamente */
-.stat-label,
-.stat-value,
-.stat-sub {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 100%;
-    text-align: center;
-}
-
-
+/* --- FIM DA ADIÇÃO --- */
 
 
         /* GAME CONTAINER */
@@ -192,7 +182,7 @@
 
         /* TIMER FLOAT (LADO ESQUERDO) */
         .timer-float {
-            position: fixed; bottom: 90px; left: 20px; background: #111; color: #00e676;
+            position: fixed; bottom: 125px; left: 20px; background: #111; color: #00e676;
             border: 2px solid #333; border-radius: 12px; padding: 10px 15px; text-align: center;
             cursor: pointer; box-shadow: 0 0 15px rgba(0, 230, 118, 0.3); z-index: 99;
             display: flex; flex-direction: column; align-items: center; min-width: 90px;
@@ -862,6 +852,190 @@ body {
     50%  { box-shadow: 0 0 22px rgba(255,0,55,0.9); }
     100% { box-shadow: 0 0 12px rgba(255,0,55,0.4); }
 }
+/* =====================================
+   KPIs FLUTUANTES — FINAL OFICIAL
+   Aparecem APENAS NO JOGO (#home ativo)
+   Ocupam toda largura da tela
+   ===================================== */
+
+/* escondido por padrão */
+.barra-kpi-livre {
+    display: none !important;
+}
+
+/* aparece somente quando #home está ativo */
+.secao.ativa#home + .barra-kpi-livre,
+#home.secao.ativa ~ .barra-kpi-livre {
+    display: flex !important;
+}
+
+/* layout flutuante fixo */
+.barra-kpi-livre {
+    position: fixed;
+    bottom: 12px;
+    left: 0;
+    width: 100%;
+    padding: 0 10px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    z-index: 999999;
+    pointer-events: auto;
+}
+
+/* estilo dos botões */
+.kpi-footer-btn {
+    flex: 1;
+    text-align: center;
+
+    background: rgba(0,0,0,0.35);
+    padding: 10px 12px;
+    border-radius: 14px;
+
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.10);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+/* Hover bonito */
+.kpi-footer-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 12px rgba(255,255,255,0.25);
+}
+
+/* Modo celular */
+@media (max-width: 700px) {
+    .barra-kpi-livre {
+        bottom: 75px;
+    }
+    .kpi-footer-btn {
+        padding: 7px 6px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Remove QUALQUER fundo roxo de qualquer seção */
+html, body, .secao, #home, #app, .container, main {
+    background: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.kpi-analise {
+    color: #ffeb3b !important; /* amarelo premium */
+    font-weight: 800;
+    animation: kpiBlink 1s infinite;
+}
+
+.kpi-pagando {
+    color: #00e676 !important; /* verde */
+    font-weight: 800;
+}
+
+.kpi-red {
+    color: #ff4da6 !important; /* rosa para erro/baixa */
+    font-weight: 800;
+}
+
+@keyframes kpiBlink {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.35; }
+    100% { opacity: 1; }
+}
+.live-btn {
+    color: #ff4da6;
+    font-weight: 900;
+    animation: pulseLive 1.3s infinite;
+}
+
+@keyframes pulseLive {
+    0%   { box-shadow: 0 0 0px rgba(255,0,0,0.3); }
+    50%  { box-shadow: 0 0 18px rgba(255,0,0,0.8); }
+    100% { box-shadow: 0 0 0px rgba(255,0,0,0.3); }
+}
+@keyframes pulseAguardar {
+    0%   { transform: scale(1);   box-shadow:0 0 10px rgba(94,44,255,0.3); }
+    50%  { transform: scale(1.09); box-shadow:0 0 20px rgba(94,44,255,0.9); }
+    100% { transform: scale(1);   box-shadow:0 0 10px rgba(94,44,255,0.3); }
+}
+
+@keyframes pulsePrev {
+    0%   { opacity: 0.4; }
+    50%  { opacity: 1;   }
+    100% { opacity: 0.4; }
+}
+
+.kpi-prev-box {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:6px 12px;
+    border-radius:12px;
+    color:white;
+}
+
+.kpi-prev-text {
+    font-size:1rem;
+    font-weight:700;
+    margin-top:3px;
+    transition:0.3s ease;
+}
+
+/* PULSANTE ENQUANTO ANALISANDO */
+.kpi-prev-analise {
+    animation: pulsePrev 1.3s infinite;
+    color:#ffd700;
+}
+
+@keyframes pulsePrev {
+    0% { opacity:0.4; transform:scale(0.95); }
+    50% { opacity:1; transform:scale(1); }
+    100% { opacity:0.4; transform:scale(0.95); }
+}
+
+/* PAGANDO */
+.kpi-prev-green {
+    color:#00e676;
+    animation:none;
+}
+
+/* RED */
+.kpi-prev-red {
+    color:#ff4da6;
+    animation:none;
+}
+/* 🔒 Esconde todos os KPIs na tela inicial */
+body.home .barra-kpi-livre,
+body.home #btnLiveFlutuante,
+body.home #timerBtn {
+    display: none !important;
+}
+/* ========== ESCONDER TUDO ANTES DO LOGIN (VERSÃO FINAL PREMIUM) ========== */
+
+body:not(.logado) .stats-footer,
+body:not(.logado) .barra-kpi-livre,
+body:not(.logado) .kpi-flutuante,
+body:not(.logado) #btnLiveFlutuante,
+body:not(.logado) #timerBtn,
+body:not(.logado) #home,
+body:not(.logado) footer,
+body:not(.logado) .rodape,
+body:not(.logado) .footer,
+body:not(.logado) #footer {
+    display: none !important;
+}
 
     </style>
 </head>
@@ -930,18 +1104,6 @@ body {
     </div>
 </div>
 
-<!-- ANIMAÇÕES -->
-<style>
-@keyframes fadeIn {
-    from { opacity:0; }
-    to   { opacity:1; }
-}
-
-@keyframes scaleIn {
-    0% { transform: scale(0.85); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-</style>
 
     <div id="loginOverlay">
     <div class="single-card">
@@ -1050,29 +1212,6 @@ body {
             <button class="btn-fechar" style="background:#333; margin-top:20px;" onclick="logout()">🚪 Sair / Trocar Chave</button>
         </div>
     </section>
-<!-- BOTÃO AO VIVO (REDONDO, PEQUENO E MAIS ACIMA) -->
-<a href="live.html" id="btnLiveFlutuante" style="
-    position: fixed;
-    bottom: 145px;   /* SUBI — agora fica bem acima do relógio */
-    left: 18px;
-    width: 50px;
-    height: 50px;
-    background: #e60000;
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px;
-    text-align: center;
-    box-shadow: 0 0 12px rgba(255,0,0,0.5);
-    z-index: 999999;">
-    🔴
-</a>
-
-
-
-
 
     <div id="timerBtn" class="timer-float" onclick="toggleFloatPanel()">
 
@@ -1105,54 +1244,76 @@ body {
 
 </div>
 
+<!-- KPIs FLUTUANTES LIVRES -->
+<div class="barra-kpi-livre">
 
-
-    <!-- RODAPÉ -->
-    <footer class="stats-footer">
-        <div class="stat-item">
-            <span class="stat-label">🎯 ASSERTIVIDADE</span>
-            <div class="stat-value" id="valAssertividade">--%</div>
-            <div class="stat-sub" id="placarSession"><span style="color:#00e676">0G</span> • <span style="color:#ff4da6">0R</span></div>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">🔮 PREVISÃO IA</span>
-            <div id="listaPrevisao"><span class="text-azul">--</span></div>
-        </div>
-
-                          <!-- 🔥 NOVO KPI: SINAL DE RISCO -->
-                    <div class="stat-item" id="btnRisco">
-
-    <span class="stat-label">⚠️ SINAL DE RISCO</span>
-
-    <!-- AQUI ENTRA O ELEMENTO CORRETO -->
-    <div class="stat-value" id="listaPrevisaoRisco">
-        <span class="text-azul">--</span>
-        <span class="text-azul">--</span>
+    <div class="kpi-footer-btn" id="kpiAssertBox" style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+    
+    <div style="font-size:0.70rem; font-weight:700; opacity:0.8; margin-bottom:2px;">
+        ASSERTIVIDADE
     </div>
+
+    <div id="kpiAssertPorcent" style="font-size:1.15rem; font-weight:900;">
+        --%
+    </div>
+
+    <div id="kpiAssertPlacar" style="font-size:0.75rem; margin-top:2px;">
+        <span style="color:#00e676;">0G</span> • 
+        <span style="color:#ff4da6;">0R</span>
+    </div>
+
+</div>
+       <div class="kpi-footer-btn" id="kpiPrevBox"
+     style="
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        font-weight:700;
+        color:#fff;
+        background:#5e2cff;
+        padding:6px 10px;
+        border-radius:10px;
+        width:75px;
+        animation:pulseAguardar 1.4s infinite;
+        box-shadow:0 0 14px rgba(94,44,255,0.6);
+     ">
+    🔮
+    <span id="listaPrevisaoFooter" class="kpi-prev-text kpi-prev-analise" style="font-size:0.75rem;">
+        ANALISANDO…<br>proximo sinal em breve</span>
 </div>
 
 
-<!-- PADRÕES IA -->
-<div class="stat-item">
-    <span class="stat-label">📘IA</span>
-    <div class="stat-value" id="btnPadroesIA">--</div>
+
+
+<div id="btnAguardando" class="kpi-footer-btn" 
+     style="
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        font-weight:700;
+        color:#fff;
+        background:#5e2cff;
+        padding:6px 10px;
+        border-radius:10px;
+        width:70px;
+        text-align:center;
+        animation:pulseAguardar 1.4s infinite;
+        box-shadow:0 0 14px rgba(94,44,255,0.6);
+     ">
+    ⏳
+    <span style="font-size:0.65rem;">Apos sinal<br>entra proximas 3 velas</span>
 </div>
 
-<!-- ESTRATÉGIA IA -->
-<div class="stat-item">
-    <span class="stat-label">🎯 IA</span>
-    <div class="stat-value" id="btnEstrategiaIA">Aperte</div>
+    <div class="kpi-footer-btn live-btn" onclick="window.location.href='live.html'">
+    🔴 AO VIVO
 </div>
 
-        <div class="stat-item" id="btnMentoria"
-     style="cursor:pointer;"
-     onclick="window.open('https://wa.me/5551989378751','_blank')">
-    <span class="stat-label">🎓 </span>
-    <div class="stat-value" style="font-size:0.9rem;">Aperte</div>
+
 </div>
 
-    </footer>
-09:23 25/11/2025
+   
     <!-- MODAL SINAL -->
     <div id="modalTimer" class="modal" onclick="if(event.target.id === 'modalTimer') toggleModal('modalTimer')">
         <div class="modal-content">
@@ -1416,6 +1577,7 @@ window.finalizarCadastroInicial = async () => {
     };
 
     function liberarApp(textoStatus) {
+document.body.classList.add("logado");
         document.getElementById('loginOverlay').style.display = 'none';
         const statusEl = document.getElementById('statusPlano');
         if(statusEl) statusEl.innerText = `Plano: ${textoStatus}`;
@@ -1649,17 +1811,34 @@ function ouvirAssertividade() {
     onSnapshot(ref, (snap) => {
         if (!snap.exists()) return;
 
-        const dado = snap.data();
-        const greens = dado.greens || 0;
-        const reds = dado.reds || 0;
-        const total = dado.total || 1;
+        const d = snap.data();
+        const greens = d.greens || 0;
+        const reds = d.reds || 0;
+        const total = d.total || 1;
 
         const pct = ((greens / total) * 100).toFixed(0);
 
-        document.getElementById("valAssertividade").innerText = pct + "%";
-        document.getElementById("placarSession").innerHTML =
-            `<span style="color:#00e676">${greens}G</span> • 
-             <span style="color:#ff4da6">${reds}R</span>`;
+        // === ÁREA DO ROBÔ (TOPO) ===
+        const topoPct = document.getElementById("valAssertividade");
+        if (topoPct) topoPct.innerText = pct + "%";
+
+        const topoPlacar = document.getElementById("placarTotal") || document.getElementById("placarSession");
+        if (topoPlacar)
+            topoPlacar.innerHTML =
+                `<span style="color:#00e676">${greens}G</span> • 
+                 <span style="color:#ff4da6">${reds}R</span>`;
+
+        // === KPI FLUTUANTE (NOVO FORMATO) ===
+        const fltPorcent = document.getElementById("kpiAssertPorcent");
+        const fltPlacar = document.getElementById("kpiAssertPlacar");
+
+        if (fltPorcent) fltPorcent.innerText = pct + "%";
+
+        if (fltPlacar) {
+            fltPlacar.innerHTML =
+                `<span style="color:#00e676">${greens}G</span> • 
+                 <span style="color:#ff4da6">${reds}R</span>`;
+        }
     });
 }
 
@@ -1683,64 +1862,87 @@ function ouvirUltimoSinal() {
         }
 
         function ouvirHistorico() {
-            const q = query(collection(db, "historico_sinais"), orderBy("criado", "desc"), limit(500));
-            onSnapshot(q, snap => {
-                if(!snap.empty) {
-                   const novoItem = snap.docs[0].data();
-                   const valorNovo = parseFloat(novoItem.valor);
-                   if(historicoGlobalIA.length > 0) {
-                       const valorAntigo = historicoGlobalIA[0].valor;
-                       if(valorNovo !== valorAntigo) {
-                           tocarSom(valorNovo);
-// === ABRIR MODAL ROSA AUTOMATICAMENTE ===
-if (valorNovo >= 10) {
+    const q = query(
+        collection(db, "historico_sinais"),
+        orderBy("criado", "desc"),
+        limit(500)
+    );
 
-    const dados = calcularProximaVelaRosa();
+    onSnapshot(q, snap => {
 
-    if (dados) {
-        document.getElementById("horarioEntrada").innerText = dados.janela;
-        document.getElementById("minutoAlvo").innerText = dados.alvo;
-    } else {
-        document.getElementById("horarioEntrada").innerText = "--";
-        document.getElementById("minutoAlvo").innerText = "--";
-    }
+        if (snap.empty) return;
 
-    // Restaurar Proteção e Alvo Máximo
-    document.getElementById("rosaProtecao").innerText = "2.00x";
-    document.getElementById("rosaAlvo").innerText = "100.00x";
+        const novoItem = snap.docs[0].data();
+        const valorNovo = parseFloat(novoItem.valor);
 
-    toggleModal('modalTimer');
+        // 🔊 SOM — SEMPRE FUNCIONA
+        tocarSom(valorNovo);
+
+        // 🔥 NÃO ATUALIZA KPI AQUI!!
+        // atualizarKpiPrev(valorNovo);  ❌ REMOVE
+
+        // =====================================================
+        // ⭐ ABRIR MODAL ROSA AUTOMATICAMENTE
+        // =====================================================
+        if (valorNovo >= 10) {
+
+            const dados = calcularProximaVelaRosa();
+
+            if (dados) {
+                document.getElementById("horarioEntrada").innerText = dados.janela;
+                document.getElementById("minutoAlvo").innerText = dados.alvo;
+            } else {
+                document.getElementById("horarioEntrada").innerText = "--";
+                document.getElementById("minutoAlvo").innerText = "--";
+            }
+
+            // reset dos textos do modal
+            document.getElementById("rosaProtecao").innerText = "2.00x";
+            document.getElementById("rosaAlvo").innerText = "100.00x";
+
+            toggleModal('modalTimer');
+        }
+
+        // =====================================================
+        // ⭐ STOP WIN / LOSS → USANDO SUAS VARIÁVEIS ORIGINAIS
+        // =====================================================
+        if (previsaoAtiva && window.userPlan === 'vip') {
+
+            if (valorNovo >= 2.00) {
+                registrarResultadoAssertividade(1);
+                finalizarPrevisao();
+            }
+            else {
+                roundsRestantes--;
+                if (roundsRestantes <= 0) {
+                    registrarResultadoAssertividade(0);
+                    finalizarPrevisao();
+                }
+            }
+
+        }
+
+        // =====================================================
+        // ⭐ ATUALIZA HISTÓRICO GERAL PARA A IA DO CHAT
+        // =====================================================
+        historicoGlobalIA.unshift({
+            ...novoItem,
+            valor: valorNovo
+        });
+        if (historicoGlobalIA.length > 500) historicoGlobalIA.pop();
+
+        // renderiza apenas os 60 primeiros
+        renderizarHistorico(historicoGlobalIA.slice(0, 60));
+        atualizarUltimaRosa(historicoGlobalIA);
+        atualizarTendencia(historicoGlobalIA);
+
+        // IA PROATIVA — APENAS PARA VIP
+        if (window.userPlan === 'vip') {
+            monitorarPadroesChat(historicoGlobalIA.slice(0, 60));
+        }
+    });
 }
 
-                           // STOP WIN/LOSS
-                           if (previsaoAtiva && window.userPlan === 'vip') {
-                               if (valorNovo >= 2.00) { registrarResultadoAssertividade(1); finalizarPrevisao(); } 
-                               else { roundsRestantes--; if (roundsRestantes <= 0) { registrarResultadoAssertividade(0);                finalizarPrevisao(); } }
-                           }
-                       }
-                   }
-                }
-
-
-                isFirstLoad = false;
-                historicoGlobalIA = []; 
-                const listaTemp = [];
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    const v = parseFloat(data.valor);
-                    historicoGlobalIA.push({ ...data, valor: v });
-                    if(listaTemp.length < 60) listaTemp.push({ ...data, valor: v });
-                });
-                renderizarHistorico(listaTemp);
-                atualizarUltimaRosa(listaTemp);
-                atualizarTendencia(listaTemp);
-                
-                // NOVA FUNÇÃO IA PROATIVA
-                if(window.userPlan === 'vip') {
-                    monitorarPadroesChat(listaTemp);
-                }
-            });
-        }
 
       
 
@@ -1776,48 +1978,51 @@ if (valorNovo >= 10) {
             }
         }
 
-       function ouvirSinais3Azuis() {
+// ================================================
+// 🔮 LISTENER OFICIAL — SÓ LÊ OS SINAIS DA ESTRATÉGIA 3 AZUIS
+// ================================================
+function ouvirSinais3Azuis() {
+    const el = document.getElementById("listaPrevisaoFooter");
 
-    const ref = collection(db, "analises", "sequencia_3_azuis", "sinais");
+    // 🔒 BLOQUEIO FREE — NÃO OUVE O FIREBASE
+    if (window.userPlan !== "vip") {
+        if (el) {
+            el.innerHTML = '<span class="kpi-analise">🔒 Somente VIP</span>';
+        }
+        return;
+    }
+
+    // 🔓 VIP → CÓDIGO ORIGINAL (IDÊNTICO AO SEU)
+    const ref = collection(db, "analises/sequencia_3_azuis/sinais");
     const q = query(ref, orderBy("criado", "desc"), limit(1));
 
-    onSnapshot(q, (snap) => {
+    onSnapshot(q, snap => {
+        if (!el) return;
 
-        const container = document.getElementById("listaPrevisao");
-
-        // 👉 Quando NÃO houver sinal = limpa completamente
         if (snap.empty) {
-            container.innerHTML = '<span class="text-azul">--</span>';
+            el.innerHTML = '<span class="kpi-analise">ANALISANDO...</span>';
             return;
         }
 
-        // 👉 Quando houver sinal no Firebase
         const dados = snap.docs[0].data();
         const arr = dados.valores || [];
 
-        container.innerHTML = "";
-
-        arr.forEach(v => {
-            const span = document.createElement("span");
-            span.innerText = parseFloat(v).toFixed(2) + "x";
-
-            if (v >= 10) span.className = "text-rosa";
-            else if (v >= 2) span.className = "text-roxo";
-            else span.className = "text-azul";
-
-            container.appendChild(span);
-        });
+        el.innerHTML = arr
+            .map(v => `<span>${parseFloat(v).toFixed(2)}x</span>`)
+            .join(" • ");
     });
 }
 
+// 📌 Quando abrir o app → começa como "ANALISANDO…"
+window.addEventListener("load", () => {
+    const el = document.getElementById("listaPrevisao");
+    if (el) {
+        el.innerHTML = '<span class="kpi-analise">ANALISANDO...</span>';
+    }
+});
 
 
-
-
-        
-
-
-        function renderizarHistorico(lista) {
+ function renderizarHistorico(lista) {
             const el = document.getElementById("listaHistorico");
             el.innerHTML = "";
             let dados = lista;
@@ -1848,7 +2053,8 @@ if (valorNovo >= 10) {
             });
         });
 
-        ouvirUltimoSinal(); ouvirHistorico(); ouvirSinais3Azuis();;ouvirSinalDeRisco();ouvirAssertividade();
+        ouvirUltimoSinal(); ouvirHistorico(); ouvirSinais3Azuis();;
+ouvirSinalDeRisco();ouvirAssertividade();
        onAuthStateChanged(auth, user => { if (user) document.getElementById("userEmail").textContent = `ID: ${user.uid.slice(0,6)}...`; });
         window.logout = async () => { await signOut(auth); location.reload(); };
     });
@@ -1994,25 +2200,32 @@ window.scrollToFooterPadroes = () => {
     document.getElementById("btnPadroesIA").scrollIntoView({ behavior: "smooth" });
 };
 
-/* ======== ATUALIZAÇÃO DA ÁREA EXPANSIVA DO BOTÃO ======== */
+
+/* === PAINEL EXPANSIVO DO BOTÃO FLUTUANTE === */
+window.toggleFloatPanel = () => {
+    const panel = document.getElementById("floatPanel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+};
+</script>
+
 function atualizarFloatInfo() {
 
     // Atualiza Última Rosa
-const vRosa = document.getElementById("valUltimaRosa");
-const hRosa = document.getElementById("horaUltimaRosa");
+    const vRosa = document.getElementById("valUltimaRosa");
+    const hRosa = document.getElementById("horaUltimaRosa");
 
-if (vRosa && hRosa) {
-    const valor = vRosa.innerText;
+    if (vRosa && hRosa) {
+        const valor = vRosa.innerText;
 
-    // deixa rosa automaticamente quando for >= 10
-    if (!isNaN(parseFloat(valor)) && parseFloat(valor) >= 10) {
-        vRosa.classList.add("text-rosa");
-    } else {
-        vRosa.classList.remove("text-rosa");
+        // deixa rosa automaticamente quando for >= 10
+        if (!isNaN(parseFloat(valor)) && parseFloat(valor) >= 10) {
+            vRosa.classList.add("text-rosa");
+        } else {
+            vRosa.classList.remove("text-rosa");
+        }
     }
-}
 
-    // Atualiza Dicas IA (última mensagem automática do robô)
+    // Atualiza Dicas IA
     if (window.ultimoStatusPrev) {
         document.getElementById("floatDicasIA").innerText = "💡 " + window.ultimoStatusPrev;
     }
@@ -2020,14 +2233,12 @@ if (vRosa && hRosa) {
 
 setInterval(atualizarFloatInfo, 3000);
 
-/* === PAINEL EXPANSIVO DO BOTÃO FLUTUANTE === */
+// Painel expansivo do botão flutuante
 window.toggleFloatPanel = () => {
     const panel = document.getElementById("floatPanel");
     panel.style.display = panel.style.display === "none" ? "block" : "none";
 };
+</script>
 
-
- 
-    </script>
 </body>
 </html>
