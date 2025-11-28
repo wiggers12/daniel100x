@@ -2,48 +2,41 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>🔴 Live ao Vivo</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🔴 Live VIP</title>
 
 <style>
-body {
-    background: #000;
-    color: #fff;
-    margin: 0;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-}
+body { background:#000; margin:0; }
 
-/* PLAYER FLUTUANTE – CANTO INFERIOR ESQUERDO */
 #videoBox {
     position: fixed;
     bottom: 15px;
     left: 15px;
-    width: 220px;
-    height: 140px;
-    background: #111;
-    border: 2px solid #e60000;
-    border-radius: 10px;
-    overflow: hidden;
-    z-index: 99999;
-    box-shadow: 0 0 15px rgba(255,0,0,0.4);
+    width: 240px;
+    height: 150px;
+    background:#111;
+    border:2px solid red;
+    border-radius:12px;
+    overflow:hidden;
+    z-index:999999;
+    box-shadow:0 0 20px rgba(255,0,0,0.4);
 }
-
-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+iframe {
+    width:100%;
+    height:100%;
+    border:0;
 }
 </style>
-</head>
 
+</head>
 <body>
 
 <div id="videoBox">
-    <video id="remoteVideo" autoplay playsinline></video>
+    <iframe 
+        src="https://meet.jit.si/daniel100x-live"
+        allow="camera; microphone; fullscreen; display-capture">
+    </iframe>
 </div>
-
-<script src="webrtc.js"></script>
 
 </body>
 </html>
