@@ -49,13 +49,12 @@
         :root {
             --cor-primaria: #ff4da6; --cor-secundaria: #5e2cff; --cor-terciaria: #00bcd4;
             --cor-gold: #ffd700; --cor-verde: #00e676; --cor-fundo-escuro: #0a0a0f;
-            --cor-card-claro: #1d1d2a; --altura-header: 60px; --altura-footer: 75px;
-        }
+            --cor-card-claro: #1d1d2a; --altura-header: 60px;         }
 
         body {
             background: linear-gradient(135deg, var(--cor-fundo-escuro), #1a1030);
             color: #f1f1f1; font-family: 'Poppins', sans-serif; overflow-x: hidden;
-            margin: 0; padding-top: var(--altura-header); padding-bottom: var(--altura-footer);
+            margin: 0; padding-top: var(--altura-header); 
             height: 100vh; box-sizing: border-box;
         }
 
@@ -101,56 +100,15 @@
             padding: 0 5px;
         }
         .nav-item { text-align: center; color: #888; font-weight: 500; cursor: pointer; font-size: 1.1rem; text-decoration: none; padding: 5px; }
-        .nav-item span { display: block; font-size: 0.55rem; opacity: 0.8; margin-top: 0px; text-transform: uppercase;}
+        .nav-item span { display: block; font-size: 0.55rem; opacity: 0.8; mar.stat-item
+gin-top: 0px; text-transform: uppercase;}
         .nav-item.ativo-nav, .nav-item:hover { color: var(--cor-primaria); }
         .nav-item.ativo-jogo { color: #ffd95a; text-shadow: 0 0 8px rgba(255,217,90,0.5); }
         
         /* Ícone VIP no cabeçalho */
         .nav-vip { color: var(--cor-gold); animation: pulse vip 2s infinite; cursor: pointer; }
 
-        /* === RODAPÉ FINAL — 6 KPIs FLEXÍVEIS === */
-<footer class="stats-footer">
-
-    <a href="javascript:void(0)" onclick="abrirDetalhesAcertos()" class="stat-item">
-        <span class="stat-label">Acertos 24h</span>
-        <span class="stat-value" id="valAcertos">85%</span>
-        <span class="stat-sub" id="subAcertos">🔥 Forte</span>
-    </a>
-
-    <a href="https://t.me/seu-grupo" target="_blank" class="stat-item">
-        <span class="stat-label">Última Rosa</span>
-        <span class="stat-value" id="valUltimaRosa">18.5x</span>
-        <span class="stat-sub">1 min atrás</span>
-    </a>
-
-    <div class="stat-item">
-        <span class="stat-label" id="textoRisco">Sinal de Risco</span>
-        <div id="listaPrevisaoRisco">
-            <span>2.1x</span> <span>3.5x</span> <span>5.0x</span>
-        </div>
-        <span class="stat-sub">3x entradas</span>
-    </div>
-    
-    <div class="stat-item">...</div>
-    <div class="stat-item">...</div>
-    <div class="stat-item">...</div>
-</footer>
-/* --- ADICIONADO: ESTILOS PARA ITENS CLICÁVEIS NO RODAPÉ --- */
-.stats-footer a.stat-item {
-    text-decoration: none; /* Remove sublinhado padrão do link */
-    color: inherit; /* Mantém a cor do texto do body */
-    cursor: pointer; /* Garante que pareça clicável */
-}
-
-/* Efeito de clique/hover (feedback visual) para A ou DIV clicável */
-.stats-footer .stat-item:active,
-.stats-footer a.stat-item:active {
-    background-color: rgba(255, 255, 255, 0.08); /* Fundo sutil ao tocar */
-    transform: scale(0.98); /* Encolhe levemente ao tocar */
-    transition: 0.1s;
-}
-/* --- FIM DA ADIÇÃO --- */
-
+        
 
         /* GAME CONTAINER */
         .game-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
@@ -422,22 +380,6 @@
     font-size: 0.75rem !important;
 }
 
-/* ===== MOBILE ===== */
-@media (max-width: 480px) {
-    .single-card {
-        max-width: 88% !important;
-        padding: 15px !important;
-    }
-
-    .btn-gratis,
-    .btn-vipzao,
-    .btn-robo,
-    .btn-telegram,
-    .btn-liberar {
-        font-size: 0.8rem !important;
-        padding: 9px !important;
-    }
-}
 
 /* ===== RESPONSIVIDADE GERAL ===== */
 @media (max-width: 480px) {
@@ -636,67 +578,7 @@
     text-align: center !important;
 }
 
-/* Textos internos */
-.stat-label {
-    font-size: 0.60rem;
-    white-space: nowrap;
-}
 
-.stat-value {
-    font-size: 1rem;
-    font-weight: 700;
-}
-
-/* Cada item do rodapé agora é flexível */
-.stat-item {
-    flex: 1;                           /* ocupa espaço igual */
-    min-width: 0;                      /* PERMITE encolher sem quebrar */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    padding: 0 3px;
-
-    border-right: 1px solid rgba(255,255,255,0.06);
-}
-
-.stat-item:last-child {
-    border-right: none;
-}
-
-/* Textos agora se ajustam e nunca cortam nada */
-.stat-label,
-.stat-value,
-.stat-sub {
-    font-size: 0.70rem;
-    text-align: center;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    width: 100%;
-}
-
-/* Ajuste automático no mobile */
-@media (max-width: 450px) {
-    .stats-footer {
-        height: 65px;
-    }
-
-    .stat-label {
-        font-size: 0.55rem;
-    }
-
-    .stat-value {
-        font-size: 0.85rem;
-    }
-
-    .stat-sub {
-        font-size: 0.60rem;
-    }
-}
 
 /* =========== MOBILE ULTRA PREMIUM =========== */
 
@@ -774,60 +656,17 @@ body.mobile .navbar-top .nav-item {
 
 .game-container,
 iframe {
-    height: calc(100vh - var(--altura-header) - var(--altura-footer)) !important;
-    max-height: calc(100vh - var(--altura-header) - var(--altura-footer)) !important;
+    height: calc(100vh - var(--altura-header)) !important;
+    max-height: calc(100vh - var(--altura-header)) !important;
     overflow: hidden !important;
 }
-
 body {
     overflow: hidden !important;
     height: 100vh !important;
 }
-/* === DESKTOP — permanece 1 linha normal === */
-.stats-footer {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    height: var(--altura-footer);
-}
 
 
-/* === MOBILE — transforma em 2 linhas (3 + 3) === */
-@media (max-width: 600px) {
-
-    .stats-footer {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        grid-template-rows: 1fr 1fr !important;
-
-        height: 110px !important; /* espaço para 2 linhas */
-        padding: 4px 0 !important;
-    }
-
-    /* Cada KPI */
-    .stat-item {
-        padding: 3px 2px !important;
-        border-right: none !important; /* remover linha que ficaria cortando */
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    /* Última linha sem borda inferior */
-    .stat-item:nth-child(n+4) {
-        border-bottom: none !important;
-    }
-
-    /* Textos menores e adaptáveis */
-    .stat-label {
-        font-size: 0.55rem !important;
-    }
-
-    .stat-value {
-        font-size: 0.85rem !important;
-    }
-
-    .stat-sub {
-        font-size: 0.60rem !important;
-    }
-}
+    
 #btnLiveFlutuante {
     position: fixed;
     bottom: 110px; /* acima do relógio */
@@ -853,52 +692,7 @@ body {
     100% { box-shadow: 0 0 12px rgba(255,0,55,0.4); }
 }
         /* ============================
-   MOBILE — RODAPÉ PROFISSIONAL
-   ============================ */
-
-@media (max-width: 600px) {
-
-    /* Rodapé em 2 linhas (3 KPIs por linha) */
-    .stats-footer {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        grid-template-rows: 1fr 1fr !important;
-        height: 115px !important;
-        padding: 6px 4px !important;
-        gap: 2px !important;
-    }
-
-    /* Cada KPI em caixa mais compacta */
-    .stat-item {
-        padding: 4px 2px !important;
-        border-right: none !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        text-align: center !important;
-    }
-
-    .stat-item:nth-child(n+4) {
-        border-bottom: none !important;
-    }
-
-    /* Título (ASSERTIVIDADE, PREVISÃO, RISCO...) */
-    .stat-label {
-        font-size: 0.60rem !important;
-        line-height: 1rem !important;
-        margin-bottom: 2px !important;
-    }
-
-    /* Valor principal */
-    .stat-value {
-        font-size: 1rem !important;
-        font-weight: 900 !important;
-    }
-
-    /* Subtexto (ex: 13G • 5R) */
-    .stat-sub {
-        font-size: 0.65rem !important;
-        margin-top: 2px !important;
-    }
-}
+ 
 /* BOTÕES FLUTUANTES MOBILE */
 @media (max-width: 600px) {
 
@@ -928,11 +722,6 @@ body {
    Aparecem APENAS NO JOGO (#home ativo)
    Ocupam toda largura da tela
    ===================================== */
-
-/* escondido por padrão */
-.barra-kpi-livre {
-    display: none !important;
-}
 
 /* aparece somente quando #home está ativo */
 .secao.ativa#home + .barra-kpi-livre,
@@ -985,16 +774,6 @@ body {
     box-shadow: 0 0 12px rgba(255,255,255,0.25);
 }
 
-/* Modo celular */
-@media (max-width: 700px) {
-    .barra-kpi-livre {
-        bottom: 75px;
-    }
-    .kpi-footer-btn {
-        padding: 7px 6px;
-        font-size: 0.75rem;
-    }
-}
 
 /* Remove QUALQUER fundo roxo de qualquer seção */
 html, body, .secao, #home, #app, .container, main {
@@ -1087,25 +866,230 @@ html, body, .secao, #home, #app, .container, main {
     color:#ff4da6;
     animation:none;
 }
-/* 🔒 Esconde todos os KPIs na tela inicial */
-body.home .barra-kpi-livre,
-body.home #btnLiveFlutuante,
-body.home #timerBtn {
-    display: none !important;
-}
-/* ========== ESCONDER TUDO ANTES DO LOGIN (VERSÃO FINAL PREMIUM) ========== */
 
-body:not(.logado) .stats-footer,
-body:not(.logado) .barra-kpi-livre,
-body:not(.logado) .kpi-flutuante,
-body:not(.logado) #btnLiveFlutuante,
-body:not(.logado) #timerBtn,
-body:not(.logado) #home,
-body:not(.logado) footer,
-body:not(.logado) .rodape,
-body:not(.logado) .footer,
-body:not(.logado) #footer {
-    display: none !important;
+/* ===========================
+   BARRA KPI LIVRE - ORGANIZAÇÃO
+   =========================== */
+
+/* Linha fixa com KPIs */
+.barra-kpi-livre {
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    z-index: 999999;
+
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 0 10px !important;
+}
+
+/* Tamanho unificado dos cards */
+.barra-kpi-livre .kpi-footer-btn {
+    flex: 1 !important;
+    min-width: 60px !important;
+    height: 50px !important;
+
+    padding: 3px 5px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+
+    border-radius: 12px !important;
+}
+
+/* Botões Roxos */
+#kpiPrevBox,
+#btnAguardando {
+    width: auto !important;
+    min-width: 60px !important;
+    height: 50px !important;
+    padding: 3px 5px !important;
+}
+
+/* Texto reduzido */
+#kpiPrevBox span,
+#btnAguardando span,
+#kpiAssertBox div,
+.kpi-footer-btn span {
+    font-size: 0.70rem !important;
+    line-height: 0.95rem !important;
+}
+
+/* ===========================
+      RELÓGIO AO VIVO
+   =========================== */
+
+#relogioAoVivo, 
+#relogioAoVivo + small {
+    position: fixed;
+    bottom: 70px;
+    left: 15px;
+    background: rgba(0,0,0,0.45);
+    padding: 6px 10px;
+    border-radius: 10px;
+    z-index: 999999;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+#relogioAoVivo {
+    color: #00ff99 !important;
+    font-size: 1rem !important;
+    font-family: "Share Tech Mono", monospace !important;
+    display: inline-block !important;
+}
+
+#relogioAoVivo + small {
+    color: #ccc !important;
+    font-size: 0.65rem !important;
+    display: block !important;
+    margin-top: -2px;
+}
+
+/* ===========================
+   ASSERTIVIDADE - FORMATO ORIGINAL
+   =========================== */
+
+#kpiAssertBox {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+
+    min-width: 90px !important;
+    padding: 3px 0 !important;
+}
+
+/* Título */
+#kpiAssertBox div:nth-child(1) {
+    font-size: 0.60rem !important;
+    font-weight: 700 !important;
+    opacity: .9;
+    letter-spacing: .5px;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Porcentagem (%) */
+#kpiAssertPorcent {
+    font-size: 0.90rem !important;
+    font-weight: 800 !important;
+    margin: -1px 0 0 0 !important;
+}
+
+/* Placar */
+#kpiAssertPlacar {
+    font-size: 0.75rem !important;
+    margin-top: 1px !important;
+}
+/* ===========================
+   CORREÇÃO DO RELÓGIO
+   =========================== */
+#relogioAoVivo, 
+#relogioAoVivo + small {
+    position: fixed;
+    bottom: 70px;
+    left: 15px;
+    background: rgba(0,0,0,0.45);
+    padding: 6px 10px;
+    border-radius: 10px;
+    z-index: 999999;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+#relogioAoVivo {
+    display: block !important;   /* 🔥 AGORA A HORA APARECE */
+    color: #00ff99 !important;
+    font-size: 1rem !important;
+    font-family: "Share Tech Mono", monospace !important;
+}
+
+#relogioAoVivo + small {
+    display: block !important;
+    color: #ccc !important;
+    font-size: 0.65rem !important;
+    margin-top: -2px !important;
+}
+
+/* ===========================
+   ASSERTIVIDADE — FORMATO CORRETO
+   =========================== */
+
+#kpiAssertBox {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+
+    padding: 3px 0 !important;
+    min-width: 90px !important;
+}
+
+/* "ASSERTIVIDADE" */
+#kpiAssertBox div:nth-child(1) {
+    font-size: 0.60rem !important;
+    font-weight: 700 !important;
+    opacity: 0.9;
+    margin-bottom: 0px !important;
+}
+
+/* Porcentagem 88% */
+#kpiAssertPorcent {
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+    margin: 1px 0 0 0 !important;
+}
+
+/* 146G • 20R NA MESMA LINHA */
+#kpiAssertPlacar {
+    font-size: 0.75rem !important;
+    margin-top: 2px !important;
+
+    display: flex !important;   /* 🔥 COLUNA → LINHA */
+    flex-direction: row !important;
+    gap: 4px !important;
+}
+
+#kpiAssertPlacar span {
+    display: inline-block !important;
+}
+#relogioAoVivo,
+#relogioAoVivo + small {
+    z-index: 999999999 !important;
+}
+#relogioAoVivo,
+#relogioAoVivo + small {
+    position: fixed;
+    bottom: 70px;
+    left: 15px;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: center;
+    backdrop-filter: blur(6px);
+
+    z-index: 999999999 !important; /* 🔥 agora aparece sempre */
+}
+
+#relogioAoVivo {
+    color: #00ff99 !important;
+    font-size: 1rem !important;
+    font-family: "Share Tech Mono", monospace !important;
+    display: block !important;
+}
+
+#relogioAoVivo + small {
+    display: block !important;
+    color: #ccc !important;
+    font-size: 0.65rem !important;
+    margin-top: -2px !important;
 }
 
     </style>
@@ -1312,9 +1296,6 @@ body:not(.logado) #footer {
         </div>
 
     </div>
-
-</div>
-
 <!-- KPIs FLUTUANTES LIVRES -->
 <div class="barra-kpi-livre">
 
@@ -1354,10 +1335,6 @@ body:not(.logado) #footer {
     <span id="listaPrevisaoFooter" class="kpi-prev-text kpi-prev-analise" style="font-size:0.75rem;">
         ANALISANDO…<br>proximo sinal em breve</span>
 </div>
-
-
-
-
 <div id="btnAguardando" class="kpi-footer-btn" 
      style="
         display:flex;
@@ -1381,8 +1358,8 @@ body:not(.logado) #footer {
     🔴 AO VIVO
 </div>
 
-
 </div>
+
 
    
     <!-- MODAL SINAL -->
@@ -1497,7 +1474,7 @@ window.finalizarCadastroInicial = async () => {
 
 
 
-    window.userPlan = 'free'; 
+    window.userPlan = 'vip'; 
     const MINUTOS_ALVO = [1, 3, 8, 11, 13, 18, 21, 23, 28, 31, 33, 38, 41, 43, 48, 51, 53, 58];
 
     onAuthStateChanged(auth, (user) => { if (!user) signInAnonymously(auth).catch(console.error); });
@@ -2311,7 +2288,22 @@ window.toggleFloatPanel = () => {
     const panel = document.getElementById("floatPanel");
     panel.style.display = panel.style.display === "none" ? "block" : "none";
 };
-</script>
 
+function atualizarRelogio() {
+    const agora = new Date();
+
+    let h = String(agora.getHours()).padStart(2, '0');
+    let m = String(agora.getMinutes()).padStart(2, '0');
+    let s = String(agora.getSeconds()).padStart(2, '0');
+
+    document.getElementById("relogioAoVivo").innerText = `${h}:${m}:${s}`;
+}
+
+// Atualiza a cada 1 segundo
+setInterval(atualizarRelogio, 1000);
+
+// Chama imediatamente ao carregar
+atualizarRelogio();
+</script>
 </body>
 </html>
