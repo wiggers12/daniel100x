@@ -852,6 +852,77 @@ body {
     50%  { box-shadow: 0 0 22px rgba(255,0,55,0.9); }
     100% { box-shadow: 0 0 12px rgba(255,0,55,0.4); }
 }
+        /* ============================
+   MOBILE — RODAPÉ PROFISSIONAL
+   ============================ */
+
+@media (max-width: 600px) {
+
+    /* Rodapé em 2 linhas (3 KPIs por linha) */
+    .stats-footer {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: 1fr 1fr !important;
+        height: 115px !important;
+        padding: 6px 4px !important;
+        gap: 2px !important;
+    }
+
+    /* Cada KPI em caixa mais compacta */
+    .stat-item {
+        padding: 4px 2px !important;
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        text-align: center !important;
+    }
+
+    .stat-item:nth-child(n+4) {
+        border-bottom: none !important;
+    }
+
+    /* Título (ASSERTIVIDADE, PREVISÃO, RISCO...) */
+    .stat-label {
+        font-size: 0.60rem !important;
+        line-height: 1rem !important;
+        margin-bottom: 2px !important;
+    }
+
+    /* Valor principal */
+    .stat-value {
+        font-size: 1rem !important;
+        font-weight: 900 !important;
+    }
+
+    /* Subtexto (ex: 13G • 5R) */
+    .stat-sub {
+        font-size: 0.65rem !important;
+        margin-top: 2px !important;
+    }
+}
+/* BOTÕES FLUTUANTES MOBILE */
+@media (max-width: 600px) {
+
+    .barra-kpi-livre {
+        bottom: 70px !important;    /* sobe um pouco para não colidir com o footer */
+        padding: 0 6px !important;
+        gap: 6px !important;
+    }
+
+    .kpi-footer-btn {
+        padding: 7px 4px !important;
+        font-size: 0.70rem !important;
+        border-radius: 12px !important;
+    }
+
+    /* texto interno fica menor e mais elegante */
+    #btnAguardando span,
+    #listaPrevisaoFooter,
+    #kpiAssertPorcent {
+        font-size: 0.70rem !important;
+        text-align: center !important;
+    }
+}
+
 /* =====================================
    KPIs FLUTUANTES — FINAL OFICIAL
    Aparecem APENAS NO JOGO (#home ativo)
