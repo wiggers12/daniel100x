@@ -1,107 +1,49 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🔴 Live ao Vivo</title>
+<meta charset="UTF-8">
+<title>🔴 Live ao Vivo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
-        body {
-            margin: 0;
-            background: #000;
-            font-family: Arial, sans-serif;
-            color: #fff;
-            text-align: center;
-        }
+<style>
+body {
+    background: #000;
+    color: #fff;
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
 
-        #titulo {
-            padding: 15px;
-            background: #111;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-bottom: 1px solid #222;
-        }
+/* PLAYER FLUTUANTE – CANTO INFERIOR ESQUERDO */
+#videoBox {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    width: 220px;
+    height: 140px;
+    background: #111;
+    border: 2px solid #e60000;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 99999;
+    box-shadow: 0 0 15px rgba(255,0,0,0.4);
+}
 
-        video {
-            width: 100%;
-            max-height: 80vh;
-            background: #000;
-        }
-
-        #status {
-            margin-top: 10px;
-            font-size: 1rem;
-            color: #0f0;
-        }
-
-        #voltar {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 12px 20px;
-            background: #ff0055;
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 1rem;
-        }
-    </style>
-
-    <!-- Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import {
-            getDatabase,
-            ref,
-            onValue
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
-            authDomain: "aviatordaniel100x.firebaseapp.com",
-            databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com",
-            projectId: "aviatordaniel100x",
-            storageBucket: "aviatordaniel100x.firebasestorage.app",
-            messagingSenderId: "169015417803",
-            appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
-            measurementId: "G-EES9SVSV72"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // elementos
-        const videoEl = document.getElementById("liveVideo");
-        const statusEl = document.getElementById("status");
-
-        // Ouvir link da live no Firebase
-        const liveRef = ref(db, "live/url");
-
-        onValue(liveRef, (snap) => {
-            const url = snap.val();
-
-            if (!url) {
-                statusEl.innerText = "🔴 Aguardando transmissão…";
-                videoEl.style.display = "none";
-                return;
-            }
-
-            statusEl.innerText = "🟢 Live conectada!";
-            videoEl.src = url;
-            videoEl.style.display = "block";
-
-            setTimeout(() => videoEl.play().catch(() => {}), 500);
-        });
-    </script>
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="titulo">🔴 Live ao Vivo</div>
+<div id="videoBox">
+    <video id="remoteVideo" autoplay playsinline></video>
+</div>
 
-    <video id="liveVideo" controls autoplay playsinline></video>
-
-    <div id="status">Conectando…</div>
-
-    <a id="voltar" href="index.html">⬅ Voltar</a>
+<script src="webrtc.js"></script>
 
 </body>
 </html>
