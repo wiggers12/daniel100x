@@ -1,66 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-<title>Live VIP</title>
-<style>
-body { background:#000; color:#fff; font-family:Arial; text-align:center; }
-video { 
-    width:100%; 
-    max-height:70vh; 
-    margin-top:20px; 
-    border-radius:12px; 
-    background:#111; 
-}
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔴 Live ao Vivo</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            text-align: center;
+        }
+
+        #titulo {
+            padding: 15px;
+            background: #111;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-bottom: 1px solid #222;
+        }
+
+        video {
+            width: 100%;
+            max-height: 80vh;
+            background: #000;
+        }
+
+        #status {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #0f0;
+        }
+
+        #voltar {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: #ff0055;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+    </style>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import {
+            getDatabase,
+            ref,
+            onValue
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
+            authDomain: "aviatordaniel100x.firebaseapp.com",
+            databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com",
+            projectId: "aviatordaniel100x",
+            storageBucket: "aviatordaniel100x.firebasestorage.app",
+            messagingSenderId: "169015417803",
+            appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
+            measurementId: "G-EES9SVSV72"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // elementos
+        const videoEl = document.getElementById("liveVideo");
+        const statusEl = document.getElementById("status");
+
+        // Ouvir link da live no Firebase
+        const liveRef = ref(db, "live/url");
+
+        onValue(liveRef, (snap) => {
+            const url = snap.val();
+
+            if (!url) {
+                statusEl.innerText = "🔴 Aguardando transmissão…";
+                videoEl.style.display = "none";
+                return;
+            }
+
+            statusEl.innerText = "🟢 Live conectada!";
+            videoEl.src = url;
+            videoEl.style.display = "block";
+
+            setTimeout(() => videoEl.play().catch(() => {}), 500);
+        });
+    </script>
 </head>
 <body>
 
-<h2>🔴 LIVE VIP – AO VIVO</h2>
-<video id="livePlayer" autoplay playsinline muted></video>
+    <div id="titulo">🔴 Live ao Vivo</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <video id="liveVideo" controls autoplay playsinline></video>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
-  authDomain: "aviatordaniel100x.firebaseapp.com",
-  databaseURL: "https://aviatordaniel100x-default-rtdb.firebaseio.com",
-  projectId: "aviatordaniel100x",
-  storageBucket: "aviatordaniel100x.firebasestorage.app",
-  messagingSenderId: "169015417803",
-  appId: "1:169015417803:web:ce4aa4f9b77d5ddb07344e",
-  measurementId: "G-EES9SVSV72"
-};
+    <div id="status">Conectando…</div>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-let pc;
-
-onSnapshot(doc(db, "live", "stream"), async snap => {
-    const data = snap.data();
-    if (!data || !data.active) return;
-
-    pc = new RTCPeerConnection({
-        iceServers: [{
-            urls: ["stun:stun.l.google.com:19302"]
-        }]
-    });
-
-    pc.ontrack = (event) => {
-        console.log("TRACK RECEBIDA!");
-        document.getElementById("livePlayer").srcObject = event.streams[0];
-    };
-
-    await pc.setRemoteDescription(data.offer);
-
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-
-    await updateDoc(doc(db, "live", "stream"), { answer });
-});
-</script>
+    <a id="voltar" href="index.html">⬅ Voltar</a>
 
 </body>
 </html>
