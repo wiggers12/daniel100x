@@ -838,6 +838,30 @@ body {
         font-size: 0.60rem !important;
     }
 }
+#btnLiveFlutuante {
+    position: fixed;
+    bottom: 110px; /* acima do relógio */
+    right: 20px;
+    background: #ff0033;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    z-index: 9999;
+    box-shadow: 0 0 18px rgba(255, 0, 55, 0.7);
+    border: 2px solid #ff6688;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    transition: 0.3s;
+    animation: piscarLive 1.3s infinite;
+}
+
+@keyframes piscarLive {
+    0%   { box-shadow: 0 0 12px rgba(255,0,55,0.4); }
+    50%  { box-shadow: 0 0 22px rgba(255,0,55,0.9); }
+    100% { box-shadow: 0 0 12px rgba(255,0,55,0.4); }
+}
 
     </style>
 </head>
@@ -1026,7 +1050,10 @@ body {
             <button class="btn-fechar" style="background:#333; margin-top:20px;" onclick="logout()">🚪 Sair / Trocar Chave</button>
         </div>
     </section>
-
+<!-- BOTÃO AO VIVO – FLUTUANTE E SEMPRE VISÍVEL -->
+<a href="live.html" id="btnLiveFlutuante">
+    🔴 AO VIVO
+</a>
     <div id="timerBtn" class="timer-float" onclick="toggleFloatPanel()">
 
     <!-- Sempre visível -->
