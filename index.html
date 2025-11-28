@@ -138,792 +138,266 @@ gin-top: 0px; text-transform: uppercase;}
         .filtros button { background: #14141f; color: #f1f1f1; border: 1px solid #2d2d3d; border-radius: 8px; padding: 6px 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .filtros button.ativo { background: var(--cor-primaria); color: white; border-color: var(--cor-primaria); }
 
-        /* TIMER FLOAT (LADO ESQUERDO) */
-        .timer-float {
-            position: fixed; bottom: 125px; left: 20px; background: #111; color: #00e676;
-            border: 2px solid #333; border-radius: 12px; padding: 10px 15px; text-align: center;
-            cursor: pointer; box-shadow: 0 0 15px rgba(0, 230, 118, 0.3); z-index: 99;
-            display: flex; flex-direction: column; align-items: center; min-width: 90px;
-        }
-        .timer-float span { display: block; font-family: 'Share Tech Mono', monospace; font-size: 1.4rem; font-weight: 400; letter-spacing: 1px; }
-        .timer-float small { display: block; font-size: 0.6rem; color: #aaa; margin-top: 2px; font-weight: 600; text-transform: uppercase; }
-        .timer-float:active { transform: scale(0.95); }
+        /* =========================================
+   PALETA PRINCIPAL / ROOT
+========================================= */
+:root {
+    --cor-primaria: #ff4da6;
+    --cor-secundaria: #5e2cff;
+    --cor-terciaria: #00bcd4;
+    --cor-gold: #ffd700;
+    --cor-verde: #00e676;
+    --fundo-escuro: #0a0a0f;
+}
 
-        /* MODAIS */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 200; }
-        .modal-content { background: linear-gradient(160deg, #1a1a24, #252535); border: 2px solid var(--cor-primaria); border-radius: 20px; padding: 25px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 0 40px rgba(255,77,166,0.2); position: relative; max-height: 90vh; overflow-y: auto; }
-        
-        .sinal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .sinal-box { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        .sinal-box.full { grid-column: span 2; background: rgba(255, 215, 0, 0.1); border-color: var(--cor-gold); }
-        .sinal-label { font-size: 0.75rem; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 4px; }
-        .sinal-value { font-size: 1.2rem; font-weight: bold; color: #fff; }
-        .destaque-verde { color: var(--cor-verde); }
-        .destaque-gold { color: var(--cor-gold); font-size: 1.5rem; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+/* Reset geral */
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #000 !important;
+    overflow: hidden;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
 
-        .btn-fechar { background: var(--cor-primaria); color: #fff; border: none; padding: 10px 20px; border-radius: 50px; margin-top: 20px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
-        
-        .secao { display: none; padding: 0; height: 100%; }
-        .secao.ativa { display: block; }
+/* =========================================
+   TIMER FLOAT
+========================================= */
+.timer-float {
+    position: fixed;
+    bottom: 125px;
+    left: 20px;
+    background: #111;
+    color: #00e676;
+    border: 2px solid #333;
+    border-radius: 12px;
+    padding: 10px 15px;
+    min-width: 90px;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(0, 230, 118, 0.3);
+    z-index: 99999;
+}
+.timer-float span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.4rem;
+}
+.timer-float small {
+    font-size: 0.6rem;
+    color: #aaa;
+    margin-top: 2px;
+}
+.timer-float:active {
+    transform: scale(0.95);
+}
 
-        /* CHAT IA */
-        .chat-modal-content { padding: 0; display: flex; flex-direction: column; height: 80vh; background: #111; border: 1px solid var(--cor-terciaria); }
-        .chat-header { background: var(--cor-terciaria); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: #000; font-weight: bold; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0a0a0f; }
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; animation: fadeIn 0.3s ease; }
-        .msg.bot { background: #1d1d2a; align-self: flex-start; border: 1px solid #333; }
-        .msg.user { background: var(--cor-terciaria); color: #000; align-self: flex-end; font-weight: 600; }
-        .chat-footer { padding: 10px; background: #1a1a24; border-top: 1px solid #333; }
-        .quick-questions { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; }
-        .quick-btn { background: rgba(0, 188, 212, 0.1); border: 1px solid var(--cor-terciaria); color: var(--cor-terciaria); padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; white-space: nowrap; cursor: pointer; }
-        .chat-input-area { display: flex; gap: 10px; }
-        .chat-input { flex: 1; background: #0a0a0f; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; outline: none; }
-        .chat-send { background: var(--cor-terciaria); border: none; width: 40px; border-radius: 8px; cursor: pointer; color: #000; font-weight: bold; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-/* CARD ÚNICO NOVO */
+/* =========================================
+   MODAIS
+========================================= */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+    z-index: 20000;
+}
+.modal-content {
+    background: linear-gradient(160deg,#1a1a24,#252535);
+    border: 2px solid var(--cor-primaria);
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(255,77,166,0.3);
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.sinal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.sinal-box {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+.sinal-box.full {
+    grid-column: span 2;
+    background: rgba(255,215,0,0.1);
+    border-color: var(--cor-gold);
+}
+.sinal-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.destaque-gold {
+    color: var(--cor-gold);
+    font-size: 1.5rem;
+}
+
+.btn-fechar {
+    background: var(--cor-primaria);
+    color: #fff;
+    border: 0;
+    border-radius: 50px;
+    padding: 12px;
+    width: 100%;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* =========================================
+   CHAT IA
+========================================= */
+.chat-modal-content {
+    background: #111;
+    border: 1px solid var(--cor-terciaria);
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+.chat-header {
+    background: var(--cor-terciaria);
+    padding: 15px;
+    color: #000;
+    font-weight: bold;
+}
+.chat-body {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: #0a0a0f;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.msg {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+}
+.msg.bot {
+    background: #1d1d2a;
+    border: 1px solid #333;
+}
+.msg.user {
+    background: var(--cor-terciaria);
+    color: #000;
+    font-weight: 600;
+    align-self: flex-end;
+}
+.chat-footer {
+    background: #1a1a24;
+    padding: 10px;
+}
+
+/* =========================================
+   CARD LOGIN (single-card)
+========================================= */
 .single-card {
     width: 100%;
-    max-width: 330px;
+    max-width: 300px;
+    margin: auto;
     background: #1d1d2a;
-    padding: 25px;
-    border-radius: 18px;
+    padding: 18px;
+    border-radius: 14px;
     border: 1px solid var(--cor-secundaria);
-    box-shadow: 0 0 25px rgba(94, 44, 255, 0.3);
     text-align: center;
 }
-
 .titulo-robo {
-    font-size: 1.5rem;
-    margin: 0;
-    color: #fff;
+    font-size: 1.2rem;
 }
-
 .sub {
-    color: #aaa;
-    font-size: 0.8rem;
-    margin-bottom: 15px;
+    font-size: 0.75rem;
 }
-
 .card-interno {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
-
-.btn-gratis {
-    background: transparent;
-    border: 1px solid #555;
-    color: #ddd;
-    padding: 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.btn-vipzao {
-    background: linear-gradient(90deg, #ff4da6, #5e2cff);
-    color: #fff;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 0 15px rgba(255, 77, 166, 0.4);
-}
-
-.btn-liberar {
-    background: #00e676;
-    color: #000;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.vip-txt {
-    font-size: 0.9rem;
-    color: #ffd700;
-    font-weight: bold;
-}
-
-.txt-login {
+.msg-erro {
+    height: 18px;
     font-size: 0.75rem;
-    color: #aaa;
-}
-
-.linha {
-    width: 100%;
-    height: 1px;
-    background: #333;
-    margin: 5px 0;
-}
-
-.msg-erro {
     color: #ff4da6;
-    font-size: 0.8rem;
-    height: 20px;
-}
-/* BOTÃO COMPRE SEU ROBÔ */
-.btn-robo {
-    background: #00bcd4;
-    color: #000;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem;
-    box-shadow: 0 0 15px rgba(0, 188, 212, 0.4);
-    transition: 0.2s;
 }
 
-.btn-robo:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 20px rgba(0, 188, 212, 0.6);
-}
+/* =========================================
+   BOTÕES ESPECIAIS
+========================================= */
 .btn-vipzao {
-    background: linear-gradient(90deg, #ff4da6, #5e2cff, #ff4da6);
+    background: linear-gradient(90deg,#ff4da6,#5e2cff,#ff4da6);
     background-size: 300%;
-    color: #fff;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem;
-    box-shadow: 0 0 20px rgba(255, 77, 166, 0.6);
-    animation: vipPulse 1.8s infinite ease-in-out,
-               vipGradient 5s infinite linear;
-}
-
-/* PULSO SUAVE */
-@keyframes vipPulse {
-    0% { transform: scale(1); box-shadow: 0 0 12px rgba(255, 77, 166, 0.5); }
-    50% { transform: scale(1.07); box-shadow: 0 0 28px rgba(255, 77, 166, 1); }
-    100% { transform: scale(1); box-shadow: 0 0 12px rgba(255, 77, 166, 0.5); }
-}
-
-/* GRADIENTE EM MOVIMENTO */
-@keyframes vipGradient {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
-}
-.btn-gratis {
-    background: #ff8c00; /* Laranja forte */
-    color: #000;
     padding: 12px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem;
-    box-shadow: 0 0 12px rgba(255, 140, 0, 0.4);
-    transition: 0.2s ease-in-out;
-}
-
-.btn-gratis:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 18px rgba(255, 140, 0, 0.6);
-}
-/* ===== REDUÇÃO GERAL DO CARD ===== */
-.single-card {
-    max-width: 300px !important; /* antes 330–360 */
-    padding: 18px !important;    /* antes 25–30 */
-    border-radius: 14px !important;
-}
-
-/* Títulos menores */
-.titulo-robo {
-    font-size: 1.2rem !important;
-}
-
-.sub {
-    font-size: 0.7rem !important;
-    margin-bottom: 10px !important;
-}
-
-/* Botões menores */
-.btn-gratis,
-.btn-vipzao,
-.btn-robo,
-.btn-telegram,
-.btn-liberar {
-    padding: 10px !important; /* menor altura */
-    font-size: 0.85rem !important;
-    border-radius: 8px !important;
-}
-
-/* Espaçamentos internos reduzidos */
-.card-interno {
-    gap: 10px !important;
-}
-
-.linha {
-    margin: 5px 0 !important;
-}
-
-/* Input menor */
-.login-input {
-    padding: 9px !important;
-    font-size: 0.85rem !important;
-    border-radius: 8px !important;
-}
-
-/* Texto menor */
-.vip-txt,
-.txt-login {
-    font-size: 0.75rem !important;
-}
-
-.msg-erro {
-    font-size: 0.75rem !important;
-}
-
-
-/* ===== RESPONSIVIDADE GERAL ===== */
-@media (max-width: 480px) {
-
-    .single-card {
-        max-width: 92%;
-        padding: 18px;
-        border-radius: 14px;
-    }
-
-    .titulo-robo {
-        font-size: 1.3rem;
-    }
-
-    .sub {
-        font-size: 0.75rem;
-    }
-
-    .btn-gratis,
-    .btn-vipzao,
-    .btn-robo,
-    .btn-liberar {
-        font-size: 0.9rem;
-        padding: 12px;
-        border-radius: 10px;
-    }
-
-    .vip-txt {
-        font-size: 0.8rem;
-    }
-
-    .login-input {
-        padding: 10px;
-        font-size: 0.9rem;
-    }
-}
-/* BOTÃO TELEGRAM */
-.btn-telegram {
-    background: #0088cc;
     color: #fff;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
+    border-radius: 10px;
+    animation: vipGradient 5s infinite linear;
+}
+@keyframes vipGradient {
+    0% { background-position: 0% }
+    100% { background-position: 200% }
+}
+
+.btn-gratis {
+    background: #ff9900;
+    padding: 12px;
+    color: #000;
     font-weight: bold;
-    font-size: 1rem;
-    box-shadow: 0 0 15px rgba(0, 136, 204, 0.4);
-    transition: 0.2s;
+    border-radius: 10px;
 }
 
-.btn-telegram:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 20px rgba(0, 136, 204, 0.6);
-}
-
-/* CONTAINER DOS DOIS BOTÕES LADO A LADO */
 .dupla-botoes {
     display: flex;
-    justify-content: space-between;
     gap: 12px;
-    width: 100%;
-    margin-bottom: 15px;
 }
-
-/* TELEGRAM - APENAS ÍCONE */
 .btn-icon-telegram {
     flex: 1;
-    height: 55px;
-    border: 0;
-    border-radius: 12px;
     background: #1c9be9;
     display: flex;
-    justify-content: center;
     align-items: center;
-    box-shadow: 0 0 12px #1c9be9;
-    cursor: pointer;
-    transition: 0.2s;
+    justify-content: center;
+    height: 55px;
+    border-radius: 12px;
 }
-
 .btn-icon-telegram img {
     width: 28px;
-    height: 28px;
 }
 
-/* BOTÃO APP GRÁTIS */
-.btn-gratis-lado {
-    flex: 1;
-    height: 55px;
-    border: 0;
-    border-radius: 12px;
-    background: #ff9900;
-    color: #000;
-    font-weight: bold;
-    font-size: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 0 12px #ff9900;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-/* === FIXAR LARGURA DO KPI "Sinal de Risco" === */
-#btnRisco {
-    min-width: 70px !important;
-    max-width: 50px !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-#textoRisco {
-    font-size: 0.8rem !important;
-    white-space: nowrap;      /* impede quebrar linha */
-    overflow: hidden;
-    text-overflow: ellipsis;  /* caso o texto fique grande */
-}
-
-/* === AJUSTE PARA NÚMEROS LADO A LADO === */
-#listaPrevisaoRisco {
-    display: flex;
-    flex-direction: row;    /* Força a linha horizontal */
-    flex-wrap: wrap;        /* Permite quebrar linha se o número for muito grande */
-    justify-content: center; /* Centraliza */
-    gap: 4px;               /* Espacinho entre os números */
-    line-height: 1.1;
-    font-size: 0.7rem;      /* Fonte reduzida para caberem os 3 no espaço de 90px */
-    font-weight: bold;
-    margin-top: 3px;
-    width: 100%;            /* Usa toda largura disponível */
-}
-
-
-
-/* ===== CELULARES MUITO PEQUENOS (iPhone SE, Android Mini) ===== */
-@media (max-width: 350px) {
-
-    .single-card {
-        padding: 15px;
-    }
-
-    .titulo-robo {
-        font-size: 1.15rem;
-    }
-
-    .btn-gratis,
-    .btn-vipzao,
-    .btn-robo,
-    .btn-liberar {
-        font-size: 0.8rem;
-        padding: 10px;
-    }
-
-    .login-input {
-        padding: 9px;
-    }
-}
-
-/* ===== TABLETS ===== */
-@media (min-width: 600px) and (max-width: 900px) {
-
-    #loginOverlay {
-        padding: 40px;
-    }
-
-    .single-card {
-        max-width: 400px;
-        padding: 28px;
-        border-radius: 20px;
-    }
-
-    .titulo-robo {
-        font-size: 1.6rem;
-    }
-
-    .btn-gratis,
-    .btn-vipzao,
-    .btn-robo,
-    .btn-liberar {
-        font-size: 1rem;
-/* === CENTRALIZAR O CARD NO CELULAR E NO PC === */
-.single-card {
-    margin-left: auto !important;
-    margin-right: auto !important;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-/* Corrige centralização do overlay também */
-#loginOverlay {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-}
-
-
-
-/* =========== MOBILE ULTRA PREMIUM =========== */
-
-/* Mostrar/ocultar automaticamente */
-.mobile-only { display: none; }
-.desktop-only { display: block; }
-
-body.mobile .desktop-only { display: none !important; }
-body.mobile .mobile-only { display: block !important; }
-
-/* Cards Mobile */
-.card-mobile {
-    background: linear-gradient(145deg, #1c1c28, #101018);
-    border: 1px solid rgba(255,255,255,0.06);
-    padding: 18px;
-    border-radius: 16px;
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    box-shadow: 0 0 18px rgba(0,0,0,0.35);
-    animation: cardEnter .35s ease;
-}
-
-@keyframes cardEnter {
-    0% { opacity:0; transform: translateY(20px); }
-    100% { opacity:1; transform: translateY(0); }
-}
-
-.card-icon {
-    font-size: 2.1rem;
-    margin-bottom: 4px;
-}
-
-.card-title {
-    font-size: 0.9rem;
-    color: #aaa;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.card-value {
-    font-size: 1.4rem;
-    color: #fff;
-    font-weight: 700;
-    margin-top: 4px;
-}
-
-/* Navbar mobile estilizada */
-body.mobile .navbar-top {
-    height: 65px !important;
-    font-size: 1.3rem !important;
-}
-
-body.mobile .navbar-top .nav-item {
-    font-size: 1rem !important;
-}
-
-}}
-#floatUltimaRosaValor {
-    color: #ff4da6 !important;
-}
-#valUltimaRosa {
-    color: #ff4da6 !important;
-}
-#valUltimaRosa {
-    color: #ff4da6 !important;
-    font-weight: bold;
-    text-shadow: 0 0 8px #ff4da6;
-}
-#valUltimaRosa {
-    color: #ff4da6 !important;  /* rosa */
-    font-weight: bold !important;
-}
-
-.game-container,
-iframe {
-    height: calc(100vh - var(--altura-header)) !important;
-    max-height: calc(100vh - var(--altura-header)) !important;
-    overflow: hidden !important;
-}
-body {
-    overflow: hidden !important;
-    height: 100vh !important;
-}
-
-
-    
-#btnLiveFlutuante {
-    position: fixed;
-    bottom: 110px; /* acima do relógio */
-    right: 20px;
-    background: #ff0033;
-    color: #fff;
-    padding: 12px 18px;
-    border-radius: 50px;
-    font-size: 16px;
-    font-weight: 700;
-    z-index: 9999;
-    box-shadow: 0 0 18px rgba(255, 0, 55, 0.7);
-    border: 2px solid #ff6688;
-    text-decoration: none;
-    font-family: 'Poppins', sans-serif;
-    transition: 0.3s;
-    animation: piscarLive 1.3s infinite;
-}
-
-@keyframes piscarLive {
-    0%   { box-shadow: 0 0 12px rgba(255,0,55,0.4); }
-    50%  { box-shadow: 0 0 22px rgba(255,0,55,0.9); }
-    100% { box-shadow: 0 0 12px rgba(255,0,55,0.4); }
-}
-        /* ============================
- 
-/* BOTÕES FLUTUANTES MOBILE */
-@media (max-width: 600px) {
-
-    .barra-kpi-livre {
-        bottom: 70px !important;    /* sobe um pouco para não colidir com o footer */
-        padding: 0 6px !important;
-        gap: 6px !important;
-    }
-
-    .kpi-footer-btn {
-        padding: 7px 4px !important;
-        font-size: 0.70rem !important;
-        border-radius: 12px !important;
-    }
-
-    /* texto interno fica menor e mais elegante */
-    #btnAguardando span,
-    #listaPrevisaoFooter,
-    #kpiAssertPorcent {
-        font-size: 0.70rem !important;
-        text-align: center !important;
-    }
-}
-
-/* =====================================
-   KPIs FLUTUANTES — FINAL OFICIAL
-   Aparecem APENAS NO JOGO (#home ativo)
-   Ocupam toda largura da tela
-   ===================================== */
-
-/* aparece somente quando #home está ativo */
-.secao.ativa#home + .barra-kpi-livre,
-#home.secao.ativa ~ .barra-kpi-livre {
-    display: flex !important;
-}
-
-/* layout flutuante fixo */
+/* =========================================
+   BARRA DE KPI FLUTUANTE
+========================================= */
 .barra-kpi-livre {
     position: fixed;
     bottom: 12px;
     left: 0;
     width: 100%;
-    padding: 0 10px;
     display: flex;
-    justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
+    padding: 0 10px;
     z-index: 999999;
-    pointer-events: auto;
 }
-
-/* estilo dos botões */
 .kpi-footer-btn {
     flex: 1;
-    text-align: center;
-
     background: rgba(0,0,0,0.35);
-    padding: 10px 12px;
-    border-radius: 14px;
-
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 600;
-
-    backdrop-filter: blur(6px);
+    padding: 8px 10px;
+    border-radius: 12px;
+    text-align: center;
     border: 1px solid rgba(255,255,255,0.10);
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-
-    cursor: pointer;
-    transition: 0.25s;
+    font-size: 0.75rem;
 }
 
-/* Hover bonito */
-.kpi-footer-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 12px rgba(255,255,255,0.25);
-}
-
-
-/* Remove QUALQUER fundo roxo de qualquer seção */
-html, body, .secao, #home, #app, .container, main {
-    background: #000 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-.kpi-analise {
-    color: #ffeb3b !important; /* amarelo premium */
-    font-weight: 800;
-    animation: kpiBlink 1s infinite;
-}
-
-.kpi-pagando {
-    color: #00e676 !important; /* verde */
-    font-weight: 800;
-}
-
-.kpi-red {
-    color: #ff4da6 !important; /* rosa para erro/baixa */
-    font-weight: 800;
-}
-
-@keyframes kpiBlink {
-    0%   { opacity: 1; }
-    50%  { opacity: 0.35; }
-    100% { opacity: 1; }
-}
-.live-btn {
-    color: #ff4da6;
-    font-weight: 900;
-    animation: pulseLive 1.3s infinite;
-}
-
-@keyframes pulseLive {
-    0%   { box-shadow: 0 0 0px rgba(255,0,0,0.3); }
-    50%  { box-shadow: 0 0 18px rgba(255,0,0,0.8); }
-    100% { box-shadow: 0 0 0px rgba(255,0,0,0.3); }
-}
-@keyframes pulseAguardar {
-    0%   { transform: scale(1);   box-shadow:0 0 10px rgba(94,44,255,0.3); }
-    50%  { transform: scale(1.09); box-shadow:0 0 20px rgba(94,44,255,0.9); }
-    100% { transform: scale(1);   box-shadow:0 0 10px rgba(94,44,255,0.3); }
-}
-
-@keyframes pulsePrev {
-    0%   { opacity: 0.4; }
-    50%  { opacity: 1;   }
-    100% { opacity: 0.4; }
-}
-
-.kpi-prev-box {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:6px 12px;
-    border-radius:12px;
-    color:white;
-}
-
-.kpi-prev-text {
-    font-size:1rem;
-    font-weight:700;
-    margin-top:3px;
-    transition:0.3s ease;
-}
-
-/* PULSANTE ENQUANTO ANALISANDO */
-.kpi-prev-analise {
-    animation: pulsePrev 1.3s infinite;
-    color:#ffd700;
-}
-
-@keyframes pulsePrev {
-    0% { opacity:0.4; transform:scale(0.95); }
-    50% { opacity:1; transform:scale(1); }
-    100% { opacity:0.4; transform:scale(0.95); }
-}
-
-/* PAGANDO */
-.kpi-prev-green {
-    color:#00e676;
-    animation:none;
-}
-
-/* RED */
-.kpi-prev-red {
-    color:#ff4da6;
-    animation:none;
-}
-
-/* ===========================
-   BARRA KPI LIVRE - ORGANIZAÇÃO
-   =========================== */
-
-/* Linha fixa com KPIs */
-.barra-kpi-livre {
-    position: fixed;
-    bottom: 10px;
-    left: 0;
-    width: 100%;
-    z-index: 999999;
-
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding: 0 10px !important;
-}
-
-/* Tamanho unificado dos cards */
-.barra-kpi-livre .kpi-footer-btn {
-    flex: 1 !important;
-    min-width: 60px !important;
-    height: 50px !important;
-
-    padding: 3px 5px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-
-    border-radius: 12px !important;
-}
-
-/* Botões Roxos */
-#kpiPrevBox,
-#btnAguardando {
-    width: auto !important;
-    min-width: 60px !important;
-    height: 50px !important;
-    padding: 3px 5px !important;
-}
-
-/* Texto reduzido */
-#kpiPrevBox span,
-#btnAguardando span,
-#kpiAssertBox div,
-.kpi-footer-btn span {
-    font-size: 0.70rem !important;
-    line-height: 0.95rem !important;
-}
-
-/* ===========================
-      RELÓGIO AO VIVO
-   =========================== */
-
+/* =========================================
+   RELÓGIO AO VIVO
+========================================= */
 #relogioAoVivo, 
 #relogioAoVivo + small {
     position: fixed;
@@ -932,169 +406,44 @@ html, body, .secao, #home, #app, .container, main {
     background: rgba(0,0,0,0.45);
     padding: 6px 10px;
     border-radius: 10px;
-    z-index: 999999;
-    text-align: center;
-    backdrop-filter: blur(6px);
-}
-
-#relogioAoVivo {
-    color: #00ff99 !important;
-    font-size: 1rem !important;
-    font-family: "Share Tech Mono", monospace !important;
-    display: inline-block !important;
-}
-
-#relogioAoVivo + small {
-    color: #ccc !important;
-    font-size: 0.65rem !important;
-    display: block !important;
-    margin-top: -2px;
-}
-
-/* ===========================
-   ASSERTIVIDADE - FORMATO ORIGINAL
-   =========================== */
-
-#kpiAssertBox {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-
-    min-width: 90px !important;
-    padding: 3px 0 !important;
-}
-
-/* Título */
-#kpiAssertBox div:nth-child(1) {
-    font-size: 0.60rem !important;
-    font-weight: 700 !important;
-    opacity: .9;
-    letter-spacing: .5px;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Porcentagem (%) */
-#kpiAssertPorcent {
-    font-size: 0.90rem !important;
-    font-weight: 800 !important;
-    margin: -1px 0 0 0 !important;
-}
-
-/* Placar */
-#kpiAssertPlacar {
-    font-size: 0.75rem !important;
-    margin-top: 1px !important;
-}
-/* ===========================
-   CORREÇÃO DO RELÓGIO
-   =========================== */
-#relogioAoVivo, 
-#relogioAoVivo + small {
-    position: fixed;
-    bottom: 70px;
-    left: 15px;
-    background: rgba(0,0,0,0.45);
-    padding: 6px 10px;
-    border-radius: 10px;
-    z-index: 999999;
-    text-align: center;
-    backdrop-filter: blur(6px);
-}
-
-#relogioAoVivo {
-    display: block !important;   /* 🔥 AGORA A HORA APARECE */
-    color: #00ff99 !important;
-    font-size: 1rem !important;
-    font-family: "Share Tech Mono", monospace !important;
-}
-
-#relogioAoVivo + small {
-    display: block !important;
-    color: #ccc !important;
-    font-size: 0.65rem !important;
-    margin-top: -2px !important;
-}
-
-/* ===========================
-   ASSERTIVIDADE — FORMATO CORRETO
-   =========================== */
-
-#kpiAssertBox {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-
-    padding: 3px 0 !important;
-    min-width: 90px !important;
-}
-
-/* "ASSERTIVIDADE" */
-#kpiAssertBox div:nth-child(1) {
-    font-size: 0.60rem !important;
-    font-weight: 700 !important;
-    opacity: 0.9;
-    margin-bottom: 0px !important;
-}
-
-/* Porcentagem 88% */
-#kpiAssertPorcent {
-    font-size: 1rem !important;
-    font-weight: 800 !important;
-    margin: 1px 0 0 0 !important;
-}
-
-/* 146G • 20R NA MESMA LINHA */
-#kpiAssertPlacar {
-    font-size: 0.75rem !important;
-    margin-top: 2px !important;
-
-    display: flex !important;   /* 🔥 COLUNA → LINHA */
-    flex-direction: row !important;
-    gap: 4px !important;
-}
-
-#kpiAssertPlacar span {
-    display: inline-block !important;
-}
-#relogioAoVivo,
-#relogioAoVivo + small {
+    font-family: "Share Tech Mono", monospace;
     z-index: 999999999 !important;
 }
-#relogioAoVivo,
-#relogioAoVivo + small {
-    position: fixed;
-    bottom: 70px;
-    left: 15px;
-    background: rgba(0, 0, 0, 0.45);
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-size: 1rem;
-    text-align: center;
-    backdrop-filter: blur(6px);
-
-    z-index: 999999999 !important; /* 🔥 agora aparece sempre */
-}
-
 #relogioAoVivo {
-    color: #00ff99 !important;
-    font-size: 1rem !important;
-    font-family: "Share Tech Mono", monospace !important;
-    display: block !important;
+    color: #00ff99;
 }
 
-#relogioAoVivo + small {
-    display: block !important;
-    color: #ccc !important;
-    font-size: 0.65rem !important;
-    margin-top: -2px !important;
+/* =========================================
+   ASSERTIVIDADE
+========================================= */
+#kpiAssertBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#kpiAssertPorcent {
+    font-size: 1rem;
+    font-weight: 800;
+}
+#kpiAssertPlacar {
+    display: flex;
+    gap: 5px;
+    font-size: 0.75rem;
 }
 
-    </style>
-</head>
-<body>
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+@media (max-width:600px) {
+    .barra-kpi-livre {
+        bottom: 70px;
+        gap: 6px;
+    }
+    .kpi-footer-btn {
+        font-size: 0.70rem;
+        padding: 7px 5px;
+    }
+}
 
 
 <!-- TELA DE CADASTRO INICIAL (PROFISSIONAL) -->
