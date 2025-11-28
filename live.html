@@ -4,13 +4,19 @@
 <title>Live VIP</title>
 <style>
 body { background:#000; color:#fff; font-family:Arial; text-align:center; }
-video { width:100%; max-height:70vh; margin-top:20px; border-radius:12px; background:#111; }
+video { 
+    width:100%; 
+    max-height:70vh; 
+    margin-top:20px; 
+    border-radius:12px; 
+    background:#111; 
+}
 </style>
 </head>
 <body>
 
 <h2>🔴 LIVE VIP – AO VIVO</h2>
-<video id="livePlayer" autoplay playsinline></video>
+<video id="livePlayer" autoplay playsinline muted></video>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -34,16 +40,16 @@ let pc;
 
 onSnapshot(doc(db, "live", "stream"), async snap => {
     const data = snap.data();
-    if (!data || !data.active) {
-        document.getElementById("livePlayer").style.display = "none";
-        return;
-    }
+    if (!data || !data.active) return;
 
-    document.getElementById("livePlayer").style.display = "block";
-
-    pc = new RTCPeerConnection();
+    pc = new RTCPeerConnection({
+        iceServers: [{
+            urls: ["stun:stun.l.google.com:19302"]
+        }]
+    });
 
     pc.ontrack = (event) => {
+        console.log("TRACK RECEBIDA!");
         document.getElementById("livePlayer").srcObject = event.streams[0];
     };
 
@@ -52,9 +58,7 @@ onSnapshot(doc(db, "live", "stream"), async snap => {
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
 
-    await updateDoc(doc(db, "live", "stream"), {
-        answer: answer
-    });
+    await updateDoc(doc(db, "live", "stream"), { answer });
 });
 </script>
 
