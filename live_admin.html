@@ -21,9 +21,16 @@ button { padding:12px 20px; margin:15px; font-size:18px; border:none; border-rad
 <button class="off" onclick="stopLive()">Encerrar Live</button>
 
 <script type="module">
+
+/* ============================
+   IMPORTS FIREBASE
+============================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* ============================
+   CONFIG FIREBASE
+============================ */
 const firebaseConfig = {
   apiKey: "AIzaSyBod8YVf5pKWI98m9rRR8axokDkNMlXX-k",
   authDomain: "aviatordaniel100x.firebaseapp.com",
@@ -38,11 +45,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* ============================
+   VARIÁVEIS GLOBAIS
+============================ */
 let pc;
 let localStream;
 
+/* ============================
+   FUNÇÃO START LIVE (corrigida)
+============================ */
 async function startLive() {
-    localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     document.getElementById("adminVideo").srcObject = localStream;
 
     pc = new RTCPeerConnection();
@@ -60,11 +73,23 @@ async function startLive() {
     alert("🎥 Live iniciada!");
 }
 
+/* ============================
+   FUNÇÃO STOP LIVE
+============================ */
 async function stopLive() {
-    await updateDoc(doc(db, "live", "stream"), { active:false });
+    await updateDoc(doc(db, "live", "stream"), { active: false });
+
     if (localStream) localStream.getTracks().forEach(t => t.stop());
+
     alert("🔴 Live encerrada.");
 }
+
+/* ============================
+   DEIXAR FUNÇÕES GLOBAIS
+============================ */
+window.startLive = startLive;
+window.stopLive = stopLive;
+
 </script>
 
 </body>
