@@ -243,8 +243,7 @@ def processar_mensagem_recebida(numero, nome, tipo_mensagem, texto, data_complet
         mensagem_extra = (
             "🔥 *Perfeito! Ótima decisão.*\n\n"
             "Preparado para sair do ciclo de RED infinito e finalmente começar a ver GREEN de verdade?\n\n"
-            "👉 Acesse o APP agora:\nhttps://wiggers12.github.io/daniel100x/index.html\n\n"
-            "👉 Entre no Telegram e acompanhe os melhores sinais:\nhttps://t.me/aviatorvip100x\n\n"
+            "👉 Acesse o APP agora:\nhttps://wiggers.dev.br/\n\n"
             "📞 Se preferir, me chama no WhatsApp que te dou todo suporte:\nwa.me/5551989378751\n\n"
             "Vamos pra cima! 🚀🔥"
         )
